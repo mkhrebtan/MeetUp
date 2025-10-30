@@ -1,0 +1,7 @@
+﻿services:
+  meetup.api:
+    image: meetup.api
+    build:
+      context: .
+      dockerfile: MeetUp.API/Dockerfile
+
