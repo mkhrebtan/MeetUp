@@ -1,30 +1,35 @@
-import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
 import {LocalParticipant, ParticipantEvent, RemoteParticipant, Track, TrackPublication} from 'livekit-client';
+import {Chip} from 'primeng/chip';
 
 @Component({
   selector: 'app-participant-card',
-  imports: [],
+  imports: [
+    Chip
+  ],
   template: `
-    <div class="w-fit relative rounded-2xl overflow-hidden">
-      <p class="absolute bottom-0 bg-black text-sm rounded-b-2xl text-white py-1 px-2 z-10"
-         [class.text-green-500]="participant().isSpeaking">
-        {{ participant().identity }}
-      </p>
+    <div class="w-full h-full p-2">
+      <div class="w-full h-full relative rounded-2xl overflow-hidden border-2"
+           [class.border-green-400]="isSpeaking()">
+        <p-chip class="absolute bottom-2 !bg-black/50 border border-white/20 !text-white left-2 !py-1 z-10"
+                [label]="participant().identity"></p-chip>
 
-      <audio
-        [id]="'remote-audio-' + participant().identity"
-        autoplay
-        #audioElement
-      ></audio>
-
-      <div class="bg-black">
-        <video
-          class="w-96 aspect-video rotate-y-180"
-          [id]="'remote-video-' + participant().identity"
+        <audio
+          [id]="'remote-audio-' + participant().identity"
           autoplay
-          playsinline
-          #videoElement
-        ></video>
+          #audioElement
+        ></audio>
+
+        <div class="bg-black/60 w-full h-full">
+          <video
+            class="w-full h-full rotate-y-180 object-cover"
+            [id]="'remote-video-' + participant().identity"
+            autoplay
+            playsinline
+            muted
+            #videoElement
+          ></video>
+        </div>
       </div>
     </div>
   `,
@@ -32,6 +37,7 @@ import {LocalParticipant, ParticipantEvent, RemoteParticipant, Track, TrackPubli
 })
 export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
   participant = input.required<LocalParticipant | RemoteParticipant>();
+  isSpeaking = signal(false);
   @ViewChild('audioElement') audioElement!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef;
 
@@ -86,9 +92,7 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
   };
 
   private handleSpeakingChanged = (isSpeaking: boolean) => {
-    // You can use this to add a "speaking" indicator border
-    // e.g., this.isSpeaking = isSpeaking;
-    // this.cdr.detectChanges();
+    this.isSpeaking.set(isSpeaking);
   };
 
   private subscribeAndAttach(pub: TrackPublication) {

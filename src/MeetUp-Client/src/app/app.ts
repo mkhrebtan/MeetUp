@@ -1,4 +1,4 @@
-import {Component, inject, signal} from '@angular/core';
+import {Component, computed, inject, signal} from '@angular/core';
 import {RouterOutlet} from '@angular/router';
 import {HttpClient} from '@angular/common/http';
 import {
@@ -11,68 +11,78 @@ import {
   Track
 } from 'livekit-client';
 import {ParticipantCard} from './components/participant-card/participant-card';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ParticipantCard],
+  imports: [RouterOutlet, ParticipantCard, Button],
   template: `
-    <h1 class="text-xl">Welcome to {{ title() }}!</h1>
-    <button (click)="getToken()">Get Token</button>
-    <button (click)="joinRoom()">Join Room</button>
-    <p>Token: {{ token() }}</p>
-    <p>Room: {{ roomName() }}</p>
+    <div class="h-[100vh] !max-h-[100vh] flex flex-col bg-black/90">
+      <p class="w-full text-center text-white">Room: {{ roomName() }}</p>
+      <p-button (click)="joinRoom()" label="Join Room"></p-button>
 
-    <div class="video-container flex flex-wrap justify-center" id="video-container">
-      @if (localParticipant()) {
-        <app-participant-card [participant]="localParticipant()!"></app-participant-card>
-      }
-      @for (remoteParticipant of remoteParticipants(); track remoteParticipant.identity) {
-        <app-participant-card [participant]="remoteParticipant"></app-participant-card>
-      }
+      <section
+        class="flex-auto bg-black/20 p-4 min-h-0 flex flex-wrap justify-center">
+        @if (localParticipant()) {
+          @for (participant of allParticipants(); track participant!.identity) {
+            <app-participant-card [class]="cardDimensions()"
+                                  [participant]="participant!"></app-participant-card>
+          }
+        }
+      </section>
+      <section class="flex justify-center gap-2 p-2">
+        <p-button icon="pi pi-microphone" size="large" (click)="toggleAudio()"></p-button>
+        <p-button icon="pi pi-video" size="large" (click)="toggleVideo()"></p-button>
+      </section>
     </div>
-    <button (click)="toggleVideo()">Camera</button>
-    <button (click)="toggleAudio()">Micro</button>
     <router-outlet/>
   `,
   styles: [],
 })
 export class App {
-  token = signal('');
   roomName = signal('');
   localParticipant = signal<LocalParticipant | null>(null);
   remoteParticipants = signal<RemoteParticipant[]>([]);
-  protected readonly title = signal('MeetUp-Client');
+  allParticipants = computed(() => [this.localParticipant(), ...this.remoteParticipants()]);
+  cardDimensions = computed(() => {
+    const count = this.allParticipants().length;
+    if (count === 1 || count === 2) return 'w-1/2 h-full';
+    if (count === 3) return 'w-1/3 h-full';
+    if (count <= 6) return 'w-1/3 h-1/2';
+    if (count <= 8) return 'w-1/4 h-1/2';
+    return 'w-1/4 h-1/3';
+  });
   private http = inject(HttpClient);
 
   getToken() {
-    this.http.post<{ token: string }>('https://localhost:7014/LiveKit/token', {
-      identity: `user-${Math.random()}`,
+    return this.http.post<{ token: string }>('https://localhost:7014/LiveKit/token', {
+      identity: `user-${Math.floor(Math.random() * 100)}`,
       room: "test-room"
-    })
+    });
+  }
+
+  async joinRoom() {
+    this.getToken()
       .subscribe({
-        next: response => {
-          this.token.set(response.token);
+        next: async response => {
+          const room = new Room({
+            adaptiveStream: true,
+            dynacast: true,
+          });
+          room
+            .on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed)
+            .on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
+          await room.connect('ws://localhost:7880', response.token);
+          this.roomName.set(room.name);
+          await room.localParticipant.enableCameraAndMicrophone();
+          await room.localParticipant.setCameraEnabled(false);
+          await room.localParticipant.setMicrophoneEnabled(false);
+          this.localParticipant.set(room.localParticipant);
         },
         error: err => {
           throw err;
         }
-      })
-  }
-
-  async joinRoom() {
-    const room = new Room({
-      adaptiveStream: true,
-      dynacast: true,
-    });
-    room
-      .on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed)
-      .on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed);
-    await room.connect('ws://localhost:7880', this.token());
-    this.roomName.set(room.name);
-    await room.localParticipant.enableCameraAndMicrophone();
-    await room.localParticipant.setCameraEnabled(false);
-    await room.localParticipant.setMicrophoneEnabled(false);
-    this.localParticipant.set(room.localParticipant);
+      });
   }
 
   async toggleVideo() {
