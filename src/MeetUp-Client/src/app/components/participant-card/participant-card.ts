@@ -8,28 +8,26 @@ import {Chip} from 'primeng/chip';
     Chip
   ],
   template: `
-    <div class="w-full h-full p-2">
-      <div class="w-full h-full relative rounded-2xl overflow-hidden border-2"
-           [class.border-green-400]="isSpeaking()">
-        <p-chip class="absolute bottom-2 !bg-black/50 border border-white/20 !text-white left-2 !py-1 z-10"
-                [label]="participant().identity"></p-chip>
+    <div class="w-full h-full relative rounded-2xl overflow-hidden border-2"
+         [class.border-green-400]="isSpeaking()">
+      <p-chip class="absolute bottom-2 !bg-black/50 border border-white/20 !text-white left-2 !py-1 z-10"
+              [label]="participant().identity"></p-chip>
 
-        <audio
-          [id]="'remote-audio-' + participant().identity"
+      <audio
+        [id]="'remote-audio-' + participant().identity"
+        autoplay
+        #audioElement
+      ></audio>
+
+      <div class="bg-black/60 w-full h-full">
+        <video
+          class="w-full h-full rotate-y-180 object-cover"
+          [id]="'remote-video-' + participant().identity"
           autoplay
-          #audioElement
-        ></audio>
-
-        <div class="bg-black/60 w-full h-full">
-          <video
-            class="w-full h-full rotate-y-180 object-cover"
-            [id]="'remote-video-' + participant().identity"
-            autoplay
-            playsinline
-            muted
-            #videoElement
-          ></video>
-        </div>
+          playsinline
+          muted
+          #videoElement
+        ></video>
       </div>
     </div>
   `,
