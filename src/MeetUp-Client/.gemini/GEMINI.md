@@ -29,7 +29,7 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 
 ## State Management
 
-- Use signals for local component state
+- Use signals for the local component state
 - Use `computed()` for derived state
 - Keep state transformations pure and predictable
 - Do NOT use `mutate` on signals, use `update` or `set` instead
@@ -39,9 +39,15 @@ You are an expert in TypeScript, Angular, and scalable web application developme
 - Keep templates simple and avoid complex logic
 - Use native control flow (`@if`, `@for`, `@switch`) instead of `*ngIf`, `*ngFor`, `*ngSwitch`
 - Use the async pipe to handle observables
+- Prefer using the inline HTML templates
 
 ## Services
 
 - Design services around a single responsibility
 - Use the `providedIn: 'root'` option for singleton services
 - Use the `inject()` function instead of constructor injection
+
+## Styling
+
+- Use TailwindCSS classes for styling, instead of raw css stylesheets
+- Do not create a component's separate stylesheet file

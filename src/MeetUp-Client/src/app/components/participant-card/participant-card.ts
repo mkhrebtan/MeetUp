@@ -8,10 +8,14 @@ import {Chip} from 'primeng/chip';
     Chip
   ],
   template: `
-    <div class="w-full h-full relative rounded-2xl overflow-hidden border-2"
+    <div class="w-full h-full relative rounded-xl overflow-hidden shadow-xl"
+         [class.border-2]="isSpeaking()"
          [class.border-green-400]="isSpeaking()">
-      <p-chip class="absolute bottom-2 !bg-black/50 border border-white/20 !text-white left-2 !py-1 z-10"
-              [label]="participant().identity"></p-chip>
+      @if (isCameraEnabled()) {
+        <p-chip
+          class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-10 animate-fadein"
+          [label]="participant().identity"></p-chip>
+      }
 
       <audio
         [id]="'remote-audio-' + participant().identity"
@@ -19,15 +23,23 @@ import {Chip} from 'primeng/chip';
         #audioElement
       ></audio>
 
-      <div class="bg-black/60 w-full h-full">
+      <div class="bg-neutral-950 w-full h-full">
         <video
           class="w-full h-full rotate-y-180 object-cover"
           [id]="'remote-video-' + participant().identity"
+          [hidden]="!isCameraEnabled()"
           autoplay
           playsinline
           muted
           #videoElement
         ></video>
+        @if (!isCameraEnabled()) {
+          <div class="w-full h-full flex items-center justify-center z-10 absolute top-0 left-0">
+            <p class="text-4xl text-neutral-400 px-4 truncate max-w-full">
+              {{ participant().identity }}
+            </p>
+          </div>
+        }
       </div>
     </div>
   `,
@@ -36,6 +48,7 @@ import {Chip} from 'primeng/chip';
 export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
   participant = input.required<LocalParticipant | RemoteParticipant>();
   isSpeaking = signal(false);
+  isCameraEnabled = signal(false);
   @ViewChild('audioElement') audioElement!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef;
 
@@ -71,21 +84,27 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
 
   private handleTrackSubscribed = (track: Track, pub: TrackPublication) => {
     this.attachTrack(track);
+    if (track.kind === Track.Kind.Video) {
+      this.isCameraEnabled.set(true);
+    }
   };
 
   private handleTrackUnsubscribed = (track: Track, pub: TrackPublication) => {
     track.detach();
+    if (track.kind === Track.Kind.Video) {
+      this.isCameraEnabled.set(false);
+    }
   };
 
   private handleTrackMuted = (pub: TrackPublication) => {
     if (pub.kind === Track.Kind.Video) {
-    } else if (pub.kind === Track.Kind.Audio) {
+      this.isCameraEnabled.set(false);
     }
   };
 
   private handleTrackUnmuted = (pub: TrackPublication) => {
     if (pub.kind === Track.Kind.Video) {
-    } else if (pub.kind === Track.Kind.Audio) {
+      this.isCameraEnabled.set(true);
     }
   };
 
