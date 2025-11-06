@@ -1,5 +1,12 @@
 import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
-import {LocalParticipant, ParticipantEvent, RemoteParticipant, Track, TrackPublication} from 'livekit-client';
+import {
+  LocalParticipant,
+  LocalTrackPublication,
+  ParticipantEvent,
+  RemoteParticipant,
+  Track,
+  TrackPublication
+} from 'livekit-client';
 import {Chip} from 'primeng/chip';
 
 @Component({
@@ -11,14 +18,13 @@ import {Chip} from 'primeng/chip';
     <div class="w-full h-full relative rounded-xl overflow-hidden shadow-xl"
          [class.border-2]="isSpeaking()"
          [class.border-green-400]="isSpeaking()">
-      @if (isCameraEnabled()) {
+      @if (isVideoEnabled()) {
         <p-chip
           class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-10 animate-fadein"
           [label]="participant().identity"></p-chip>
       }
 
       <audio
-        [id]="'remote-audio-' + participant().identity"
         autoplay
         #audioElement
       ></audio>
@@ -26,15 +32,14 @@ import {Chip} from 'primeng/chip';
       <div class="bg-neutral-950 w-full h-full">
         <video
           class="w-full h-full rotate-y-180 object-cover"
-          [id]="'remote-video-' + participant().identity"
-          [hidden]="!isCameraEnabled()"
+          [hidden]="!isVideoEnabled()"
           autoplay
           playsinline
           muted
           #videoElement
         ></video>
-        @if (!isCameraEnabled()) {
-          <div class="w-full h-full flex items-center justify-center z-10 absolute top-0 left-0">
+        @if (!isVideoEnabled()) {
+          <div class="w-full h-full flex items-center justify-center z-10">
             <p class="text-4xl text-neutral-400 px-4 truncate max-w-full">
               {{ participant().identity }}
             </p>
@@ -45,10 +50,10 @@ import {Chip} from 'primeng/chip';
   `,
   styles: ``,
 })
-export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
+export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewInit {
   participant = input.required<LocalParticipant | RemoteParticipant>();
   isSpeaking = signal(false);
-  isCameraEnabled = signal(false);
+  isVideoEnabled = signal(false);
   @ViewChild('audioElement') audioElement!: ElementRef;
   @ViewChild('videoElement') videoElement!: ElementRef;
 
@@ -56,6 +61,7 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
     this.participant()
       .on(ParticipantEvent.TrackSubscribed, this.handleTrackSubscribed)
       .on(ParticipantEvent.TrackUnsubscribed, this.handleTrackUnsubscribed)
+      .on(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished)
       .on(ParticipantEvent.TrackMuted, this.handleTrackMuted)
       .on(ParticipantEvent.TrackUnmuted, this.handleTrackUnmuted)
       .on(ParticipantEvent.IsSpeakingChanged, this.handleSpeakingChanged);
@@ -71,6 +77,7 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
     this.participant()
       .off(ParticipantEvent.TrackSubscribed, this.handleTrackSubscribed)
       .off(ParticipantEvent.TrackUnsubscribed, this.handleTrackUnsubscribed)
+      .off(ParticipantEvent.LocalTrackPublished, this.handleLocalTrackPublished)
       .off(ParticipantEvent.TrackMuted, this.handleTrackMuted)
       .off(ParticipantEvent.TrackUnmuted, this.handleTrackUnmuted)
       .off(ParticipantEvent.IsSpeakingChanged, this.handleSpeakingChanged);
@@ -84,28 +91,22 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
 
   private handleTrackSubscribed = (track: Track, pub: TrackPublication) => {
     this.attachTrack(track);
-    if (track.kind === Track.Kind.Video) {
-      this.isCameraEnabled.set(true);
-    }
   };
 
   private handleTrackUnsubscribed = (track: Track, pub: TrackPublication) => {
-    track.detach();
-    if (track.kind === Track.Kind.Video) {
-      this.isCameraEnabled.set(false);
-    }
+    this.detachTrack(track);
+  };
+
+  private handleLocalTrackPublished = (pub: LocalTrackPublication) => {
+    this.attachTrack(pub.track!);
   };
 
   private handleTrackMuted = (pub: TrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
-      this.isCameraEnabled.set(false);
-    }
+    this.detachTrack(pub.track!);
   };
 
   private handleTrackUnmuted = (pub: TrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
-      this.isCameraEnabled.set(true);
-    }
+    this.attachTrack(pub.track!);
   };
 
   private handleSpeakingChanged = (isSpeaking: boolean) => {
@@ -114,16 +115,25 @@ export class ParticipantCard implements OnInit, OnDestroy, AfterViewInit {
 
   private subscribeAndAttach(pub: TrackPublication) {
     if (pub.isSubscribed && pub.track) {
-      // Already subscribed and track exists
       this.attachTrack(pub.track);
     }
   }
 
   private attachTrack(track: Track) {
     if (track.kind === Track.Kind.Video) {
+      this.isVideoEnabled.set(true);
       track.attach(this.videoElement.nativeElement);
     } else if (track.kind === Track.Kind.Audio && this.participant() instanceof RemoteParticipant) {
       track.attach(this.audioElement.nativeElement);
+    }
+  }
+
+  private detachTrack(track: Track) {
+    if (track.kind === Track.Kind.Video) {
+      this.isVideoEnabled.set(false);
+      track.detach();
+    } else if (track.kind === Track.Kind.Audio && this.participant() instanceof RemoteParticipant) {
+      track.detach();
     }
   }
 }
