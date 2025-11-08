@@ -25,3 +25,11 @@ html, body {
     }
   }
 }
+
+.btn-inside-h-full button {
+  height: 100%;
+}
+
+.svg-inline--fa {
+  width: inherit;
+}

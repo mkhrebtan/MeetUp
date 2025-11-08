@@ -9,7 +9,15 @@
   signal,
   ViewChild
 } from '@angular/core';
-import {ConnectionState, RemoteParticipant, Room, RoomEvent} from 'livekit-client';
+import {
+  ChatMessage,
+  ConnectionState,
+  isLocalParticipant,
+  Participant,
+  RemoteParticipant,
+  Room,
+  RoomEvent
+} from 'livekit-client';
 import {ParticipantCardComponent} from "../participant-card/participant-card.component";
 import {ParticipantsSidebarComponent} from "../participants-sidebar/participants-sidebar.component";
 import {LayoutService} from '../../services/layout/layout.service';
@@ -17,10 +25,13 @@ import {VideoLayoutModel} from '../../models/video-layout.model';
 import {LivekitService} from '../../services/livekit/livekit.service';
 import {MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
+import {DevicesModel} from '../../models/devices.model';
+import {MeetingRoomControlsComponent} from "../meeting-room-controls/meeting-room-controls.component";
+import {MeetingChatComponent, MeetingChatMessage} from "../meeting-chat/meeting-chat.component";
 
 @Component({
   selector: 'app-meeting-room',
-  imports: [ParticipantCardComponent, Button, ParticipantsSidebarComponent, SplitButton, Toast],
+  imports: [ParticipantCardComponent, ParticipantsSidebarComponent, Toast, MeetingRoomControlsComponent, MeetingChatComponent],
   template: `
     <div class="h-screen flex flex-col p-4 bg-neutral-900 gap-4">
       <section class="flex flex-auto gap-4 overflow-hidden">
@@ -35,10 +46,15 @@ import {Toast} from 'primeng/toast';
           }
         </div>
         @if (isParticipantsSidebarVisible()) {
-          <app-participants-sidebar class="flex-shrink-0 w-70 animate-slidein" [participants]="allParticipants()"
+          <app-participants-sidebar class="flex-shrink-0 w-80 animate-slidein" [participants]="allParticipants()"
                                     (close)="toggleParticipantsSidebar()"/>
         }
+        @if (isChatVisible()) {
+          <app-meeting-chat class="flex-shrink-0 w-90 animate-slidein" [messages]="chatMessages()"
+                            (close)="toggleChat()" (messageSend)="sendChatMessage($event)"/>
+        }
       </section>
+
       <div class="h-[1px] bg-neutral-800"></div>
 
       <app-meeting-room-controls
@@ -76,13 +92,13 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   isMicrophoneEnabled = signal(false);
   isVideoEnabled = signal(false);
   isParticipantsSidebarVisible = signal(false);
-  devices: DevicesMenuItemsModel = {
-    audioInputs_Outputs: [],
+  isChatVisible = signal(false);
   devices = signal<DevicesModel>({
     audioInputs: [],
     audioOutputs: [],
     videoInputs: [],
-  };
+  });
+  chatMessages = signal<MeetingChatMessage[]>([]);
   private resizeObserver?: ResizeObserver;
 
   constructor(private layoutService: LayoutService, private livekitService: LivekitService, private messageService: MessageService) {
@@ -93,7 +109,8 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     this.room()
       .on(RoomEvent.ParticipantConnected, this.handleParticipantConnected)
       .on(RoomEvent.ParticipantDisconnected, this.handleParticipantDisconnected)
-      .on(RoomEvent.ActiveDeviceChanged, this.handleActiveDeviceChanged);
+      .on(RoomEvent.ActiveDeviceChanged, this.handleActiveDeviceChanged)
+      .on(RoomEvent.ChatMessage, this.handleChatMessage);
     this.isMicrophoneEnabled.set(this.room().localParticipant.isMicrophoneEnabled);
     this.isVideoEnabled.set(this.room().localParticipant.isCameraEnabled);
     await this.loadDevices();
@@ -117,7 +134,8 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     this.room()
       .off(RoomEvent.ParticipantConnected, this.handleParticipantConnected)
       .off(RoomEvent.ParticipantDisconnected, this.handleParticipantDisconnected)
-      .off(RoomEvent.ActiveDeviceChanged, this.handleActiveDeviceChanged);
+      .off(RoomEvent.ActiveDeviceChanged, this.handleActiveDeviceChanged)
+      .off(RoomEvent.ChatMessage, this.handleChatMessage);
     if (this.room().state !== ConnectionState.Disconnected) {
       await this.room()?.disconnect();
     }
@@ -138,13 +156,19 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   toggleParticipantsSidebar() {
+    this.isChatVisible.set(false);
     this.isParticipantsSidebarVisible.update(prev => !prev);
+  }
+
+  toggleChat() {
+    this.isParticipantsSidebarVisible.set(false);
+    this.isChatVisible.update(prev => !prev);
   }
 
   recalculateLayout() {
     const container = this.participantsContainer.nativeElement.getBoundingClientRect();
     const width = container.width;
-    const height = container.height - 8;
+    const height = container.height - 16;
 
     if (!width || !height || !this.allParticipants().length) return;
 
@@ -164,6 +188,11 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async changeAudioOutput(deviceId: string) {
     await this.room().switchActiveDevice('audiooutput', deviceId);
+  }
+
+  async sendChatMessage(message: string) {
+    const localParticipant = this.room().localParticipant;
+    await localParticipant.sendChatMessage(message);
   }
 
   private handleParticipantConnected = (participant: RemoteParticipant) => {
@@ -188,6 +217,16 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     await this.loadDevices();
   }
 
+  private handleChatMessage = (msg: ChatMessage, participant?: Participant) => {
+    const isLocal = isLocalParticipant(participant!);
+    this.chatMessages.update(prev => [...prev, {
+      message: msg.message,
+      sender: isLocal ? 'You' : participant?.identity ?? 'Unknown',
+      timestamp: new Date(msg.timestamp),
+      isLocalParticipant: isLocal,
+    }]);
+  }
+
   private async loadDevices() {
     await this.livekitService.loadDevices().then(devices => {
       this.devices.set({
@@ -200,9 +239,4 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
   }
-}
-
-interface DevicesMenuItemsModel {
-  audioInputs_Outputs: MenuItem[],
-  videoInputs: MenuItem[],
 }
