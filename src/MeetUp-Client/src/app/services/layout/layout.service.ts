@@ -1,5 +1,5 @@
 ﻿import {Injectable} from '@angular/core';
-import {VideoLayout} from '../../models/video-layout';
+import {VideoLayoutModel} from '../../models/video-layout.model';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +11,7 @@ export class LayoutService {
     participantCount: number,
     aspectRatio: number = 16 / 9,
     gap: number = 0
-  ): VideoLayout {
+  ): VideoLayoutModel {
     let maxWidth = 0;
 
     for (let width = 1; width <= containerWidth; width++) {

@@ -1,4 +1,4 @@
-﻿export interface VideoLayout {
+﻿export interface VideoLayoutModel {
   cardWidth: number;
   cardHeight: number;
 }
