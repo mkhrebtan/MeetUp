@@ -1,4 +1,4 @@
-﻿export interface RoomStageData {
+﻿export interface RoomStageDataModel {
   isMicrophoneEnabled: boolean;
   isVideoEnabled: boolean;
   videoInputId: string;

@@ -1,65 +1,52 @@
-﻿import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, output, signal, ViewChild} from '@angular/core';
+﻿import {AfterViewInit, Component, OnDestroy, OnInit, output, signal} from '@angular/core';
 import {Button} from 'primeng/button';
-import {createLocalAudioTrack, createLocalVideoTrack, LocalAudioTrack, LocalVideoTrack, Room} from 'livekit-client';
+import {createLocalAudioTrack, createLocalVideoTrack, LocalAudioTrack, LocalVideoTrack} from 'livekit-client';
 import {Select} from 'primeng/select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {RoomStageData} from '../../models/room-stage-data';
+import {RoomStageDataModel} from '../../models/room-stage-data.model';
+import {ParticipantVideoComponent} from "../participant-video/participant-video.component";
+import {DevicesModel} from '../../models/devices.model';
+import {LivekitService} from '../../services/livekit/livekit.service';
 
 @Component({
   selector: 'app-room-stage',
   template: `
-    <div class="flex flex-col lg:flex-row w-full h-screen items-center justify-center p-6 lg:p-25 gap-6">
-      <div class="flex md:flex-2 xl:flex-1 flex-col items-center gap-4">
-        <div class="w-full aspect-[4/3] relative rounded-xl overflow-hidden shadow-xl">
-          <audio
-            autoplay
-            #audioElement
-          ></audio>
-          <div class="bg-neutral-950 w-full h-full">
-            <video
-              class="w-full h-full rotate-y-180 object-cover"
-              [hidden]="!isVideoEnabled()"
-              autoplay
-              playsinline
-              muted
-              #videoElement
-            ></video>
-            @if (!isVideoEnabled()) {
-              <div class="w-full h-full flex items-center justify-center z-10">
-                <p class="text-4xl text-neutral-400 px-4 truncate max-w-full">
-                  Camera is off
-                </p>
-              </div>
-            }
-          </div>
+    <div class="flex flex-col lg:flex-row w-full h-screen items-center justify-center p-25 gap-6">
+      <div class="flex flex-1 flex-col items-center gap-4">
+        <div class="w-3/4 aspect-video lg:w-full lg:aspect-[4/3] relative rounded-xl overflow-hidden shadow-xl">
+          <app-participant-video [videoTrack]="videoTrack" [isVideoEnabled]="isVideoEnabled()"
+                                 [isLocal]="true"/>
         </div>
         <div class="w-full flex gap-2 justify-center">
           <p-button icon="pi pi-microphone" size="large" (click)="toggleAudio()"
-                    [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'" [disabled]="isMicrophoneMissing()"/>
+                    [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'" [disabled]="isMicrophoneMissing()"
+                    [raised]="true"/>
           <p-button icon="pi pi-video" size="large" (click)="toggleVideo()"
-                    [severity]="isVideoEnabled() ? 'secondary' : 'danger'" [disabled]="isVideoMissing()"/>
+                    [severity]="isVideoEnabled() ? 'secondary' : 'danger'" [disabled]="isVideoMissing()"
+                    [raised]="true"/>
         </div>
       </div>
-      <div class="flex-1 flex flex-col items-center justify-center gap-6">
-        <p-button label="Join room" severity="info" size="large" (click)="onRoomJoin()"/>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="flex-auto lg:flex-1 flex flex-col items-center justify-center gap-6">
+        <p-button label="Join room" severity="info" size="large" [raised]="true" (click)="onRoomJoin()"
+                  [loading]="isLoading()"/>
+        <div class="flex flex-col gap-4">
           <div class="flex flex-col items-center gap-2">
-            <p-select [options]="audioInputs" [(ngModel)]="selectedAudioInputId"
-                      (onChange)="changeAudioDevice($event.value)" optionLabel="label"
+            <p-select [options]="devices.audioInputs" [(ngModel)]="selectedAudioInputId"
+                      (onChange)="changeAudioInput($event.value)" optionLabel="label"
                       optionValue="deviceId" size="small" fluid/>
-            <i class="pi pi-microphone text-white"></i>
+            <i class="pi pi-microphone"></i>
           </div>
           <div class="flex flex-col items-center gap-2">
-            <p-select [options]="audioOutputs" [(ngModel)]="selectedAudioOutputId"
-                      (onChange)="changeAudioDevice($event.value)" optionLabel="label"
+            <p-select [options]="devices.audioOutputs" [(ngModel)]="selectedAudioOutputId"
+                      (onChange)="changeAudioOutput($event.value)" optionLabel="label"
                       optionValue="deviceId" size="small" fluid/>
-            <i class="pi pi-headphones text-white"></i>
+            <i class="pi pi-headphones"></i>
           </div>
           <div class="flex flex-col items-center gap-2">
-            <p-select [options]="videoInputs" [(ngModel)]="selectedVideoInputId"
-                      (onChange)="changeAudioDevice($event.value)" optionLabel="label"
+            <p-select [options]="devices.videoInputs" [(ngModel)]="selectedVideoInputId"
+                      (onChange)="changeVideoInput($event.value)" optionLabel="label"
                       optionValue="deviceId" size="small" fluid/>
-            <i class="pi pi-video text-white"></i>
+            <i class="pi pi-video"></i>
           </div>
         </div>
       </div>
@@ -70,7 +57,8 @@ import {RoomStageData} from '../../models/room-stage-data';
     Button,
     Select,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    ParticipantVideoComponent
   ]
 })
 export class RoomStageComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -78,26 +66,36 @@ export class RoomStageComponent implements OnInit, AfterViewInit, OnDestroy {
   isMicrophoneEnabled = signal(false);
   isVideoMissing = signal(false);
   isVideoEnabled = signal(false);
-  @ViewChild('videoElement') videoElement!: ElementRef;
-  @ViewChild('audioElement') audioElement!: ElementRef;
+  isLoading = signal(false);
   audioTrack: LocalAudioTrack | null = null;
   videoTrack: LocalVideoTrack | null = null;
-  audioInputs: MediaDeviceInfo[] = [];
-  videoInputs: MediaDeviceInfo[] = [];
-  audioOutputs: MediaDeviceInfo[] = [];
+  devices: DevicesModel = {
+    audioInputs: [],
+    audioOutputs: [],
+    videoInputs: [],
+  };
   selectedAudioInputId: string = 'default';
   selectedVideoInputId: string = 'default';
   selectedAudioOutputId: string = 'default';
-  joinRoom = output<RoomStageData>();
+  joinRoom = output<RoomStageDataModel>();
+
+  constructor(private livekitService: LivekitService) {
+  }
 
   async ngOnInit() {
-    await this.loadDevices();
-    this.selectedVideoInputId = this.videoInputs[0]?.deviceId ?? 'default';
+    this.isLoading.set(true);
+    this.devices = await this.livekitService.loadDevices();
+    this.selectedAudioInputId = this.devices.audioInputs.find(i => i.deviceId === 'default')?.deviceId ?? this.devices.audioInputs[0].deviceId;
+    this.selectedVideoInputId = this.devices.videoInputs.find(i => i.deviceId === 'default')?.deviceId ?? this.devices.videoInputs[0].deviceId;
+    this.selectedAudioOutputId = this.devices.audioOutputs.find(i => i.deviceId === 'default')?.deviceId ?? this.devices.audioOutputs[0].deviceId;
   }
 
   async ngAfterViewInit() {
-    await this.createAudioTrack();
-    await this.createVideoTrack();
+    await Promise.all([
+      this.createAudioTrack(this.selectedAudioInputId),
+      this.createVideoTrack(this.selectedVideoInputId)
+    ]);
+    this.isLoading.set(false);
   }
 
   ngOnDestroy() {
@@ -105,24 +103,36 @@ export class RoomStageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async toggleAudio() {
-    this.isMicrophoneEnabled.set(!this.isMicrophoneEnabled());
+    if (!this.audioTrack) return;
+    this.isMicrophoneEnabled.update(v => !v);
   }
 
   async toggleVideo() {
-    this.isVideoEnabled.set(!this.isVideoEnabled());
+    if (!this.videoTrack) return;
+    this.isVideoEnabled.update(v => !v);
     if (this.isVideoEnabled()) {
-      this.videoTrack?.attach(this.videoElement.nativeElement);
+      await this.videoTrack.unmute();
     } else {
-      this.videoTrack?.detach();
+      await this.videoTrack.mute();
     }
   }
 
-  async changeAudioDevice(deviceId: string) {
+  async changeAudioInput(deviceId: string) {
+    this.selectedAudioInputId = deviceId;
     await this.createAudioTrack(deviceId);
   }
 
+  async changeVideoInput(deviceId: string) {
+    this.selectedVideoInputId = deviceId;
+    await this.videoTrack?.restartTrack({deviceId});
+  }
+
+  async changeAudioOutput(deviceId: string) {
+    this.selectedAudioOutputId = deviceId;
+  }
+
   onRoomJoin() {
-    const data: RoomStageData = {
+    const data: RoomStageDataModel = {
       isMicrophoneEnabled: this.isMicrophoneEnabled(),
       isVideoEnabled: this.isVideoEnabled(),
       videoInputId: this.selectedVideoInputId,
@@ -132,51 +142,36 @@ export class RoomStageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.joinRoom.emit(data);
   }
 
-  private async createAudioTrack(deviceId: string = 'default') {
+  private async createAudioTrack(deviceId: string) {
     if (this.audioTrack) {
       this.audioTrack.stop();
-      this.audioTrack.detach();
-      this.audioTrack = null;
     }
-
-    await createLocalAudioTrack({deviceId}).then((track) => {
+    try {
+      this.audioTrack = await createLocalAudioTrack({deviceId});
       this.isMicrophoneEnabled.set(true);
-      this.audioTrack = track;
-    }).catch(reason => {
-      console.error(reason);
+    } catch (e) {
+      console.error(e);
       this.isMicrophoneEnabled.set(false);
       this.isMicrophoneMissing.set(true);
-    });
+    }
   }
 
-  private async createVideoTrack() {
-    await createLocalVideoTrack().then((track) => {
-      track.attach(this.videoElement.nativeElement);
+  private async createVideoTrack(deviceId: string) {
+    if (this.videoTrack) {
+      this.videoTrack.stop();
+    }
+    try {
+      this.videoTrack = await createLocalVideoTrack({deviceId});
       this.isVideoEnabled.set(true);
-      this.videoTrack = track;
-    }).catch(reason => {
-      console.error(reason);
+    } catch (e) {
+      console.error(e);
       this.isVideoEnabled.set(false);
       this.isVideoMissing.set(true);
-    })
-  }
-
-  private async loadDevices() {
-    this.audioInputs = await Room.getLocalDevices('audioinput');
-    this.videoInputs = await Room.getLocalDevices('videoinput');
-    this.audioOutputs = await Room.getLocalDevices('audiooutput');
+    }
   }
 
   private cleanupTracks() {
-    if (this.videoTrack) {
-      this.videoTrack.stop();
-      this.videoTrack.detach();
-      this.videoTrack = null;
-    }
-    if (this.audioTrack) {
-      this.audioTrack.stop();
-      this.audioTrack.detach();
-      this.audioTrack = null;
-    }
+    this.audioTrack?.stop();
+    this.videoTrack?.stop();
   }
 }

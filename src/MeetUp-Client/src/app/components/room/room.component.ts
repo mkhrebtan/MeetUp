@@ -2,15 +2,14 @@ import {Component, inject, OnDestroy, signal} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {ConnectionState, DisconnectReason, Room, RoomEvent} from 'livekit-client';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MeetingService} from '../../services/meetings/meeting.service';
 import {LivekitService} from '../../services/livekit/livekit.service';
-import {Meeting} from '../../models/meeting';
-import {RoomStageData} from '../../models/room-stage-data';
+import {MeetingModel} from '../../models/meeting.model';
+import {RoomStageDataModel} from '../../models/room-stage-data.model';
 import {MeetingRoomComponent} from '../meeting-room/meeting-room.component';
 import {RoomStageComponent} from '../room-stage/room-stage.component';
 import {Button} from 'primeng/button';
-import {Location} from '@angular/common';
 
 @Component({
   selector: 'app-room',
@@ -23,9 +22,9 @@ import {Location} from '@angular/common';
         <div class="flex flex-col items-center justify-center h-screen gap-16">
           <h2 class="text-center text-4xl">{{ disconnectedReason() }}</h2>
           <div class="flex justify-center gap-4">
-            <p-button label="Rejoin" severity="secondary" (click)="disconnectedReason.set(undefined)"/>
+            <p-button label="Rejoin" severity="secondary" (click)="disconnectedReason.set(undefined)" [raised]="true"/>
             <p-button label="Return to meetings" severity="danger"
-                      (click)="redirectBack()"/>
+                      (click)="redirectBack()" [raised]="true"/>
           </div>
         </div>
       } @else {
@@ -38,14 +37,13 @@ import {Location} from '@angular/common';
 export class RoomComponent implements OnDestroy {
   room: Room;
   meetingId = '';
-  meeting: Meeting;
+  meeting: MeetingModel;
   isRoomConnected = signal(false);
   disconnectedReason = signal<string | undefined>(undefined);
-  protected readonly DisconnectReason = DisconnectReason;
   private meetingService = inject(MeetingService);
   private livekitService = inject(LivekitService);
   private route = inject(ActivatedRoute);
-  private location = inject(Location);
+  private router = inject(Router);
 
   constructor() {
     this.room = new Room({
@@ -61,7 +59,7 @@ export class RoomComponent implements OnDestroy {
     this.meetingId = this.route.snapshot.paramMap.get('meetingId') ?? '';
     const meeting = this.meetingService.getMeetingById(this.meetingId);
     if (!meeting) {
-      throw new Error('Meeting not found');
+      throw new Error('MeetingModel not found');
     }
 
     this.meeting = meeting;
@@ -75,12 +73,15 @@ export class RoomComponent implements OnDestroy {
     }
   }
 
-  connectToRoom(stageData: RoomStageData) {
+  connectToRoom(stageData: RoomStageDataModel) {
     this.livekitService.getRoomToken(`user-${Math.floor(Math.random() * 100)}`, this.meeting.name)
       .subscribe({
         next: async (response) => {
           const token = response.token;
           try {
+            await this.room.switchActiveDevice('audioinput', stageData.audioInputId);
+            await this.room.switchActiveDevice('videoinput', stageData.videoInputId);
+            await this.room.switchActiveDevice('audiooutput', stageData.audioOutputId);
             await this.room.connect('ws://localhost:7880', token);
             await this.room.localParticipant.setCameraEnabled(stageData.isVideoEnabled);
             await this.room.localParticipant.setMicrophoneEnabled(stageData.isMicrophoneEnabled);
@@ -98,7 +99,7 @@ export class RoomComponent implements OnDestroy {
   }
 
   redirectBack() {
-    this.location.back();
+    this.router.navigate(['/']);
   }
 
   private handleRoomDisconnected = (reason?: DisconnectReason) => {

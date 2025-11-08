@@ -1,20 +1,20 @@
 import {Injectable} from '@angular/core';
-import {Meeting} from '../../models/meeting';
+import {MeetingModel} from '../../models/meeting.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MeetingService {
-  private meetings: Meeting[] = [
-    {id: '1', name: 'Meeting 1'},
-    {id: '2', name: 'Meeting 2'},
+  private meetings: MeetingModel[] = [
+    {id: '1', name: 'MeetingModel 1'},
+    {id: '2', name: 'MeetingModel 2'},
   ];
 
-  getMeetings(): Meeting[] {
+  getMeetings(): MeetingModel[] {
     return this.meetings;
   }
 
-  getMeetingById(id: string): Meeting | undefined {
+  getMeetingById(id: string): MeetingModel | undefined {
     return this.meetings.find(meeting => meeting.id === id);
   }
 }
