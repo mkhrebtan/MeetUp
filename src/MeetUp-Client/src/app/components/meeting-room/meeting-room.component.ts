@@ -11,13 +11,11 @@
 } from '@angular/core';
 import {ConnectionState, RemoteParticipant, Room, RoomEvent} from 'livekit-client';
 import {ParticipantCardComponent} from "../participant-card/participant-card.component";
-import {Button} from "primeng/button";
 import {ParticipantsSidebarComponent} from "../participants-sidebar/participants-sidebar.component";
 import {LayoutService} from '../../services/layout/layout.service';
 import {VideoLayoutModel} from '../../models/video-layout.model';
-import {SplitButton} from 'primeng/splitbutton';
 import {LivekitService} from '../../services/livekit/livekit.service';
-import {MenuItem, MessageService} from 'primeng/api';
+import {MessageService} from 'primeng/api';
 import {Toast} from 'primeng/toast';
 
 @Component({
@@ -42,37 +40,23 @@ import {Toast} from 'primeng/toast';
         }
       </section>
       <div class="h-[1px] bg-neutral-800"></div>
-      <section class="grid grid-cols-3 items-center gap-2 px-4">
-        <div class="flex gap-2 w-fit h-full">
-          <p-split-button dropdownIcon="pi pi-chevron-up before:text-xs"
-                          (onClick)="toggleAudio()"
-                          [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'"
-                          [model]="devices.audioInputs_Outputs">
-            <ng-template #content>
-              <i class="pi pi-microphone px-1"></i>
-            </ng-template>
-          </p-split-button>
-          <p-split-button dropdownIcon="pi pi-chevron-up before:text-xs"
-                          (onClick)="toggleVideo()"
-                          [severity]="isVideoEnabled() ? 'secondary' : 'danger'"
-                          [model]="devices.videoInputs">
-            <ng-template #content>
-              <i class="pi pi-video px-1"></i>
-            </ng-template>
-          </p-split-button>
-        </div>
-        <div class="flex justify-center gap-2">
-          <p-button icon="pi pi-users" size="large"
-                    [severity]="isParticipantsSidebarVisible() ? 'contrast' : 'secondary'"
-                    (click)="toggleParticipantsSidebar()"/>
-          <p-button icon="pi pi-desktop" size="large" severity="secondary"/>
-          <p-button icon="pi pi-stop-circle" size="large" severity="secondary"/>
-        </div>
-        <div class="flex gap-4 items-center justify-self-end">
-          <p class="text-white justify-self-end">{{ room().name }}</p>
-          <p-button icon="pi pi-sign-out" severity="danger" (click)="disconnectFromRoom()" size="large"/>
-        </div>
-      </section>
+
+      <app-meeting-room-controls
+        [isMicrophoneEnabled]="isMicrophoneEnabled()"
+        [isVideoEnabled]="isVideoEnabled()"
+        [isParticipantsSidebarVisible]="isParticipantsSidebarVisible()"
+        [isChatVisible]="isChatVisible()"
+        [devices]="devices()"
+        [roomName]="room().name"
+        (audioToggle)="toggleAudio()"
+        (videoToggle)="toggleVideo()"
+        (chatToggle)="toggleChat()"
+        (participantsToggle)="toggleParticipantsSidebar()"
+        (disconnect)="disconnectFromRoom()"
+        (audioInputChange)="changeAudioInput($event)"
+        (audioOutputChange)="changeAudioOutput($event)"
+        (videoInputChange)="changeVideoInput($event)"
+      />
 
       <p-toast/>
     </div>
@@ -94,6 +78,9 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   isParticipantsSidebarVisible = signal(false);
   devices: DevicesMenuItemsModel = {
     audioInputs_Outputs: [],
+  devices = signal<DevicesModel>({
+    audioInputs: [],
+    audioOutputs: [],
     videoInputs: [],
   };
   private resizeObserver?: ResizeObserver;
@@ -197,38 +184,20 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   };
 
-  private handleActiveDeviceChanged = () => {
-    this.loadDevices();
+  private handleActiveDeviceChanged = async () => {
+    await this.loadDevices();
   }
 
   private async loadDevices() {
     await this.livekitService.loadDevices().then(devices => {
-      const activeAudioInput = this.room().getActiveDevice('audioinput');
-      const activeVideoInput = this.room().getActiveDevice('videoinput');
-      const activeAudioOutput = this.room().getActiveDevice('audiooutput');
-      this.devices = {
-        audioInputs_Outputs: [
-          ...devices.audioInputs.map(({label, deviceId}) => ({
-            label,
-            command: () => this.changeAudioInput(deviceId),
-            id: deviceId,
-            icon: activeAudioInput === deviceId ? 'pi pi-check' : undefined,
-          })),
-          {separator: true},
-          ...devices.audioOutputs.map(({label, deviceId}) => ({
-            label,
-            command: () => this.changeAudioOutput(deviceId),
-            id: deviceId,
-            icon: activeAudioOutput === deviceId ? 'pi pi-check' : undefined,
-          })),
-        ],
-        videoInputs: devices.videoInputs.map(({label, deviceId}) => ({
-          label,
-          command: () => this.changeVideoInput(deviceId),
-          id: deviceId,
-          icon: activeVideoInput === deviceId ? 'pi pi-check' : undefined,
-        })),
-      };
+      this.devices.set({
+        activeAudioInput: this.room().getActiveDevice('audioinput'),
+        activeVideoInput: this.room().getActiveDevice('videoinput'),
+        activeAudioOutput: this.room().getActiveDevice('audiooutput'),
+        audioInputs: devices.audioInputs,
+        audioOutputs: devices.audioOutputs,
+        videoInputs: devices.videoInputs,
+      });
     });
   }
 }
