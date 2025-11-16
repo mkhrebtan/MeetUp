@@ -1,4 +1,4 @@
-﻿import {Component, input, output} from '@angular/core';
+﻿import {Component, computed, input, output} from '@angular/core';
 import {Participant} from 'livekit-client';
 import {ScrollPanel} from 'primeng/scrollpanel';
 
@@ -14,7 +14,7 @@ import {ScrollPanel} from 'primeng/scrollpanel';
       </div>
       <p-scroll-panel class="h-full">
         <ul class="flex flex-col gap-2">
-          @for (participant of participants(); track participant.identity) {
+          @for (participant of sortedParticipants(); track participant.identity) {
             <li class="bg-neutral-900/50 rounded-xl py-2 px-4">{{ participant.identity }}</li>
           }
         </ul>
@@ -29,6 +29,17 @@ import {ScrollPanel} from 'primeng/scrollpanel';
 export class ParticipantsSidebarComponent {
   close = output();
   participants = input.required<Participant[]>();
+  sortedParticipants = computed(() => {
+    return this.participants().sort((a, b) => {
+      if (a.identity < b.identity) {
+        return -1;
+      }
+      if (a.identity > b.identity) {
+        return 1;
+      }
+      return 0;
+    });
+  });
 
   onClose() {
     this.close.emit();

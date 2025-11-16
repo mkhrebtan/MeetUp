@@ -1,7 +1,8 @@
-import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, output, signal, ViewChild} from '@angular/core';
 import {
   LocalParticipant,
   LocalTrackPublication,
+  Participant,
   ParticipantEvent,
   RemoteParticipant,
   Track,
@@ -44,13 +45,15 @@ import {ParticipantVideoComponent} from "../participant-video/participant-video.
   styles: ``,
 })
 export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewInit {
-  participant = input.required<LocalParticipant | RemoteParticipant>();
+  participant = input.required<Participant>();
   isSpeaking = signal(false);
   isVideoEnabled = signal(false);
   videoTrack = signal<VideoTrack | null>(null);
   isLocal = signal(false);
 
   @ViewChild('audioElement') audioElement!: ElementRef;
+
+  speak = output<Participant>();
 
   ngOnInit() {
     this.isLocal.set(this.participant() instanceof LocalParticipant);
@@ -95,10 +98,10 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private handleTrackSubscribed = (track: Track, pub: TrackPublication) => {
-    if (track.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.videoTrack.set(track as VideoTrack);
       this.isVideoEnabled.set(!track.isMuted);
-    } else if (track.kind === Track.Kind.Audio) {
+    } else if (pub.source === Track.Source.Microphone) {
       if (this.participant() instanceof RemoteParticipant) {
         track.attach(this.audioElement.nativeElement);
       }
@@ -106,41 +109,44 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
   };
 
   private handleTrackUnsubscribed = (track: Track, pub: TrackPublication) => {
-    if (track.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.videoTrack.set(null);
       this.isVideoEnabled.set(false);
-    } else if (track.kind === Track.Kind.Audio) {
+    } else if (pub.source === Track.Source.Microphone) {
       track.detach();
     }
   };
 
   private handleLocalTrackPublished = (pub: LocalTrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.videoTrack.set(pub.track as VideoTrack);
-      this.isVideoEnabled.set(pub.track!.isMuted);
+      this.isVideoEnabled.set(true);
     }
   };
 
   private handleLocalTrackUnpublished = (pub: LocalTrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.videoTrack.set(null);
       this.isVideoEnabled.set(false);
     }
   };
 
   private handleTrackMuted = (pub: TrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.isVideoEnabled.set(false);
     }
   };
 
   private handleTrackUnmuted = (pub: TrackPublication) => {
-    if (pub.kind === Track.Kind.Video) {
+    if (pub.source === Track.Source.Camera) {
       this.isVideoEnabled.set(true);
     }
   };
 
   private handleSpeakingChanged = (isSpeaking: boolean) => {
     this.isSpeaking.set(isSpeaking);
+    if (isSpeaking) {
+      this.speak.emit(this.participant());
+    }
   };
 }
