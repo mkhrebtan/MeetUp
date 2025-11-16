@@ -52,7 +52,7 @@ export interface MeetingChatMessage {
     </div>
   `,
 })
-export class MeetingChatComponent {
+export class MeetingRoomChatComponent {
   messages: InputSignal<MeetingChatMessage[]> = input.required();
   close = output();
   messageSend = output<string>();
