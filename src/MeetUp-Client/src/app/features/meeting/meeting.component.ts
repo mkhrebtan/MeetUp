@@ -3,17 +3,17 @@ import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {ConnectionState, DisconnectReason, Room, RoomEvent} from 'livekit-client';
 import {ActivatedRoute, Router} from '@angular/router';
-import {MeetingService} from '../../services/meetings/meeting.service';
-import {LivekitService} from '../../services/livekit/livekit.service';
+import {MeetingService} from '../../core/services/meetings/meeting.service';
+import {LivekitService} from './services/livekit/livekit.service';
 import {MeetingModel} from '../../models/meeting.model';
-import {RoomStageDataModel} from '../../models/room-stage-data.model';
-import {MeetingRoomComponent} from '../meeting-room/meeting-room.component';
-import {RoomStageComponent} from '../room-stage/room-stage.component';
+import {RoomStageDataModel} from './models/room-stage-data.model';
+import {MeetingRoomComponent} from './components/meeting-room/meeting-room.component';
+import {MeetingStageComponent} from './components/meeting-stage/meeting-stage.component';
 import {Button} from 'primeng/button';
 
 @Component({
-  selector: 'app-room',
-  imports: [FormsModule, InputTextModule, MeetingRoomComponent, RoomStageComponent, Button],
+  selector: 'app-meeting',
+  imports: [FormsModule, InputTextModule, MeetingRoomComponent, MeetingStageComponent, Button],
   template: `
     <div>
       @if (isRoomConnected()) {
@@ -28,13 +28,13 @@ import {Button} from 'primeng/button';
           </div>
         </div>
       } @else {
-        <app-room-stage (joinRoom)="connectToRoom($event)"/>
+        <app-meeting-stage (joinRoom)="connectToRoom($event)"/>
       }
     </div>
   `,
   styles: [],
 })
-export class RoomComponent implements OnDestroy {
+export class MeetingComponent implements OnDestroy {
   room: Room;
   meetingId = '';
   meeting: MeetingModel;

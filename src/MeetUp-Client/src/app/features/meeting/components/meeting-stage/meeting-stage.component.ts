@@ -9,7 +9,7 @@ import {DevicesModel} from '../../models/devices.model';
 import {LivekitService} from '../../services/livekit/livekit.service';
 
 @Component({
-  selector: 'app-room-stage',
+  selector: 'app-meeting-stage',
   template: `
     <div class="flex flex-col lg:flex-row w-full h-screen items-center justify-center p-25 gap-6">
       <div class="flex flex-1 flex-col items-center gap-4">
@@ -61,7 +61,7 @@ import {LivekitService} from '../../services/livekit/livekit.service';
     ParticipantVideoComponent
   ]
 })
-export class RoomStageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MeetingStageComponent implements OnInit, AfterViewInit, OnDestroy {
   isMicrophoneMissing = signal(false);
   isMicrophoneEnabled = signal(false);
   isVideoMissing = signal(false);
