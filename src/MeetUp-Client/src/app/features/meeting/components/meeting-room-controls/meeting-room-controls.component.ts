@@ -6,11 +6,13 @@ import {DevicesModel} from '../../models/devices.model';
 import {DevicesMenuItemsModel} from '../../models/devices-menu-items.model';
 import {FaIconComponent} from '@fortawesome/angular-fontawesome';
 import {faMessage} from '@fortawesome/free-regular-svg-icons';
+import {Tooltip} from 'primeng/tooltip';
+import {MessageService} from 'primeng/api';
 
 @Component({
   selector: 'app-meeting-room-controls',
   standalone: true,
-  imports: [CommonModule, Button, SplitButton, FaIconComponent],
+  imports: [CommonModule, Button, SplitButton, FaIconComponent, Tooltip],
   template: `
     <section class="grid grid-cols-3 items-center gap-2 px-4">
       <div class="flex gap-2 w-fit h-full">
@@ -36,10 +38,18 @@ import {faMessage} from '@fortawesome/free-regular-svg-icons';
         <p-button icon="pi pi-users" size="large"
                   [severity]="isParticipantsSidebarVisible() ? 'contrast' : 'secondary'"
                   (click)="onParticipantsToggle()"/>
-        <p-button icon="pi pi-desktop" size="large" severity="secondary" (click)="onScreenShareToggle()"/>
-        <p-button icon="pi pi-stop-circle" size="large" severity="secondary" (click)="onRecordingToggle()"/>
-        <p-button size="large" severity="secondary" (click)="onChatToggle()" class="btn-inside-h-full"
-                  [severity]="isChatVisible() ? 'contrast' : 'secondary'">
+        <p-button icon="pi pi-desktop" size="large"
+                  [severity]="screenShareState() === 'local' ? 'contrast' : 'secondary'"
+                  [disabled]="screenShareState() === 'remote'"
+                  [pTooltip]="screenShareTooltip()"
+                  tooltipPosition="top"
+                  (click)="onScreenShareToggle()"/>
+        <p-button icon="pi pi-stop-circle" size="large"
+                  severity="secondary"
+                  (click)="log()"/>
+        <p-button size="large" severity="secondary"
+                  [severity]="isChatVisible() ? 'contrast' : 'secondary'"
+                  (click)="onChatToggle()" class="btn-inside-h-full">
           <ng-template #content>
             <fa-icon [icon]="faMessage"/>
           </ng-template>
@@ -59,6 +69,7 @@ export class MeetingRoomControlsComponent {
   isVideoEnabled = input.required<boolean>();
   isParticipantsSidebarVisible = input.required<boolean>();
   isChatVisible = input.required<boolean>();
+  screenShareState = input.required<'local' | 'remote' | 'none'>();
   devices = input.required<DevicesModel>();
   roomName = input.required<string>();
 
@@ -98,7 +109,19 @@ export class MeetingRoomControlsComponent {
       })),
     };
   });
+  screenShareTooltip = computed(() => {
+    if (this.screenShareState() === 'remote') {
+      return 'Someone else is sharing the screen';
+    } else if (this.screenShareState() === 'local') {
+      return 'Stop sharing';
+    } else {
+      return 'Start sharing';
+    }
+  });
   protected readonly faMessage = faMessage;
+
+  constructor(private messageService: MessageService) {
+  }
 
   onAudioToggle(): void {
     this.audioToggle.emit();
@@ -138,5 +161,9 @@ export class MeetingRoomControlsComponent {
 
   onAudioOutputChange(deviceId: string): void {
     this.audioOutputChange.emit(deviceId);
+  }
+
+  log() {
+    console.log(this.screenShareState());
   }
 }

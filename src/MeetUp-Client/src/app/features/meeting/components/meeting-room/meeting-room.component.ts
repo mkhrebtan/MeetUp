@@ -1,4 +1,14 @@
-﻿import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, signal, ViewChild} from '@angular/core';
+﻿import {
+  AfterViewInit,
+  Component,
+  computed,
+  ElementRef,
+  input,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild
+} from '@angular/core';
 import {
   ChatMessage,
   ConnectionState,
@@ -36,9 +46,9 @@ import {MeetingPagedList} from '../../utils/meeting-paged-list';
   template: `
     <div class="h-screen flex flex-col p-4 bg-neutral-900 gap-4">
       <section class="flex flex-auto gap-4 overflow-hidden">
-        <div class="flex flex-col lg:flex-row gap-4 overflow-hidden" #mainContainer>
+        <div class="flex flex-col lg:flex-row gap-4 overflow-hidden w-full" #mainContainer>
           @if (isScreenShareEnabled()) {
-            <div class="flex flex-4 justify-center items-center overflow-hidden">
+            <div class="flex flex-3 xl:flex-3 justify-center items-center overflow-hidden">
               <app-participant-video [videoTrack]="screenShareTrack()"
                                      [isVideoEnabled]="true"
                                      [objectFit]="'contain'"
@@ -70,12 +80,12 @@ import {MeetingPagedList} from '../../utils/meeting-paged-list';
           </div>
         </div>
         @if (isParticipantsSidebarVisible()) {
-          <app-participants-sidebar class="flex-shrink-0 w-1/4 animate-slidein"
+          <app-participants-sidebar class="flex-shrink-0 w-1/4 xl:w-1/5 animate-slidein"
                                     [participants]="participantsList.items()"
                                     (close)="toggleParticipantsSidebar()"/>
         }
         @if (isChatVisible()) {
-          <app-meeting-chat class="flex-shrink-0 w-1/3 animate-slidein" [messages]="chatMessages()"
+          <app-meeting-chat class="flex-shrink-0 w-1/4 xl:w-1/5 animate-slidein" [messages]="chatMessages()"
                             (close)="toggleChat()" (messageSend)="sendChatMessage($event)"/>
         }
       </section>
@@ -87,6 +97,7 @@ import {MeetingPagedList} from '../../utils/meeting-paged-list';
         [isVideoEnabled]="isVideoEnabled()"
         [isParticipantsSidebarVisible]="isParticipantsSidebarVisible()"
         [isChatVisible]="isChatVisible()"
+        [screenShareState]="screenShareState()"
         [devices]="devices()"
         [roomName]="room().name"
         (audioToggle)="toggleAudio()"
@@ -119,6 +130,16 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   chatMessages = signal<MeetingChatMessage[]>([]);
   isScreenShareEnabled = signal(false);
   screenShareTrack = signal<LocalVideoTrack | RemoteVideoTrack | null>(null);
+  screenShareState = computed(() => {
+    if (this.isScreenShareEnabled()) {
+      if (this.screenShareTrack() instanceof RemoteVideoTrack) {
+        return 'remote';
+      } else {
+        return 'local';
+      }
+    }
+    return 'none';
+  });
   devices = signal<DevicesModel>({
     audioInputs: [],
     audioOutputs: [],
