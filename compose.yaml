@@ -1,7 +1,55 @@
 ﻿services:
   meetup.api:
     image: meetup.api
+    container_name: meetup.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    env_file:
+      - .env
     build:
-      context: .
-      dockerfile: MeetUp.API/Dockerfile
+      context: ./src/MeetUp.API
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+      - "5001:443"
+    depends_on:
+      - meetup.keycloak
+      - meetup.db
+    volumes:
+      - ~/.aspnet/https:/https:ro
+    networks:
+      - meetup-network
+      
+  meetup.keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: meetup.keycloak
+    env_file:
+      - .env
+    command: start-dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - meetup_keycloak_data:/opt/keycloak/data
+      - ./scripts:/opt/keycloak/data/import
+    networks:
+      - meetup-network
+  
+  meetup.db:
+    image: postgres:latest
+    container_name: meetup.db
+    env_file:
+      - .env
+    volumes:
+      - meetup_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - meetup-network
 
+volumes:
+  meetup_keycloak_data:
+  meetup_postgres_data:
+
+networks:
+  meetup-network:
+    driver: bridge
