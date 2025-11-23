@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:5001/api/', // TODO: Set your API base URL here
+  apiUrl: 'https://localhost:5001/api/', // TODO: Set your API base URL here
   keycloak: {
     authority: 'http://localhost:8080',
     realm: 'meetup',

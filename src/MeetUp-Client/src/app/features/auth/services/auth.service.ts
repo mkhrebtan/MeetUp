@@ -1,15 +1,13 @@
-import {computed, inject, Injectable, signal} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable, of, throwError} from 'rxjs';
 import {catchError, switchMap, tap} from 'rxjs/operators';
 import {KeycloakService} from './keycloak.service';
 import {ApiService} from '../../../core/services/api.service';
 import {User} from '../models/user.model';
-import {KeycloakLoginResponse} from '../models/keycloak-login-response.model';
 import {LoginRequest} from '../models/login-request.model';
 import {RegisterRequest} from '../models/register-request.model';
-
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
+import {TokenService} from '../../../core/services/token.service';
+import {LoggerService} from '../../../core/services/logger.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,102 +15,52 @@ const REFRESH_TOKEN_KEY = 'refresh_token';
 export class AuthService {
   private readonly keycloakService = inject(KeycloakService);
   private readonly apiService = inject(ApiService);
+  private readonly tokenService = inject(TokenService);
+  private readonly logger = inject(LoggerService);
 
-  private readonly currentUser = signal<User | null>(null);
-  readonly isAuthenticated = computed(() => this.currentUser() !== null);
-  readonly user = computed(() => this.currentUser());
-
-  constructor() {
-    this.checkAuth().subscribe();
-  }
-
-  login(credentials: LoginRequest): Observable<User> {
+  login(credentials: LoginRequest) {
     return this.keycloakService.login(credentials.email, credentials.password).pipe(
-      tap(response => this.setTokens(response)),
-      switchMap(() => this.fetchAndSetUser()),
+      tap(response => this.tokenService.setTokens(response.access_token, response.refresh_token)),
+      switchMap(() => this.fetchUser()),
+      catchError(error => {
+        this.logger.error('Login error:', error);
+        return throwError(() => new Error('Unable to login. Please check your credentials and try again.'));
+      })
     );
   }
 
   register(userData: RegisterRequest): Observable<any> {
-    return this.apiService.post('/auth/register', userData);
+    return this.apiService.post('auth/register', userData).pipe(
+      catchError(error => {
+        this.logger.error('Registration error:', error);
+        return throwError(() => new Error('Unable to complete registration. Please try again later.'));
+      })
+    );
   }
 
   logout(): void {
-    const refreshToken = this.getRefreshToken();
+    const refreshToken = this.tokenService.getRefreshToken();
     if (!refreshToken) {
-      this.clearAuthData();
+      this.tokenService.clearTokens();
       return;
     }
 
     this.keycloakService.logout(refreshToken).pipe(
-      catchError(() => of(null))
+      catchError(error => {
+        this.logger.error('Logout error:', error);
+        return of(null);
+      })
     ).subscribe(() => {
-      this.clearAuthData();
+      this.tokenService.clearTokens();
     });
   }
 
-  refreshToken(): Observable<KeycloakLoginResponse | null> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return of(null);
-    }
-
-    return this.keycloakService.refreshToken(refreshToken).pipe(
-      tap(response => this.setTokens(response)),
+  fetchUser(): Observable<User> {
+    return this.apiService.get<User>('auth/me').pipe(
       catchError(error => {
-        this.clearAuthData();
-        return throwError(() => error);
+        this.logger.error('Fetch user error:', error);
+        return throwError(() => new Error('Unable to fetch user information. Please try again.'));
       })
     );
-  }
-
-  checkAuth(): Observable<User | null> {
-    const accessToken = this.getAccessToken();
-    if (!accessToken) {
-      return of(null);
-    }
-
-    return this.fetchAndSetUser().pipe(
-      catchError(() => {
-        return this.refreshToken().pipe(
-          switchMap(response => {
-            if (response) {
-              return this.fetchAndSetUser();
-            }
-            this.clearAuthData();
-            return of(null);
-          }),
-          catchError(() => {
-            this.clearAuthData();
-            return of(null);
-          })
-        );
-      })
-    );
-  }
-
-  getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
-  }
-
-  private fetchAndSetUser(): Observable<User> {
-    return this.apiService.get<User>('/auth/me').pipe(
-      tap(user => this.currentUser.set(user)),
-    );
-  }
-
-  private setTokens(response: KeycloakLoginResponse): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, response.access_token);
-    localStorage.setItem(REFRESH_TOKEN_KEY, response.refresh_token);
-  }
-
-  private getRefreshToken(): string | null {
-    return localStorage.getItem(REFRESH_TOKEN_KEY);
-  }
-
-  private clearAuthData(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    this.currentUser.set(null);
   }
 }

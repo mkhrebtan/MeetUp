@@ -1,11 +1,15 @@
 import {Routes} from '@angular/router';
 import {MeetingComponent} from './features/meeting/pages/meeting.component';
 import {AppShellComponent} from './layout/app-shell/app-shell-component';
+import {AuthGuard} from './core/guards/auth.guard';
+import {WorkspaceGuard} from './core/guards/workspace.guard';
+import {NoWorkspaceGuard} from './core/guards/no-workspace.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: AppShellComponent,
+    canActivate: [AuthGuard, WorkspaceGuard],
     children: [
       {
         path: '',
@@ -45,9 +49,12 @@ export const routes: Routes = [
   {
     path: 'room/:meetingId',
     component: MeetingComponent,
+    canActivate: [AuthGuard, WorkspaceGuard],
   },
   {
-    path: 'workspace/setup',
+    path: 'workspace',
+    canActivate: [AuthGuard, NoWorkspaceGuard],
     loadChildren: () => import('./features/workspace/workspace.routes').then(m => m.workspaceRoutes),
   },
 ];
+

@@ -1,8 +1,9 @@
 export interface User {
   id: string;
-  username: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
-  roles: string[];
+  firstName: string;
+  lastName: string;
+  role: string;
+  workspaceId: string | null;
 }
+

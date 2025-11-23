@@ -1,80 +1,108 @@
-import { createReducer, on } from '@ngrx/store';
-import { initialAuthState } from './auth.state';
-import { AuthActions } from './auth.actions';
+import {createReducer, on} from '@ngrx/store';
+import {initialAuthState} from './auth.state';
+import {AuthActions} from './auth.actions';
 
 export const authReducer = createReducer(
   initialAuthState,
-  on(AuthActions.checkAuth, (state) => ({
-    ...state,
-    loading: true,
-    error: null,
-  })),
-  on(AuthActions.checkAuthSuccess, (state, { user }) => ({
+  on(AuthActions.initSuccess, (state, {user}) => ({
     ...state,
     user,
-    isAuthenticated: !!user,
+    isAuthenticated: true,
     loading: false,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
-  on(AuthActions.checkAuthFailure, (state, { error }) => ({
+  on(AuthActions.initFailure, (state, {error}) => ({
     ...state,
     user: null,
     isAuthenticated: false,
     loading: false,
-    error,
+    error: {
+      login: error,
+      register: null,
+    }
   })),
 
   on(AuthActions.login, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
-  on(AuthActions.loginSuccess, (state, { user }) => ({
+  on(AuthActions.loginSuccess, (state, {user}) => ({
     ...state,
     user,
     isAuthenticated: true,
     loading: false,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
-  on(AuthActions.loginFailure, (state, { error }) => ({
+  on(AuthActions.loginFailure, (state, {error}) => ({
     ...state,
     user: null,
     isAuthenticated: false,
     loading: false,
-    error,
+    error: {
+      login: error,
+      register: null,
+    }
   })),
 
   on(AuthActions.register, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
   on(AuthActions.registerSuccess, (state) => ({
     ...state,
     loading: false,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
-  on(AuthActions.registerFailure, (state, { error }) => ({
+  on(AuthActions.registerFailure, (state, {error}) => ({
     ...state,
     loading: false,
-    error,
+    error: {
+      login: null,
+      register: error,
+    },
   })),
 
   on(AuthActions.logout, (state) => ({
     ...state,
     loading: true,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
   on(AuthActions.logoutSuccess, (state) => ({
     ...state,
     user: null,
     isAuthenticated: false,
     loading: false,
-    error: null,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
-  on(AuthActions.logoutFailure, (state, { error }) => ({
+  on(AuthActions.logoutFailure, (state) => ({
     ...state,
     loading: false,
-    error,
+    error: {
+      login: null,
+      register: null,
+    },
   })),
 );

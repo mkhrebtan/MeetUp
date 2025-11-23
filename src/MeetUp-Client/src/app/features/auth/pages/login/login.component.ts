@@ -8,7 +8,7 @@ import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {Store} from '@ngrx/store';
 import {AuthActions} from '../../store/auth.actions';
 import {AuthSelectors} from '../../store/auth.selectors';
-import {AsyncPipe, NgIf} from '@angular/common';
+import {AsyncPipe} from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -22,20 +22,17 @@ import {AsyncPipe, NgIf} from '@angular/common';
     Password,
     ReactiveFormsModule,
     AsyncPipe,
-    NgIf,
   ],
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly store = inject(Store);
-
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
-
+  private readonly store = inject(Store);
   loading$ = this.store.select(AuthSelectors.selectLoading);
-  error$ = this.store.select(AuthSelectors.selectError);
+  error$ = this.store.select(AuthSelectors.selectLoginError);
 
   login(): void {
     if (this.loginForm.valid) {

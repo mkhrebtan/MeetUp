@@ -10,17 +10,20 @@ import {Router} from '@angular/router';
 export class AuthEffects {
   private actions$ = inject(Actions);
   private authService = inject(AuthService);
-  checkAuth$ = createEffect(() =>
+  private router = inject(Router);
+
+  init$ = createEffect(() =>
     this.actions$.pipe(
-      ofType(AuthActions.checkAuth),
+      ofType(AuthActions.init),
       switchMap(() =>
-        this.authService.checkAuth().pipe(
-          map((user) => AuthActions.checkAuthSuccess({user})),
-          catchError((error) => of(AuthActions.checkAuthFailure({error: error.message})))
+        this.authService.fetchUser().pipe(
+          map((user) => AuthActions.initSuccess({user})),
+          catchError((error) => of(AuthActions.initFailure({error: error.message})))
         )
       )
     )
   );
+
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
@@ -32,6 +35,7 @@ export class AuthEffects {
       )
     )
   );
+
   register$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.register),
@@ -43,6 +47,7 @@ export class AuthEffects {
       )
     )
   );
+
   logout$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.logout),
@@ -51,11 +56,11 @@ export class AuthEffects {
       catchError((error) => of(AuthActions.logoutFailure({error: error.message})))
     )
   );
-  private router = inject(Router);
+
   loginSuccess$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(() => this.router.navigate(['/workspace/setup']))
+        tap(() => this.router.navigate(['/workspace']))
       ),
     {dispatch: false}
   );
