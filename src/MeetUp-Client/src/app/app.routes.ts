@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
-import {MeetingsListComponent} from './components/meetings-list/meetings-list.component';
-import {MeetingComponent} from './features/meeting/meeting.component';
+import {MeetingComponent} from './features/meeting/pages/meeting.component';
+import {AppShellComponent} from './layout/app-shell/app-shell-component';
 
 export const routes: Routes = [
   {
