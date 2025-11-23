@@ -16,7 +16,7 @@
       <div class="space-y-4">
         <div class="grid gap-2">
           <label class="font-semibold text-foreground">Workspace Name</label>
-          <input [defaultValue]="'Acme Corp'" fluid pInputText type="text">
+          <input [defaultValue]="'Acme Corp'" fluid pInputText pSize="small" type="text">
         </div>
       </div>
     </p-card>
@@ -35,7 +35,7 @@
             <label class="text-base font-semibold text-foreground">Recording</label>
             <p class="text-sm text-muted-foreground">Allow members to record meetings</p>
           </div>
-          <p-select/>
+          <p-select size="small"/>
         </div>
 
         <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -45,7 +45,7 @@
             <label class="text-base font-semibold text-foreground">Screen Sharing</label>
             <p class="text-sm text-muted-foreground">Who can share their screen during meetings</p>
           </div>
-          <p-select/>
+          <p-select size="small"/>
         </div>
 
         <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -55,13 +55,14 @@
             <label class="text-base font-semibold text-foreground">Invitations</label>
             <p class="text-sm text-muted-foreground">Who can invite new members to the workspace</p>
           </div>
-          <p-select/>
+          <p-select size="small"/>
         </div>
       </div>
     </p-card>
 
-    <div class="flex justify-end">
-      <p-button label="Save Changes" severity="primary"/>
+    <div class="flex justify-end gap-4">
+      <p-button label="Cancel" severity="contrast" size="small" variant="outlined"/>
+      <p-button label="Save Changes" severity="primary" size="small"/>
     </div>
 
     <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -69,7 +70,7 @@
     <div class="space-y-4">
       <h3 class="text-lg font-semibold text-destructive">Danger Zone</h3>
       <div
-        class="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-destructive/20 bg-destructive/5">
+        class="text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm border-destructive/20 bg-destructive/5">
         <div class="p-6 space-y-4">
           <div class="flex items-center justify-between">
             <div class="space-y-1">
@@ -78,7 +79,7 @@
                 Revoke your access to this workspace. You can be invited back later.
               </p>
             </div>
-            <p-button icon="pi pi-sign-out" label="Leave" severity="danger" variant="outlined"/>
+            <p-button icon="pi pi-sign-out" label="Leave" severity="danger" size="small" variant="outlined"/>
           </div>
 
           <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -90,7 +91,7 @@
                 Permanently delete this workspace and all associated data. This cannot be undone.
               </p>
             </div>
-            <p-button icon="pi pi-trash" label="Delete Workspace" severity="danger"/>
+            <p-button icon="pi pi-trash" label="Delete Workspace" severity="danger" size="small"/>
           </div>
         </div>
       </div>

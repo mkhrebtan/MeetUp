@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component} from '@angular/core';
 import {Button} from 'primeng/button';
 import {InputText} from 'primeng/inputtext';
 import {IconField} from 'primeng/iconfield';
@@ -6,10 +6,6 @@ import {InputIcon} from 'primeng/inputicon';
 import {Card} from 'primeng/card';
 import {DatePipe} from '@angular/common';
 import {RouterLink} from '@angular/router';
-import {Dialog} from 'primeng/dialog';
-import {DatePicker} from 'primeng/datepicker';
-import {InputNumber} from 'primeng/inputnumber';
-import {Textarea} from 'primeng/textarea';
 
 @Component({
   selector: 'app-meetings',
@@ -23,11 +19,7 @@ import {Textarea} from 'primeng/textarea';
     InputIcon,
     Card,
     DatePipe,
-    RouterLink,
-    Dialog,
-    DatePicker,
-    InputNumber,
-    Textarea
+    RouterLink
   ]
 })
 export class MeetingsComponent {
@@ -73,10 +65,4 @@ export class MeetingsComponent {
       type: "video",
     },
   ];
-
-  isCreateMeetingDialogVisible = signal(false);
-
-  showCreateMeetingDialog() {
-    this.isCreateMeetingDialogVisible.set(true);
-  }
 }

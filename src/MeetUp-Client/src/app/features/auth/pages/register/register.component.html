@@ -9,20 +9,20 @@
     <div class="grid grid-cols-2 gap-4">
       <div class="flex flex-col space-y-3">
         <label class="text-sm font-medium leading-none">First Name</label>
-        <input [placeholder]="'John'" [type]="'text'" pInputText/>
+        <input [placeholder]="'John'" [type]="'text'" pInputText pSize="small"/>
       </div>
       <div class="flex flex-col space-y-3">
         <label class="text-sm font-medium leading-none">Last Name</label>
-        <input [placeholder]="'Doe'" [type]="'text'" pInputText/>
+        <input [placeholder]="'Doe'" [type]="'text'" pInputText pSize="small"/>
       </div>
     </div>
     <div class="flex flex-col space-y-3">
       <label class="text-sm font-medium leading-none">Email</label>
-      <input [placeholder]="'name@example.com'" [type]="'email'" pInputText/>
+      <input [placeholder]="'name@example.com'" [type]="'email'" pInputText pSize="small"/>
     </div>
     <div class="flex flex-col space-y-3">
       <label class="text-sm font-medium leading-none">Password</label>
-      <p-password [feedback]="false" [placeholder]="'Password'" [toggleMask]="true" fluid/>
+      <p-password [feedback]="false" [placeholder]="'Password'" [toggleMask]="true" fluid size="small"/>
     </div>
     <p-button fluid label="Create Account"></p-button>
   </div>

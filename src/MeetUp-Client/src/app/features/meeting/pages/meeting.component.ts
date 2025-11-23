@@ -3,12 +3,12 @@ import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {ConnectionState, DisconnectReason, Room, RoomEvent} from 'livekit-client';
 import {ActivatedRoute, Router} from '@angular/router';
-import {MeetingService} from '../../core/services/meetings/meeting.service';
-import {LivekitService} from './services/livekit/livekit.service';
-import {MeetingModel} from '../../models/meeting.model';
-import {RoomStageDataModel} from './models/room-stage-data.model';
-import {MeetingRoomComponent} from './components/meeting-room/meeting-room.component';
-import {MeetingStageComponent} from './components/meeting-stage/meeting-stage.component';
+import {MeetingService} from '../services/meetings/meeting.service';
+import {LivekitService} from '../services/livekit/livekit.service';
+import {MeetingModel} from '../../../models/meeting.model';
+import {RoomStageDataModel} from '../models/room-stage-data.model';
+import {MeetingRoomComponent} from '../components/meeting-room/meeting-room.component';
+import {MeetingStageComponent} from '../components/meeting-stage/meeting-stage.component';
 import {Button} from 'primeng/button';
 
 @Component({

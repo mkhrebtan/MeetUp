@@ -32,6 +32,10 @@ export const routes: Routes = [
         path: 'settings',
         loadChildren: () => import('./features/settings/settings.routes').then(m => m.settingsRoutes),
       },
+      {
+        path: 'profile',
+        loadChildren: () => import('./features/profile/profile.routes').then(m => m.profileRoutes),
+      },
     ],
   },
   {
@@ -41,5 +45,9 @@ export const routes: Routes = [
   {
     path: 'room/:meetingId',
     component: MeetingComponent,
+  },
+  {
+    path: 'workspace/setup',
+    loadChildren: () => import('./features/workspace/workspace.routes').then(m => m.workspaceRoutes),
   },
 ];

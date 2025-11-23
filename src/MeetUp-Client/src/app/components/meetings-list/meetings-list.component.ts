@@ -1,5 +1,5 @@
 import {Component, inject} from '@angular/core';
-import {MeetingService} from '../../core/services/meetings/meeting.service';
+import {MeetingService} from '../../features/meeting/services/meetings/meeting.service';
 import {Button} from 'primeng/button';
 import {Router} from '@angular/router';
 
