@@ -1,7 +1,10 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, inject, OnInit} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {RouterLink, RouterLinkActive} from '@angular/router';
 import {Button} from 'primeng/button';
+import {Store} from '@ngrx/store';
+import {AuthSelectors} from '../../features/auth/store/auth.selectors';
+import {AsyncPipe} from '@angular/common';
 
 @Component({
   selector: 'app-sidebar',
@@ -9,7 +12,8 @@ import {Button} from 'primeng/button';
   imports: [
     RouterLink,
     RouterLinkActive,
-    Button
+    Button,
+    AsyncPipe
   ],
   styles: [`
     :host ::ng-deep p-button {
@@ -26,6 +30,8 @@ import {Button} from 'primeng/button';
 })
 export class SidebarComponent implements OnInit {
   items: MenuItem[] = [];
+  private readonly store = inject(Store);
+  user$ = this.store.select(AuthSelectors.selectUser);
 
   constructor() {
   }
@@ -60,3 +66,4 @@ export class SidebarComponent implements OnInit {
     ];
   }
 }
+

@@ -1,31 +1,38 @@
 ﻿<p-card class="w-full max-w-md border border-border/50 shadow-xl">
+  <form (ngSubmit)="register()" [formGroup]="registerForm">
+    <div class="p-6 space-y-1">
+      <h2 class="text-2xl font-bold text-center">Create an account</h2>
+      <p class="text-center text-muted-foreground">Get started with your corporate workspace</p>
+    </div>
 
-  <div class="p-6 space-y-1">
-    <h2 class="text-2xl font-bold text-center">Create an account</h2>
-    <p class="text-center text-muted-foreground">Get started with your corporate workspace</p>
-  </div>
-
-  <div class="p-6 space-y-4">
-    <div class="grid grid-cols-2 gap-4">
-      <div class="flex flex-col space-y-3">
-        <label class="text-sm font-medium leading-none">First Name</label>
-        <input [placeholder]="'John'" [type]="'text'" pInputText pSize="small"/>
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col space-y-3">
+          <label class="text-sm font-medium leading-none" for="firstName">First Name</label>
+          <input formControlName="firstName" id="firstName" pInputText pSize="small" placeholder="John"/>
+        </div>
+        <div class="flex flex-col space-y-3">
+          <label class="text-sm font-medium leading-none" for="lastName">Last Name</label>
+          <input formControlName="lastName" id="lastName" pInputText pSize="small" placeholder="Doe"/>
+        </div>
       </div>
       <div class="flex flex-col space-y-3">
-        <label class="text-sm font-medium leading-none">Last Name</label>
-        <input [placeholder]="'Doe'" [type]="'text'" pInputText pSize="small"/>
+        <label class="text-sm font-medium leading-none" for="email">Email</label>
+        <input formControlName="email" id="email" pInputText pSize="small" placeholder="name@example.com"/>
       </div>
+      <div class="flex flex-col space-y-3">
+        <label class="text-sm font-medium leading-none" for="password">Password</label>
+        <p-password [feedback]="false" [toggleMask]="true" fluid formControlName="password"
+                    inputId="password" placeholder="Password" size="small"></p-password>
+      </div>
+      @if (error$ | async; as error) {
+        <div class="text-red-500 text-sm">
+          {{ error }}
+        </div>
+      }
+      <p-button [loading]="loading$ | async" fluid label="Create Account" type="submit"></p-button>
     </div>
-    <div class="flex flex-col space-y-3">
-      <label class="text-sm font-medium leading-none">Email</label>
-      <input [placeholder]="'name@example.com'" [type]="'email'" pInputText pSize="small"/>
-    </div>
-    <div class="flex flex-col space-y-3">
-      <label class="text-sm font-medium leading-none">Password</label>
-      <p-password [feedback]="false" [placeholder]="'Password'" [toggleMask]="true" fluid size="small"/>
-    </div>
-    <p-button fluid label="Create Account"></p-button>
-  </div>
+  </form>
 
   <div class="h-[1px] w-full bg-border">
   </div>
