@@ -1,0 +1,104 @@
+<div class="p-8 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Meetings</h1>
+      <p class="text-muted-foreground mt-1">Manage and join your upcoming sessions</p>
+    </div>
+    <p-button (click)="showCreateMeetingDialog()" icon="pi pi-plus" label="Schedule Meeting"/>
+  </div>
+
+  <div class="flex items-center gap-4 mb-6">
+    <p-iconfield class="flex-1 max-w-md">
+      <p-inputicon class="pi pi-search"/>
+      <input fluid pInputText placeholder="Search meetings.." type="text"/>
+    </p-iconfield>
+    <div class="flex gap-2">
+      <p-button label="Today" variant="outlined"/>
+      <p-button label="Upcoming" variant="outlined"/>
+      <p-button label="Past" variant="outlined"/>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    @for (meeting of meetings; track meeting.id) {
+      <p-card>
+        <div class="p-4 flex items-center justify-between">
+          <div class="flex items-center gap-6">
+            <div class="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10 text-primary">
+              <span class="text-sm font-bold uppercase">
+                {{ meeting.date | date: 'MMM' }}
+              </span>
+              <span class="text-2xl font-bold">
+                {{ meeting.date | date: 'dd' }}
+              </span>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-foreground">{{ meeting.title }}</h3>
+              <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                <span class="flex items-center gap-1">
+                  <i class="pi pi-clock"></i>
+                  {{ meeting.time }} ({{ meeting.duration }})
+                </span>
+                <span class="flex items-center gap-1">
+                  <i class="pi pi-users"></i>
+                  {{ meeting.participants.length }} participants
+                </span>
+                <span class="flex items-center gap-1">
+                  <i class="pi pi-video"></i>
+                  Video Call
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <p-button [routerLink]="['/meeting', meeting.id]" label="Join" size="small"/>
+            <p-button icon="pi pi-ellipsis-v" size="small" variant="text"/>
+          </div>
+        </div>
+      </p-card>
+    }
+  </div>
+
+  <p-dialog [(visible)]="isCreateMeetingDialogVisible" [modal]="true" header="Create Meeting"
+            style="{ max-width: 500px; }">
+    <div class="grid gap-4 py-4">
+      <div class="grid gap-2">
+        <label>Meeting Title</label>
+        <input pInputText placeholder="e.g., Weekly Sync" type="text">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="grid gap-2">
+          <label>Date</label>
+          <p-date-picker [showIcon]="true" size="small"/>
+        </div>
+        <div class="grid gap-2">
+          <label>Time</label>
+          <p-date-picker [showIcon]="true" [timeOnly]="true">
+            <ng-template let-clickCallBack="clickCallBack">
+              <i (click)="clickCallBack($event)" class="pi pi-clock"></i>
+            </ng-template>
+          </p-date-picker>
+        </div>
+      </div>
+
+      <div class="grid gap-2">
+        <label>Duration</label>
+        <p-input-number/>
+      </div>
+
+      <div class="grid gap-2">
+        <label>Participants</label>
+        <input pInputText placeholder="Search members..." type="text"/>
+        <p class="text-xs text-muted-foreground">Separate emails with commas</p>
+      </div>
+
+      <div class="grid gap-2">
+        <label>Description</label>
+        <textarea cols="30" pTextarea placeholder="Meeting agenda..." rows="2"></textarea>
+      </div>
+    </div>
+  </p-dialog>
+</div>
