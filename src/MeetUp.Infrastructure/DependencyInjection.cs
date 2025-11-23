@@ -1,6 +1,8 @@
 ﻿using MeetUp.Application.Authentication;
 using MeetUp.Infrastructure.Authentication;
+using MeetUp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -29,6 +31,9 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IUserContext, UserContext>();
+
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(configuration["CONNECTION_STRING"]));
 
         return services;
     }

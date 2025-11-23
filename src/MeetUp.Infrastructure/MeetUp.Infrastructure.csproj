@@ -8,10 +8,22 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\MeetUp.Application\MeetUp.Application.csproj" />
+      <ProjectReference Include="..\MeetUp.Domain\MeetUp.Domain.csproj" />
     </ItemGroup>
 
 </Project>
