@@ -1,0 +1,65 @@
+<div class="p-8 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Members</h1>
+      <p class="text-muted-foreground mt-1">Manage workspace members and permissions</p>
+    </div>
+    <p-button icon="pi pi-plus" label="Invite Members"/>
+  </div>
+
+  <div class="flex items-center gap-4 mb-6">
+    <p-iconfield class="flex-1 max-w-md">
+      <p-inputicon class="pi pi-search"/>
+      <input fluid pInputText placeholder="Search members.." type="text"/>
+    </p-iconfield>
+    <div class="flex gap-2">
+      <div class="flex gap-2">
+        <p-button label="All members ({{members.length}})" variant="outlined"/>
+        <p-button label="Active" variant="outlined"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    @for (member of members; track member.id) {
+      <p-card>
+        <div class="p-4 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div
+              class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg">
+              {{ member.avatar }}
+            </div>
+
+            <div>
+              <div class="flex items-center gap-3">
+                <h3 class="font-semibold text-foreground">{{ member.name }}</h3>
+                @switch (member.role) {
+                  @case ('Admin') {
+                    <p-badge value="Admin"/>
+                  }
+                  @case ('Moderator') {
+                    <p-badge severity="secondary" value="Moderator"/>
+                  }
+                }
+
+                @if (member.status === 'inactive') {
+                  <p-badge severity="danger" value="Inactive"/>
+                }
+              </div>
+              <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                      <span class="flex items-center gap-1">
+                        <i class="pi pi-envelope"></i>
+                        {{ member.email }}
+                      </span>
+                <span>•</span>
+                <span>{{ member.lastActive }}</span>
+              </div>
+            </div>
+          </div>
+
+          <p-button icon="pi pi-ellipsis-v" size="small" variant="text"/>
+        </div>
+      </p-card>
+    }
+  </div>
+</div>
