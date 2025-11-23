@@ -1,4 +1,5 @@
 ﻿using MeetUp.Application.Authentication;
+using MeetUp.Application.Common.Interfaces;
 using MeetUp.Infrastructure.Authentication;
 using MeetUp.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +12,7 @@ namespace MeetUp.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -35,6 +36,13 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(configuration["CONNECTION_STRING"]));
 
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+
+        services.Configure<KeycloakSettings>(configuration.GetSection("Keycloak"));
+        services.AddScoped<IIdentityProvider, KeycloakIdentityProvider>();
+
+        services.AddHttpClient();
+        
         return services;
     }
 }
