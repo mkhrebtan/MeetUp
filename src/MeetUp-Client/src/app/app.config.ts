@@ -6,6 +6,26 @@ import {provideHttpClient} from '@angular/common/http';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import {definePreset} from '@primeuix/themes';
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+    primary: {
+      50: '#eff4fe',
+      100: '#dbe6fd',
+      200: '#bfd4fb',
+      300: '#93bbf8',
+      400: '#609af3',
+      500: '#2954b4',
+      600: '#2446a3',
+      700: '#1e3a84',
+      800: '#1d316c',
+      900: '#1c2d5a',
+      950: '#151d3b'
+    }
+  }
+});
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +36,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     providePrimeNG({
       theme: {
-        preset: Aura,
+        preset: MyPreset,
         options: {
           darkModeSelector: 'none',
         },

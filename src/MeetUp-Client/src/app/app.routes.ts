@@ -6,6 +6,10 @@ export const routes: Routes = [
   {
     path: '',
     component: MeetingsListComponent
+    component: AppShellComponent,
+    children: [
+    ],
+  },
   {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes),
