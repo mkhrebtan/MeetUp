@@ -1,3 +1,4 @@
+using MeetUp.Domain.Enums;
 using MeetUp.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,5 +28,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.AvatarUrl)
             .HasMaxLength(500);
+        
+        builder.Property(wu => wu.Role)
+            .HasConversion(
+                r => r.ToString(),
+                r => WorkspaceRole.FromCode(r)!);
     }
 }

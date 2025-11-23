@@ -1,4 +1,3 @@
-using MeetUp.Domain.Enums;
 using MeetUp.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,12 +10,7 @@ public class WorkspaceUserConfiguration : IEntityTypeConfiguration<WorkspaceUser
     {
         builder.HasKey(wu => wu.Id);
 
-        builder.HasIndex(wu => new { wu.UserId, wu.WorkspaceId }).IsUnique();
-
-        builder.Property(wu => wu.Role)
-            .HasConversion(
-                r => r.ToString(),
-                r => WorkspaceRole.FromCode(r)!);
+        builder.HasIndex(wu => new { wu.UserId, wu.WorkspaceId, }).IsUnique();
 
         builder.HasOne(wu => wu.User)
             .WithMany()
