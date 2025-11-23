@@ -1,18 +1,21 @@
-﻿namespace MeetUp.API;
+﻿using MeetUp.API.Exceptions;
+
+namespace MeetUp.API;
 
 public static class ConfigureServices
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
         services.AddControllers();
+        services.AddHttpLogging();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
         
+        services.AddOpenApi();
         services.AddRouting(options =>
         {
             options.LowercaseUrls = true;
             options.LowercaseQueryStrings = true;
         });
-        
-        services.AddOpenApi();
 
         services.AddCors(options =>
         {

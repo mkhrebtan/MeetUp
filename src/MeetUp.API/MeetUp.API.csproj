@@ -23,4 +23,9 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\MeetUp.Application\MeetUp.Application.csproj" />
+      <ProjectReference Include="..\MeetUp.Infrastructure\MeetUp.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>

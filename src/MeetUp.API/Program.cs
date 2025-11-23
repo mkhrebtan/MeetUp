@@ -1,11 +1,16 @@
 using MeetUp.API;
+using MeetUp.Application;
+using MeetUp.Infrastructure;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.AddConsole();
 
-builder.Services.AddApiServices();
+builder.Services
+    .AddApiServices()
+    .AddApplication()
+    .AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
@@ -18,6 +23,8 @@ if (app.Environment.IsDevelopment())
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
     });
 }
+
+app.UseExceptionHandler("/error");
 
 app.UseHttpLogging();
 
