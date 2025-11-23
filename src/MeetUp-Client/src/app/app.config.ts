@@ -1,12 +1,15 @@
-import {ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection} from '@angular/core';
+import {ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection, isDevMode} from '@angular/core';
 import {provideRouter} from '@angular/router';
 
 import {routes} from './app.routes';
-import {provideHttpClient} from '@angular/common/http';
+import {provideHttpClient, withInterceptors} from '@angular/common/http';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {providePrimeNG} from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import {definePreset} from '@primeuix/themes';
+import {AuthInterceptor} from './core/interceptors/auth.interceptor';
+import { CORE_PROVIDERS } from './core/core.config';
+import { AUTH_PROVIDERS } from './features/auth/auth.config';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -32,15 +35,17 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([AuthInterceptor])),
     provideAnimations(),
     providePrimeNG({
-      theme: {
-        preset: MyPreset,
-        options: {
-          darkModeSelector: 'none',
-        },
-      }
+        theme: {
+            preset: MyPreset,
+            options: {
+                darkModeSelector: 'none',
+            },
+        }
     }),
-  ]
+    ...CORE_PROVIDERS,
+    ...AUTH_PROVIDERS,
+]
 };
