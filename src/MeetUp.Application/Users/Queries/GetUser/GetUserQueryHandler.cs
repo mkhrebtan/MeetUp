@@ -11,8 +11,16 @@ internal sealed class GetUserQueryHandler(IApplicationDbContext context, IUserCo
     public async Task<Result<UserDto>> Handle(GetUserQuery query, CancellationToken cancellationToken = default)
     {
         var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userContext.UserId || u.Email == userContext.Email, cancellationToken);
-        return user == null ?
-            Result<UserDto>.Failure(Error.NotFound("User.NotFound", "User not found.")) :
-            Result<UserDto>.Success(new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.Role.Name));
+        if (user is null)
+        {
+            return Result<UserDto>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+        
+        var activeWorkspace = await context.WorkspaceUsers
+            .Where(wu => wu.UserId == user.Id && wu.IsActive)
+            .Select(wu => wu.Workspace)
+            .FirstOrDefaultAsync(cancellationToken);
+        
+        return Result<UserDto>.Success(new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.Role.Name, activeWorkspace?.Id));
     }
 }
