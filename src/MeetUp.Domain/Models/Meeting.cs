@@ -22,10 +22,16 @@ public class Meeting : Model
     public RecordingPolicy RecordingPolicy { get; set; } = RecordingPolicy.HostOnly;
 
     public ChatPolicy ChatPolicy { get; set; } = ChatPolicy.Enabled;
+
+    public bool IsActive { get; set; } = false;
+    
+    public required string InviteCode { get; set; }
     
     public DateTime CreatedAt { get; } = DateTime.UtcNow;
     
     public Workspace Workspace { get; set; } = null!;
     
     public WorkspaceUser Organizer { get; set; } = null!;
+    
+    public List<WorkspaceUser> Participants { get; set; } = [];
 }

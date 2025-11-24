@@ -19,5 +19,16 @@ public class WorkspaceConfiguration : IEntityTypeConfiguration<Workspace>
             .HasConversion(
                 p => p.ToString(),
                 p => InvitationPolicy.FromCode(p)!);
+        
+        builder.Property(w => w.MeetingsCreationPolicy)
+            .HasConversion(
+                p => p.ToString(),
+                p => MeetingsCreationPolicy.FromCode(p)!);
+
+        builder.Property(w => w.InviteCode)
+            .HasMaxLength(12);
+        
+        builder.HasIndex(w => w.InviteCode)
+            .IsUnique();
     }
 }

@@ -11,6 +11,8 @@ public class WorkspaceUser : Model
 
     public bool IsActive { get; set; }
     
+    public DateTime JoinedAt { get; } = DateTime.UtcNow;
+    
     public Workspace Workspace { get; set; } = null!;
 
     public User User { get; set; } = null!;

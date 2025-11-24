@@ -54,5 +54,11 @@ public class MeetingConfiguration : IEntityTypeConfiguration<Meeting>
             .HasConversion(
                 p => p.ToString(),
                 p => RecordingPolicy.FromCode(p)!);
+        
+        builder.Property(w => w.InviteCode)
+            .HasMaxLength(12);
+        
+        builder.HasIndex(w => w.InviteCode)
+            .IsUnique();
     }
 }

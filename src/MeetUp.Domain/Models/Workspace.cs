@@ -7,7 +7,11 @@ public class Workspace: Model
 {
     public required string Name { get; set; }
 
+    public required string InviteCode { get; set; }
+    
     public InvitationPolicy InvitationPolicy { get; set; } = InvitationPolicy.OnlyAdmins;
+    
+    public MeetingsCreationPolicy MeetingsCreationPolicy { get; set; } = MeetingsCreationPolicy.OnlyAdmins;
     
     public DateTime CreatedAt { get; } = DateTime.UtcNow;
 }
