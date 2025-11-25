@@ -12,9 +12,16 @@ internal sealed class GetUpcomingMeetingsQueryHandler(IApplicationDbContext cont
 {
     public async Task<Result<IEnumerable<MeetingDto>>> Handle(GetUpcomingMeetingsQuery request, CancellationToken cancellationToken)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result<IEnumerable<MeetingDto>>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
         var upcomingMeetings = await context.Meetings
             .Where(m =>
-                (m.OrganizerId == userContext.UserId || m.Participants.Any(p => p.WorkspaceUser.UserId == userContext.UserId)) &&
+                (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                 m.ScheduledAt > DateTime.UtcNow)
             .OrderBy(m => m.ScheduledAt)
             .Take(request.Count)

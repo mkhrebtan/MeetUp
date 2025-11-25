@@ -13,7 +13,8 @@ public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserCon
 {
     public async Task<Result<JoinWorkspaceCommandResponse>> Handle(JoinWorkspaceCommand request, CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userContext.UserId || u.Email == userContext.Email, cancellationToken);
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result<JoinWorkspaceCommandResponse>.Failure(Error.NotFound("User.NotFound", "User not found."));

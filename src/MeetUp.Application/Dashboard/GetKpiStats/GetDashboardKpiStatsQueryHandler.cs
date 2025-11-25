@@ -11,19 +11,36 @@ internal sealed class GetDashboardKpiStatsQueryHandler(IApplicationDbContext con
 {
     public async Task<Result<GetDashboardKpiStatsQueryResponse>> Handle(GetDashboardKpiStatsQuery request, CancellationToken cancellationToken)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result<GetDashboardKpiStatsQueryResponse>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
+        var workspaceUser = await context.WorkspaceUsers
+            .Where(w => w.UserId == user.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (workspaceUser == null)
+        {
+            return Result<GetDashboardKpiStatsQueryResponse>.Failure(Error.Problem("WorkspaceUser.NotFound",
+                "User is not part of any workspace"));
+        }
+
         var totalMeetingsLastWeek = await context.Meetings
             .Where(m => 
-                (m.OrganizerId == userContext.UserId || m.Participants.Any(p => p.WorkspaceUser.UserId == userContext.UserId)) &&
+                (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                 m.ScheduledAt >= DateTime.UtcNow.AddDays(-7))
             .CountAsync(cancellationToken);
 
         var totalHoursLastWeek = await context.Meetings
-            .Where(m => (m.OrganizerId == userContext.UserId || m.Participants.Any(p => p.WorkspaceUser.UserId == userContext.UserId)) &&
+            .Where(m => (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                         m.ScheduledAt >= DateTime.UtcNow.AddDays(-7))
             .SumAsync(m => m.Duration.TotalHours, cancellationToken);
 
 
-        var totalMembers = await context.Users.CountAsync(cancellationToken);
+        var totalMembers = await context.WorkspaceUsers.Where(w => w.WorkspaceId == workspaceUser.WorkspaceId)
+            .CountAsync(cancellationToken);
 
         var weekMeetingsKpi = new KpiStat(totalMeetingsLastWeek, "Meetings Last 7 Days");
         var totalHoursKpi = new KpiStat((decimal)totalHoursLastWeek, "Total Hours Last 7 Days");

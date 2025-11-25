@@ -13,6 +13,13 @@ internal class CreateMeetingCommandHandler(IApplicationDbContext context, IUserC
 {
     public async Task<Result<CreateMeetingCommandResponse>> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result<CreateMeetingCommandResponse>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
         var screenSharePolicy = ScreenSharePolicy.FromCode(request.ScreenSharePolicy);
         if (screenSharePolicy is null)
         {
@@ -41,7 +48,7 @@ internal class CreateMeetingCommandHandler(IApplicationDbContext context, IUserC
             ScreenSharePolicy = screenSharePolicy,
             RecordingPolicy = recordingPolicy,
             ChatPolicy = chatPolicy,
-            OrganizerId = userContext.UserId,
+            OrganizerId = user.Id,
             InviteCode = await GetUniqueInviteCode(),
         };
 

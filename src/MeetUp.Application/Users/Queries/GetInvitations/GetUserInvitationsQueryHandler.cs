@@ -11,8 +11,15 @@ internal class GetUserInvitationsQueryHandler(IApplicationDbContext context, IUs
 {
     public async Task<Result<IEnumerable<InvitationDto>>> Handle(GetUserInvitationsQuery request, CancellationToken cancellationToken)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result<IEnumerable<InvitationDto>>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
         var invitations = await context.Invitations
-            .Where(i => i.UserId == userContext.UserId)
+            .Where(i => i.UserId == user.Id)
             .Select(i => new InvitationDto(
                 i.Workspace.Name,
                 i.Workspace.InviteCode,

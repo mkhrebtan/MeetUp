@@ -11,7 +11,8 @@ internal sealed class UpdateWorkspaceCommandHandler(IApplicationDbContext contex
 {
     public async Task<Result> Handle(UpdateWorkspaceCommand request, CancellationToken cancellationToken = default)
     {
-        var user = await context.Users.FindAsync([userContext.UserId,], cancellationToken: cancellationToken);
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result.Failure(Error.NotFound("User.NotFound", "User not found."));

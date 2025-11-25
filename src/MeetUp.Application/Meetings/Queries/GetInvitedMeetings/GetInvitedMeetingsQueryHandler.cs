@@ -3,6 +3,7 @@ using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Application.Meetings.Queries.GetHostedMeetings;
 using MeetUp.Domain.Shared.ErrorHandling;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Meetings.Queries.GetInvitedMeetings;
 
@@ -11,8 +12,15 @@ internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext conte
 {
     public async Task<Result<IPagedList<MeetingDto>>> Handle(GetHostedMeetingsQuery request, CancellationToken cancellationToken)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result<IPagedList<MeetingDto>>.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
         var query = context.Meetings
-            .Where(m => m.Participants.Any(p => p.WorkspaceUser.UserId == userContext.UserId) && m.WorkspaceId == request.WorkspaceId)
+            .Where(m => m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id) && m.WorkspaceId == request.WorkspaceId)
             .Select(m => new MeetingDto(
                 m.Id,
                 m.Title,

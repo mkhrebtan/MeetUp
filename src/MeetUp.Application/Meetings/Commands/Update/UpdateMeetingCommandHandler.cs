@@ -3,6 +3,7 @@ using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Domain.Enums;
 using MeetUp.Domain.Shared.ErrorHandling;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Meetings.Commands.Update;
 
@@ -10,13 +11,20 @@ internal sealed class UpdateMeetingCommandHandler(IApplicationDbContext context,
 {
     public async Task<Result> Handle(UpdateMeetingCommand request, CancellationToken cancellationToken = default)
     {
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (user is null)
+        {
+            return Result.Failure(Error.NotFound("User.NotFound", "User not found."));
+        }
+
         var meeting = await context.Meetings.FindAsync([request.WorkspaceId,], cancellationToken: cancellationToken);
         if (meeting is null)
         {
             return Result.Failure(Error.NotFound("Meeting.NotFound", "Meeting not found."));
         }
 
-        if (meeting.OrganizerId != userContext.UserId)
+        if (meeting.OrganizerId != user.Id)
         {
             return Result.Failure(Error.Forbidden("Meeting.NotOrganizer", "Only the organizer can update the meeting."));
         }

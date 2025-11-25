@@ -13,13 +13,21 @@ public class CreateWorkspaceCommandHandler(IApplicationDbContext context, IUserC
 {
     public async Task<Result<CreateWorkspaceCommandResponse>> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
     {
-        var user = await context.Users.FirstOrDefaultAsync(
-            u => u.Id == userContext.UserId || u.Email == userContext.Email, cancellationToken);
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result<CreateWorkspaceCommandResponse>.Failure(Error.NotFound("User.NotFound", "User not found."));
         }
         
+        var userHasWorkspace = 
+            await context.Workspaces.AnyAsync(w => w.Id == user.Id, cancellationToken) ||
+            await context.WorkspaceUsers.AnyAsync(wu => wu.UserId == user.Id, cancellationToken);
+        if (userHasWorkspace)
+        {
+            return Result<CreateWorkspaceCommandResponse>.Failure(Error.Conflict("User.AlreadyInWorkspace", "User is already part of a workspace."));
+        }
+
         user.Role = WorkspaceRole.Admin;
         var workspace = new Workspace
         {

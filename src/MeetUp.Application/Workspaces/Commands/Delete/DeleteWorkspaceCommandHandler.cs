@@ -11,7 +11,8 @@ internal sealed class DeleteWorkspaceCommandHandler(IApplicationDbContext contex
 {
     public async Task<Result> Handle(DeleteWorkspaceCommand request, CancellationToken cancellationToken = default)
     {
-        var user = await context.Users.FindAsync([userContext.UserId,], cancellationToken);
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result.Failure(Error.NotFound("User.NotFound", "User not found."));

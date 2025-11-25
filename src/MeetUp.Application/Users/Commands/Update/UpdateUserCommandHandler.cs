@@ -2,6 +2,7 @@
 using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Domain.Shared.ErrorHandling;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Users.Commands.Update;
 
@@ -9,7 +10,8 @@ internal sealed class UpdateUserCommandHandler(IApplicationDbContext context, IU
 {
     public async Task<Result> Handle(UpdateUserCommand request, CancellationToken cancellationToken = default)
     {
-        var user = await context.Users.FindAsync([userContext.UserId,], cancellationToken);
+        var user = await context.Users
+            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result.Failure(Error.NotFound("User.NotFound", "User not found."));
