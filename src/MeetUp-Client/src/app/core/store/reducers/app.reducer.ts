@@ -10,16 +10,13 @@ export interface AppState {
 
 export const initialState: AppState = {
   title: 'Application name',
-  initialized: false
+  initialized: false,
 };
 
 export const appReducer = createReducer(
   initialState,
-  on(
-    fromAppActions.AppInitialized,
-    (state) => ({
-      ...state,
-      initialized: true
-    })
-  )
+  on(fromAppActions.AppInitialized, (state) => ({
+    ...state,
+    initialized: true,
+  })),
 );

@@ -1,6 +1,6 @@
-﻿import {MenuItem} from 'primeng/api';
+﻿import { MenuItem } from 'primeng/api';
 
 export interface DevicesMenuItemsModel {
-  audioInputs_Outputs: MenuItem[],
-  videoInputs: MenuItem[],
+  audioInputs_Outputs: MenuItem[];
+  videoInputs: MenuItem[];
 }

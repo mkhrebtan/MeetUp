@@ -1,13 +1,13 @@
-import {Component, computed, input, output, Signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {Button} from 'primeng/button';
-import {SplitButton} from 'primeng/splitbutton';
-import {DevicesModel} from '../../models/devices.model';
-import {DevicesMenuItemsModel} from '../../models/devices-menu-items.model';
-import {FaIconComponent} from '@fortawesome/angular-fontawesome';
-import {faMessage} from '@fortawesome/free-regular-svg-icons';
-import {Tooltip} from 'primeng/tooltip';
-import {MessageService} from 'primeng/api';
+import { Component, computed, inject, input, output, Signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Button } from 'primeng/button';
+import { SplitButton } from 'primeng/splitbutton';
+import { DevicesModel } from '../../models/devices.model';
+import { DevicesMenuItemsModel } from '../../models/devices-menu-items.model';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faMessage } from '@fortawesome/free-regular-svg-icons';
+import { Tooltip } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-meeting-room-controls',
@@ -16,18 +16,22 @@ import {MessageService} from 'primeng/api';
   template: `
     <section class="grid grid-cols-3 items-center gap-2 px-4">
       <div class="flex gap-2 w-fit h-full">
-        <p-split-button dropdownIcon="pi pi-chevron-up before:text-xs"
-                        (onClick)="onAudioToggle()"
-                        [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'"
-                        [model]="devicesMenuItems().audioInputs_Outputs">
+        <p-split-button
+          dropdownIcon="pi pi-chevron-up before:text-xs"
+          (onClick)="onAudioToggle()"
+          [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'"
+          [model]="devicesMenuItems().audioInputs_Outputs"
+        >
           <ng-template #content>
             <i class="pi pi-microphone px-1 before:text-lg"></i>
           </ng-template>
         </p-split-button>
-        <p-split-button dropdownIcon="pi pi-chevron-up before:text-xs"
-                        (onClick)="onVideoToggle()"
-                        [severity]="isVideoEnabled() ? 'secondary' : 'danger'"
-                        [model]="devicesMenuItems().videoInputs">
+        <p-split-button
+          dropdownIcon="pi pi-chevron-up before:text-xs"
+          (onClick)="onVideoToggle()"
+          [severity]="isVideoEnabled() ? 'secondary' : 'danger'"
+          [model]="devicesMenuItems().videoInputs"
+        >
           <ng-template #content>
             <i class="pi pi-video px-1 before:text-lg"></i>
           </ng-template>
@@ -35,30 +39,38 @@ import {MessageService} from 'primeng/api';
       </div>
 
       <div class="flex justify-center gap-2">
-        <p-button icon="pi pi-users" size="large"
-                  [severity]="isParticipantsSidebarVisible() ? 'contrast' : 'secondary'"
-                  (click)="onParticipantsToggle()"/>
-        <p-button icon="pi pi-desktop" size="large"
-                  [severity]="screenShareState() === 'local' ? 'contrast' : 'secondary'"
-                  [disabled]="screenShareState() === 'remote'"
-                  [pTooltip]="screenShareTooltip()"
-                  tooltipPosition="top"
-                  (click)="onScreenShareToggle()"/>
-        <p-button icon="pi pi-stop-circle" size="large"
-                  severity="secondary"
-                  (click)="log()"/>
-        <p-button size="large" severity="secondary"
-                  [severity]="isChatVisible() ? 'contrast' : 'secondary'"
-                  (click)="onChatToggle()" class="btn-inside-h-full">
+        <p-button
+          icon="pi pi-users"
+          size="large"
+          [severity]="isParticipantsSidebarVisible() ? 'contrast' : 'secondary'"
+          (click)="onParticipantsToggle()"
+        />
+        <p-button
+          icon="pi pi-desktop"
+          size="large"
+          [severity]="screenShareState() === 'local' ? 'contrast' : 'secondary'"
+          [disabled]="screenShareState() === 'remote'"
+          [pTooltip]="screenShareTooltip()"
+          tooltipPosition="top"
+          (click)="onScreenShareToggle()"
+        />
+        <p-button icon="pi pi-stop-circle" size="large" severity="secondary" (click)="log()" />
+        <p-button
+          size="large"
+          severity="secondary"
+          [severity]="isChatVisible() ? 'contrast' : 'secondary'"
+          (click)="onChatToggle()"
+          class="btn-inside-h-full"
+        >
           <ng-template #content>
-            <fa-icon [icon]="faMessage"/>
+            <fa-icon [icon]="faMessage" />
           </ng-template>
         </p-button>
       </div>
 
       <div class="flex gap-4 items-center justify-self-end">
         <p class="text-white justify-self-end">{{ roomName() }}</p>
-        <p-button icon="pi pi-sign-out" severity="danger" (click)="onDisconnect()" size="large"/>
+        <p-button icon="pi pi-sign-out" severity="danger" (click)="onDisconnect()" size="large" />
       </div>
     </section>
   `,
@@ -87,21 +99,21 @@ export class MeetingRoomControlsComponent {
   devicesMenuItems: Signal<DevicesMenuItemsModel> = computed(() => {
     return {
       audioInputs_Outputs: [
-        ...this.devices().audioInputs.map(({label, deviceId}) => ({
+        ...this.devices().audioInputs.map(({ label, deviceId }) => ({
           label,
           command: () => this.onAudioInputChange(deviceId),
           id: deviceId,
           icon: this.devices().activeAudioInput === deviceId ? 'pi pi-check' : undefined,
         })),
-        {separator: true},
-        ...this.devices().audioOutputs.map(({label, deviceId}) => ({
+        { separator: true },
+        ...this.devices().audioOutputs.map(({ label, deviceId }) => ({
           label,
           command: () => this.onAudioOutputChange(deviceId),
           id: deviceId,
           icon: this.devices().activeAudioOutput === deviceId ? 'pi pi-check' : undefined,
         })),
       ],
-      videoInputs: this.devices().videoInputs.map(({label, deviceId}) => ({
+      videoInputs: this.devices().videoInputs.map(({ label, deviceId }) => ({
         label,
         command: () => this.onVideoInputChange(deviceId),
         id: deviceId,
@@ -120,8 +132,7 @@ export class MeetingRoomControlsComponent {
   });
   protected readonly faMessage = faMessage;
 
-  constructor(private messageService: MessageService) {
-  }
+  messageService = inject(MessageService);
 
   onAudioToggle(): void {
     this.audioToggle.emit();

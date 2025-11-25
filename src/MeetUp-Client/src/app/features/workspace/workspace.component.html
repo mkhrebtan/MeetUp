@@ -1,15 +1,13 @@
 @if (loadingWorkspace$ | async; as loadingWorkspace) {
-  <p-progressSpinner ariaLabel="loading"/>
+  <p-progressSpinner ariaLabel="loading" />
 } @else if (workspace$ | async; as activeWorkspace) {
-  <router-outlet/>
+  <router-outlet />
 } @else {
   <div class="min-h-screen bg-background flex flex-col">
     <header class="border-b border-border bg-card py-4">
       <div class="container mx-auto px-4 flex items-center justify-between">
         <div class="flex items-center gap-2 font-semibold text-lg">
-          <div
-            class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center"
-          >
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
             <i class="pi pi-video text-white"></i>
           </div>
           MeetUp
@@ -33,17 +31,27 @@
               <i class="pi pi-plus text-primary" style="font-size: 1.25rem"></i>
             </div>
             <h3 class="font-semibold text-lg">Create a Workspace</h3>
-            <p class="text-muted-foreground text-sm">Set up a new space for your team to collaborate and meet.</p>
+            <p class="text-muted-foreground text-sm">
+              Set up a new space for your team to collaborate and meet.
+            </p>
           </div>
 
-          <form class="flex flex-col space-y-4" [formGroup]="createWorkspaceForm"
-                (ngSubmit)="onCreateWorkspaceSubmit()">
-            <label class="text-sm font-medium">
-              Workspace Name
-            </label>
-            <input pInputText pSize="small" placeholder="e.g., Acme Corp" formControlName="name"/>
-            <p-button fluid icon="pi pi-arrow-right" iconPos="right" label="Create Workspace" size="small"
-                      [loading]="loadingCreate$ | async" type="submit"></p-button>
+          <form
+            class="flex flex-col space-y-4"
+            [formGroup]="createWorkspaceForm"
+            (ngSubmit)="onCreateWorkspaceSubmit()"
+          >
+            <label class="text-sm font-medium" for="name"> Workspace Name </label>
+            <input pInputText pSize="small" placeholder="e.g., Acme Corp" formControlName="name" id="name" />
+            <p-button
+              fluid
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              label="Create Workspace"
+              size="small"
+              [loading]="loadingCreate$ | async"
+              type="submit"
+            ></p-button>
           </form>
         </p-card>
 
@@ -53,16 +61,34 @@
               <i class="pi pi-building text-primary" style="font-size: 1.25rem"></i>
             </div>
             <h3 class="font-semibold text-lg">Join a Workspace</h3>
-            <p class="text-muted-foreground text-sm">Enter an invitation code or find your team's workspace.</p>
+            <p class="text-muted-foreground text-sm">
+              Enter an invitation code or find your team's workspace.
+            </p>
           </div>
 
-          <form class="flex flex-col space-y-4" [formGroup]="joinWorkspaceForm" (ngSubmit)="onJoinWorkspaceSubmit()">
-            <label class="text-sm font-medium">
-              Invitation Code
-            </label>
-            <input pInputText pSize="small" placeholder="e.g., WSR-123-XYZ" formControlName="inviteCode"/>
-            <p-button fluid icon="pi pi-arrow-right" iconPos="right" label="Join Workspace" severity="secondary"
-                      size="small" [loading]="loadingJoin$ | async" type="submit"></p-button>
+          <form
+            class="flex flex-col space-y-4"
+            [formGroup]="joinWorkspaceForm"
+            (ngSubmit)="onJoinWorkspaceSubmit()"
+          >
+            <label class="text-sm font-medium" for="inviteCode"> Invitation Code </label>
+            <input
+              pInputText
+              pSize="small"
+              placeholder="e.g., WSR-123-XYZ"
+              formControlName="inviteCode"
+              id="inviteCode"
+            />  
+            <p-button
+              fluid
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              label="Join Workspace"
+              severity="secondary"
+              size="small"
+              [loading]="loadingJoin$ | async"
+              type="submit"
+            ></p-button>
           </form>
         </p-card>
       </div>

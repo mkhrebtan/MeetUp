@@ -6,9 +6,9 @@
   OnChanges,
   OnDestroy,
   SimpleChanges,
-  ViewChild
+  ViewChild,
 } from '@angular/core';
-import {LocalVideoTrack, RemoteVideoTrack} from "livekit-client";
+import { LocalVideoTrack, RemoteVideoTrack } from 'livekit-client';
 
 @Component({
   selector: 'app-participant-video',
@@ -24,7 +24,9 @@ import {LocalVideoTrack, RemoteVideoTrack} from "livekit-client";
         #videoElement
       ></video>
       @if (!isVideoEnabled()) {
-        <div class="bg-neutral-950  w-full h-full flex items-center justify-center z-10 absolute top-0 left-0">
+        <div
+          class="bg-neutral-950  w-full h-full flex items-center justify-center z-10 absolute top-0 left-0"
+        >
           <p class="text-4xl text-neutral-400 px-4 truncate max-w-full">
             @if (identity()) {
               {{ identity() }}

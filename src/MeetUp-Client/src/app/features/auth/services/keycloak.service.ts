@@ -1,8 +1,8 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {KeycloakLoginResponse} from '../models/keycloak-login-response.model';
-import {environment} from '../../../../enviroments/enviroment';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { KeycloakLoginResponse } from '../models/keycloak-login-response.model';
+import { environment } from '../../../../enviroments/enviroment';
 
 @Injectable({
   providedIn: 'root',
@@ -16,8 +16,7 @@ export class KeycloakService {
     'Content-Type': 'application/x-www-form-urlencoded',
   });
 
-  constructor(private http: HttpClient) {
-  }
+  http = inject(HttpClient);
 
   private get realmUrl(): string {
     return `${this.baseUrl}/realms/${this.realm}`;
@@ -38,7 +37,7 @@ export class KeycloakService {
     });
   }
 
-  refreshToken(refreshToken: string): Observable<any> {
+  refreshToken(refreshToken: string) {
     const url = '/protocol/openid-connect/token';
 
     const body = new HttpParams()
@@ -51,7 +50,7 @@ export class KeycloakService {
     });
   }
 
-  logout(refreshToken: string): Observable<any> {
+  logout(refreshToken: string) {
     const url = '/protocol/openid-connect/logout';
 
     const body = new HttpParams()
@@ -67,11 +66,7 @@ export class KeycloakService {
     return this.http.get<T>(`${this.realmUrl}${endpoint}`, options);
   }
 
-  private post<T>(
-    endpoint: string,
-    body: any,
-    options?: object
-  ): Observable<T> {
+  private post<T>(endpoint: string, body: string, options?: object): Observable<T> {
     return this.http.post<T>(`${this.realmUrl}${endpoint}`, body, options);
   }
 }

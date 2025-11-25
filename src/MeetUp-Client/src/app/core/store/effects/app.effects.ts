@@ -10,7 +10,7 @@ export class AppEffects {
   initApplication$ = createEffect(() =>
     this.actions$.pipe(
       ofType(fromAppActions.AppInit),
-      exhaustMap(() => of(fromAppActions.AppInitialized()).pipe(delay(3000)))
-    )
+      exhaustMap(() => of(fromAppActions.AppInitialized()).pipe(delay(3000))),
+    ),
   );
 }

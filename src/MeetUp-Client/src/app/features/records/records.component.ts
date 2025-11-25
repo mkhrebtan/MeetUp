@@ -1,22 +1,16 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-import {Card} from 'primeng/card';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'app-records',
   templateUrl: './records.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    IconField,
-    InputIcon,
-    InputText,
-    Button,
-    Card
-  ]
+  imports: [IconField, InputIcon, InputText, Button, Card],
 })
 export class RecordsComponent {
   records = [
@@ -29,7 +23,7 @@ export class RecordsComponent {
       owner: 'You',
       thumbnail: '/placeholder.svg?key=azyt4',
       size: '342 MB',
-      sharedWith: 5
+      sharedWith: 5,
     },
     {
       id: '2',
@@ -40,7 +34,7 @@ export class RecordsComponent {
       owner: 'Sarah Miller',
       thumbnail: '/placeholder.svg?key=1c9d6',
       size: '198 MB',
-      sharedWith: 3
+      sharedWith: 3,
     },
     {
       id: '3',
@@ -51,7 +45,7 @@ export class RecordsComponent {
       owner: 'You',
       thumbnail: '/placeholder.svg?key=dgpgz',
       size: '285 MB',
-      sharedWith: 8
+      sharedWith: 8,
     },
     {
       id: '4',
@@ -62,7 +56,7 @@ export class RecordsComponent {
       owner: 'Mike Johnson',
       thumbnail: '/placeholder.svg?key=dfzmk',
       size: '167 MB',
-      sharedWith: 2
+      sharedWith: 2,
     },
     {
       id: '5',
@@ -73,7 +67,7 @@ export class RecordsComponent {
       owner: 'You',
       thumbnail: '/placeholder.svg?key=pxcph',
       size: '512 MB',
-      sharedWith: 12
+      sharedWith: 12,
     },
     {
       id: '6',
@@ -84,7 +78,7 @@ export class RecordsComponent {
       owner: 'Alice Chen',
       thumbnail: '/placeholder.svg?key=rl9h8',
       size: '298 MB',
-      sharedWith: 6
-    }
+      sharedWith: 6,
+    },
   ];
 }

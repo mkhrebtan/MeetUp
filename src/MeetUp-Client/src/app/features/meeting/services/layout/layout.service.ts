@@ -1,13 +1,13 @@
-﻿import {Injectable} from '@angular/core';
-import {DimensionModel} from '../../models/dimension.model';
-import {GridInputModel} from '../../models/grid-input.model';
+﻿import { Injectable } from '@angular/core';
+import { DimensionModel } from '../../models/dimension.model';
+import { GridInputModel } from '../../models/grid-input.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LayoutService {
   calculateGridDimension(input: GridInputModel): DimensionModel {
-    const {dimension, totalGrids, aspectRatio} = input;
+    const { dimension, totalGrids, aspectRatio } = input;
     let bestLayout = {
       area: 0,
       width: 0,
@@ -17,7 +17,7 @@ export class LayoutService {
     };
 
     if (totalGrids === 0) {
-      return {width: 0, height: 0};
+      return { width: 0, height: 0 };
     }
 
     for (let cols = 1; cols <= totalGrids; cols++) {

@@ -1,16 +1,23 @@
-﻿import {Component, computed, input, output} from '@angular/core';
-import {Participant} from 'livekit-client';
-import {ScrollPanel} from 'primeng/scrollpanel';
+﻿import { Component, computed, input, output } from '@angular/core';
+import { Participant } from 'livekit-client';
+import { ScrollPanel } from 'primeng/scrollpanel';
 
 @Component({
   selector: 'app-participants-sidebar',
   template: `
     <div
       class="h-full border border-neutral-700 bg-neutral-800 shadow-xl py-4 px-6 rounded-xl
-                flex flex-col gap-4 overflow-y-auto text-white">
+                flex flex-col gap-4 overflow-y-auto text-white"
+    >
       <div class="flex items-center justify-between">
         <h2 class="text-lg font-bold">Participants ({{ participants().length }})</h2>
-        <i class="pi pi-times cursor-pointer" (click)="onClose()"></i>
+        <i
+          class="pi pi-times cursor-pointer"
+          (click)="onClose()"
+          (keydown.enter)="onClose()"
+          tabindex="0"
+          role="button"
+        ></i>
       </div>
       <p-scroll-panel class="h-full">
         <ul class="flex flex-col gap-2">
@@ -22,12 +29,10 @@ import {ScrollPanel} from 'primeng/scrollpanel';
     </div>
   `,
   styles: [],
-  imports: [
-    ScrollPanel
-  ]
+  imports: [ScrollPanel],
 })
 export class ParticipantsSidebarComponent {
-  close = output();
+  closed = output();
   participants = input.required<Participant[]>();
   sortedParticipants = computed(() => {
     return this.participants().sort((a, b) => {
@@ -42,6 +47,6 @@ export class ParticipantsSidebarComponent {
   });
 
   onClose() {
-    this.close.emit();
+    this.closed.emit();
   }
 }

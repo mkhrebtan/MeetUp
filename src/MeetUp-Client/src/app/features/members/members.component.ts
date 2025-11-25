@@ -1,24 +1,17 @@
-import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {Button} from 'primeng/button';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
-import {Card} from 'primeng/card';
-import {Badge} from 'primeng/badge';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Button } from 'primeng/button';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Card } from 'primeng/card';
+import { Badge } from 'primeng/badge';
 
 @Component({
   selector: 'app-members',
   templateUrl: './members.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    Button,
-    IconField,
-    InputIcon,
-    InputText,
-    Card,
-    Badge
-  ]
+  imports: [Button, IconField, InputIcon, InputText, Card, Badge],
 })
 export class MembersComponent {
   members = [
@@ -30,7 +23,7 @@ export class MembersComponent {
       status: 'active',
       avatar: 'JD',
       joinedDate: '2023-01-15',
-      lastActive: 'Active now'
+      lastActive: 'Active now',
     },
     {
       id: '2',
@@ -40,7 +33,7 @@ export class MembersComponent {
       status: 'active',
       avatar: 'SM',
       joinedDate: '2023-03-20',
-      lastActive: '2 hours ago'
+      lastActive: '2 hours ago',
     },
     {
       id: '3',
@@ -50,7 +43,7 @@ export class MembersComponent {
       status: 'active',
       avatar: 'MJ',
       joinedDate: '2023-05-10',
-      lastActive: '1 day ago'
+      lastActive: '1 day ago',
     },
     {
       id: '4',
@@ -60,7 +53,7 @@ export class MembersComponent {
       status: 'active',
       avatar: 'AC',
       joinedDate: '2023-04-05',
-      lastActive: '5 minutes ago'
+      lastActive: '5 minutes ago',
     },
     {
       id: '5',
@@ -70,7 +63,7 @@ export class MembersComponent {
       status: 'inactive',
       avatar: 'BW',
       joinedDate: '2023-06-18',
-      lastActive: '1 week ago'
+      lastActive: '1 week ago',
     },
     {
       id: '6',
@@ -80,7 +73,7 @@ export class MembersComponent {
       status: 'active',
       avatar: 'ED',
       joinedDate: '2023-07-22',
-      lastActive: '3 hours ago'
-    }
+      lastActive: '3 hours ago',
+    },
   ];
 }

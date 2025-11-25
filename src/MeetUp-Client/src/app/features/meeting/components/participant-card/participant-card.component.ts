@@ -1,4 +1,14 @@
-import {AfterViewInit, Component, ElementRef, input, OnDestroy, OnInit, output, signal, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import {
   LocalParticipant,
   LocalTrackPublication,
@@ -7,32 +17,29 @@ import {
   RemoteParticipant,
   Track,
   TrackPublication,
-  VideoTrack
+  VideoTrack,
 } from 'livekit-client';
-import {Chip} from 'primeng/chip';
-import {ParticipantVideoComponent} from "../participant-video/participant-video.component";
+import { Chip } from 'primeng/chip';
+import { ParticipantVideoComponent } from '../participant-video/participant-video.component';
 
 @Component({
   selector: 'app-participant-card',
   standalone: true,
-  imports: [
-    Chip,
-    ParticipantVideoComponent
-  ],
+  imports: [Chip, ParticipantVideoComponent],
   template: `
-    <div class="w-full h-full relative rounded-xl overflow-hidden shadow-xl"
-         [class.border-2]="isSpeaking()"
-         [class.border-green-400]="isSpeaking()">
+    <div
+      class="w-full h-full relative rounded-xl overflow-hidden shadow-xl"
+      [class.border-2]="isSpeaking()"
+      [class.border-green-400]="isSpeaking()"
+    >
       @if (isVideoEnabled() && participant().identity) {
         <p-chip
           class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-10 animate-fadein"
-          [label]="participant().identity"></p-chip>
+          [label]="participant().identity"
+        ></p-chip>
       }
 
-      <audio
-        autoplay
-        #audioElement
-      ></audio>
+      <audio autoplay #audioElement></audio>
 
       <app-participant-video
         [videoTrack]="videoTrack()"
@@ -69,16 +76,22 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   ngAfterViewInit() {
-    this.participant().getTrackPublications().filter(t => t.kind === Track.Kind.Video).forEach((pub) => {
-      if (pub.track) {
-        this.handleTrackSubscribed(pub.track, pub);
-      }
-    });
-    this.participant().getTrackPublications().filter(t => t.kind === Track.Kind.Audio).forEach((pub) => {
-      if (pub.track) {
-        this.handleTrackSubscribed(pub.track, pub);
-      }
-    });
+    this.participant()
+      .getTrackPublications()
+      .filter((t) => t.kind === Track.Kind.Video)
+      .forEach((pub) => {
+        if (pub.track) {
+          this.handleTrackSubscribed(pub.track, pub);
+        }
+      });
+    this.participant()
+      .getTrackPublications()
+      .filter((t) => t.kind === Track.Kind.Audio)
+      .forEach((pub) => {
+        if (pub.track) {
+          this.handleTrackSubscribed(pub.track, pub);
+        }
+      });
   }
 
   ngOnDestroy() {

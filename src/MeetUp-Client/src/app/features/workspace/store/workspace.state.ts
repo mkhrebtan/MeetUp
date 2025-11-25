@@ -1,4 +1,4 @@
-import {Workspace} from '../models/workspace.model';
+import { Workspace } from '../models/workspace.model';
 
 export interface WorkspaceState {
   activeWorkspace: Workspace | null;

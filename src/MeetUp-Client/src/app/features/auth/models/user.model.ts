@@ -6,4 +6,3 @@ export interface User {
   role: string;
   activeWorkspaceId: string | null;
 }
-

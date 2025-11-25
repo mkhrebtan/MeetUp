@@ -5,17 +5,19 @@
   HttpHeaders,
   HttpInterceptorFn,
   HttpParams,
-  HttpRequest
+  HttpRequest,
 } from '@angular/common/http';
-import {inject} from '@angular/core';
-import {TokenService} from '../services/token.service';
-import {environment} from "../../../enviroments/enviroment";
-import {catchError, filter, switchMap, take} from 'rxjs/operators';
-import {BehaviorSubject, throwError} from "rxjs";
-import {LoggerService} from '../services/logger.service';
+import { inject } from '@angular/core';
+import { TokenService } from '../services/token.service';
+import { environment } from '../../../enviroments/enviroment';
+import { catchError, filter, switchMap, take } from 'rxjs/operators';
+import { BehaviorSubject, throwError } from 'rxjs';
+import { LoggerService } from '../services/logger.service';
 
 let isRefreshing = false;
-const refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+const refreshTokenSubject: BehaviorSubject<string | null> = new BehaviorSubject<string | null>(
+  null,
+);
 
 export const AuthInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -40,7 +42,11 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error) => {
-      if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 0) && token) {
+      if (
+        error instanceof HttpErrorResponse &&
+        (error.status === 401 || error.status === 0) &&
+        token
+      ) {
         return handle401Error(authReq, next, tokenService, logger, http);
       }
       return throwError(() => error);
@@ -48,7 +54,13 @@ export const AuthInterceptor: HttpInterceptorFn = (
   );
 };
 
-const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService: TokenService, logger: LoggerService, http: HttpClient) => {
+const handle401Error = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn,
+  tokenService: TokenService,
+  logger: LoggerService,
+  http: HttpClient,
+) => {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
@@ -68,12 +80,12 @@ const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService
       .set('grant_type', 'refresh_token')
       .set('refresh_token', refreshToken);
 
-    return http.post<any>(url, body, {
-      headers: new HttpHeaders({
+    return http
+      .post<{ access_token: string; refresh_token: string }>(url, body, {
+        headers: new HttpHeaders({
           'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      )
-    })
+        }),
+      })
       .pipe(
         switchMap((tokenResponse) => {
           isRefreshing = false;
@@ -98,7 +110,7 @@ const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService
   }
 };
 
-const addTokenHeader = (request: HttpRequest<any>, token: string) => {
+const addTokenHeader = (request: HttpRequest<unknown>, token: string) => {
   return request.clone({
     setHeaders: {
       Authorization: `Bearer ${token}`,

@@ -4,7 +4,7 @@
       <h1 class="text-3xl font-bold text-foreground text-balance">Welcome back, John</h1>
       <p class="text-muted-foreground mt-1">Here's what's happening with your workspace today</p>
     </div>
-    <p-button icon="pi pi-plus" label="New Metting" size="small"/>
+    <p-button icon="pi pi-plus" label="New Metting" size="small" />
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -24,12 +24,9 @@
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
-
     <p-card class="h-full">
       <div class="p-6 pt-1 space-y-1">
-        <h2 class="text-xl font-bold text-center">
-          Upcoming Meetings
-        </h2>
+        <h2 class="text-xl font-bold text-center">Upcoming Meetings</h2>
       </div>
       <div class="space-y-4">
         @for (meeting of upcomingMeetings; track meeting.id) {
@@ -39,7 +36,6 @@
             <div class="flex-1">
               <h3 class="font-medium text-foreground">{{ meeting.title }}</h3>
               <div class="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-
                 <span class="flex items-center gap-1">
                   <i class="pi pi-clock"></i>
                   {{ meeting.time }}
@@ -51,10 +47,9 @@
                   <i class="pi pi-users"></i>
                   {{ meeting.participants }}
                 </span>
-
               </div>
             </div>
-            <p-button label="Join" severity="secondary" size="small" variant="outlined"/>
+            <p-button label="Join" severity="secondary" size="small" variant="outlined" />
           </div>
         }
       </div>
@@ -62,9 +57,7 @@
 
     <p-card class="h-full">
       <div class="p-6 pt-1 space-y-1">
-        <h2 class="text-xl font-bold text-center">
-          Recent Records
-        </h2>
+        <h2 class="text-xl font-bold text-center">Recent Records</h2>
       </div>
       <div class="space-y-4">
         @for (record of recentRecords; track record.id) {
@@ -78,7 +71,6 @@
               <div>
                 <h3 class="font-medium text-foreground">{{ record.title }}</h3>
                 <div class="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-
                   <span>{{ record.date }}</span>
 
                   <span>•</span>
@@ -95,6 +87,5 @@
         }
       </div>
     </p-card>
-
   </div>
 </div>

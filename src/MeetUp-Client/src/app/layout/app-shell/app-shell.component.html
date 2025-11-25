@@ -2,9 +2,9 @@
   <app-sidebar></app-sidebar>
   <main class="flex-1 overflow-y-auto">
     @if (loading$ | async; as loading) {
-      <p-progress-spinner ariaLabel="loading"/>
+      <p-progress-spinner ariaLabel="loading" />
     } @else if (activeWorkspaceId$ | async; as activeWorkspaceId) {
-      <router-outlet/>
+      <router-outlet />
     }
 
     @if (error$ | async; as error) {

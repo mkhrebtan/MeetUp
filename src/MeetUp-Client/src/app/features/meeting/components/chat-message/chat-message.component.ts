@@ -1,5 +1,5 @@
-import {ChangeDetectionStrategy, Component, input} from '@angular/core';
-import {DatePipe} from '@angular/common';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-chat-message',
@@ -15,7 +15,8 @@ import {DatePipe} from '@angular/common';
         class="max-w-xs sm:max-w-sm md:max-w-md rounded-lg px-3 py-2 text-white w-fit"
         [class.bg-blue-600]="isLocalParticipant()"
         [class.bg-neutral-700]="!isLocalParticipant()"
-        [class.self-end]="isLocalParticipant()">
+        [class.self-end]="isLocalParticipant()"
+      >
         <p class="break-words">{{ message() }}</p>
       </div>
     </div>

@@ -1,7 +1,7 @@
-import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {environment} from '../../../enviroments/enviroment';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../enviroments/enviroment';
 
 @Injectable({
   providedIn: 'root',
@@ -9,21 +9,20 @@ import {environment} from '../../../enviroments/enviroment';
 export class ApiService {
   private readonly apiUrl = environment.apiUrl || '';
 
-  constructor(private http: HttpClient) {
-  }
+  private http = inject(HttpClient);
 
   get<T>(
     endpoint: string,
-    params?: HttpParams | { [param: string]: string | number | boolean }
+    params?: HttpParams | Record<string, string | number | boolean>,
   ): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}${endpoint}`, {params});
+    return this.http.get<T>(`${this.apiUrl}${endpoint}`, { params });
   }
 
-  post<T>(endpoint: string, body: any, options?: object): Observable<T> {
+  post<T>(endpoint: string, body: unknown, options?: object): Observable<T> {
     return this.http.post<T>(`${this.apiUrl}${endpoint}`, body, options);
   }
 
-  put<T>(endpoint: string, body: any, options?: object): Observable<T> {
+  put<T>(endpoint: string, body: unknown, options?: object): Observable<T> {
     return this.http.put<T>(`${this.apiUrl}${endpoint}`, body, options);
   }
 

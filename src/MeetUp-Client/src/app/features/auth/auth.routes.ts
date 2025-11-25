@@ -1,8 +1,8 @@
-﻿import {AuthComponent} from './auth.component';
-import {AUTH_PROVIDERS} from './auth.config';
-import {LoginComponent} from './pages/login/login.component';
-import {RegisterComponent} from './pages/register/register.component';
-import {Routes} from '@angular/router';
+﻿import { AuthComponent } from './auth.component';
+import { AUTH_PROVIDERS } from './auth.config';
+import { LoginComponent } from './pages/login/login.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { Routes } from '@angular/router';
 
 export const authRoutes: Routes = [
   {
@@ -13,7 +13,7 @@ export const authRoutes: Routes = [
       {
         path: '',
         redirectTo: 'login',
-        pathMatch: 'full'
+        pathMatch: 'full',
       },
       {
         path: 'login',
@@ -24,5 +24,5 @@ export const authRoutes: Routes = [
         component: RegisterComponent,
       },
     ],
-  }
+  },
 ];

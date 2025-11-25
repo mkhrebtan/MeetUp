@@ -1,4 +1,4 @@
-import {computed, signal, Signal, WritableSignal} from '@angular/core';
+import { computed, signal, Signal, WritableSignal } from '@angular/core';
 
 export class PagedList<T> {
   public readonly totalItems: Signal<number>;
@@ -58,11 +58,11 @@ export class PagedList<T> {
   }
 
   public addItem(item: T): void {
-    this._items.update(items => [...items, item]);
+    this._items.update((items) => [...items, item]);
   }
 
   public removeItem(predicate: (item: T) => boolean): void {
-    this._items.update(items => items.filter(item => !predicate(item)));
+    this._items.update((items) => items.filter((item) => !predicate(item)));
   }
 
   public setData(items: T[]): void {
@@ -75,4 +75,3 @@ export class PagedList<T> {
     this.setPage(1);
   }
 }
-

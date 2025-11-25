@@ -1,7 +1,13 @@
 <div class="p-8 max-w-3xl mx-auto">
   <div class="mb-8">
-    <p-button icon="pi pi-arrow-left" label="Back" routerLink=".." severity="secondary" size="small"
-              text></p-button>
+    <p-button
+      icon="pi pi-arrow-left"
+      label="Back"
+      routerLink=".."
+      severity="secondary"
+      size="small"
+      text
+    ></p-button>
     <div class="px-2">
       <h1 class="text-3xl font-bold text-foreground">Schedule New Meeting</h1>
       <p class="text-muted-foreground mt-1">Create a new meeting room and invite participants</p>
@@ -12,42 +18,61 @@
     <form [formGroup]="meetingForm">
       <div class="space-y-6">
         <div class="grid gap-2">
-          <label>Meeting Title</label>
-          <input pInputText pSize="small" placeholder="e.g., Weekly Sync" type="text">
+          <label for="meetingTitle">Meeting Title</label>
+          <input pInputText pSize="small" placeholder="e.g., Weekly Sync" type="text" id="meetingTitle" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="grid gap-2">
-            <label>Date</label>
-            <p-date-picker [showIcon]="true" fluid size="small"/>
+            <label for="meetingDate">Date</label>
+            <p-date-picker [showIcon]="true" fluid size="small" id="meetingDate" />
           </div>
           <div class="grid gap-2">
-            <label>Time</label>
-            <p-date-picker [showIcon]="true" [timeOnly]="true" fluid icon="pi pi-clock" size="small"/>
+            <label for="meetingTime">Time</label>
+            <p-date-picker
+              [showIcon]="true"
+              [timeOnly]="true"
+              fluid
+              icon="pi pi-clock"
+              size="small"
+            />
           </div>
         </div>
 
         <div class="grid gap-2">
-          <label>Duration</label>
-          <p-input-number size="small"/>
+          <label for="meetingDuration">Duration</label>
+          <p-input-number size="small" id="meetingDuration" />
         </div>
 
         <div class="grid gap-2">
-          <label>Participants</label>
-          <input pInputText pSize="small" placeholder="Search members..." type="text"/>
+          <label for="meetingParticipants">Participants</label>
+          <input pInputText pSize="small" placeholder="Search members..." type="text" />
           <p class="text-xs text-muted-foreground">Separate emails with commas</p>
         </div>
 
         <div class="grid gap-2">
-          <label>Description</label>
-          <textarea cols="30" pSize="small" pTextarea placeholder="Meeting agenda..." rows="4"></textarea>
+          <label for="meetingDescription">Description</label>
+          <textarea
+            cols="30"
+            pSize="small"
+            pTextarea
+            placeholder="Meeting agenda..."
+            rows="4"
+            id="meetingDescription"
+          ></textarea>
         </div>
       </div>
     </form>
   </p-card>
 
   <div class="flex justify-end gap-4 pt-4">
-    <p-button label="Cancel" routerLink="/meetings" severity="contrast" size="small" variant="outlined"/>
-    <p-button label="Create Meeting" severity="primary" size="small"/>
+    <p-button
+      label="Cancel"
+      routerLink="/meetings"
+      severity="contrast"
+      size="small"
+      variant="outlined"
+    />
+    <p-button label="Create Meeting" severity="primary" size="small" />
   </div>
 </div>

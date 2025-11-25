@@ -18,7 +18,12 @@
           </div>
           <div class="space-y-2">
             <div class="flex gap-2">
-              <p-button label="Change Avatar" severity="contrast" size="small" variant="outlined"></p-button>
+              <p-button
+                label="Change Avatar"
+                severity="contrast"
+                size="small"
+                variant="outlined"
+              ></p-button>
               <p-button label="Remove" severity="danger" size="small" variant="outlined"></p-button>
             </div>
             <p class="text-sm text-muted-foreground">JPG, GIF or PNG. Max size of 800K</p>
@@ -27,23 +32,23 @@
 
         <div class="grid gap-4 md:grid-cols-2">
           <div class="flex flex-col space-y-3">
-            <label class="text-sm font-medium leading-none">First Name</label>
-            <input [placeholder]="'John'" [type]="'text'" pInputText pSize="small"/>
+            <label class="text-sm font-medium leading-none" for="firstName">First Name</label>
+            <input [placeholder]="'John'" [type]="'text'" pInputText pSize="small" id="firstName" />
           </div>
           <div class="flex flex-col space-y-3">
-            <label class="text-sm font-medium leading-none">Last Name</label>
-            <input [placeholder]="'Doe'" [type]="'text'" pInputText pSize="small"/>
+            <label class="text-sm font-medium leading-none" for="lastName">Last Name</label>
+            <input [placeholder]="'Doe'" [type]="'text'" pInputText pSize="small" id="lastName" />
           </div>
         </div>
 
         <div class="flex flex-col space-y-3">
-          <label class="text-sm font-medium leading-none">Email</label>
-          <input [placeholder]="'john@company.com'" [type]="'email'" pInputText pSize="small"/>
+          <label class="text-sm font-medium leading-none" for="email">Email</label>
+          <input [placeholder]="'john@company.com'" [type]="'email'" pInputText pSize="small" id="email" />
         </div>
 
         <div class="flex flex-col space-y-3">
-          <label class="text-sm font-medium leading-none">Job Title</label>
-          <input [placeholder]="'Senior Product Designer'" pInputText pSize="small"/>
+          <label class="text-sm font-medium leading-none" for="jobTitle">Job Title</label>
+          <input [placeholder]="'Senior Product Designer'" pInputText pSize="small" />
         </div>
       </div>
     </p-card>
@@ -56,18 +61,18 @@
 
       <div class="space-y-6">
         <div class="flex flex-col space-y-3">
-          <label class="text-sm font-medium leading-none">Current Password</label>
-          <p-password [feedback]="false" [toggleMask]="true" fluid size="small"/>
+          <label class="text-sm font-medium leading-none" for="currentPassword">Current Password</label>
+          <p-password [feedback]="false" [toggleMask]="true" fluid size="small" id="currentPassword" />
         </div>
 
         <div class="flex flex-col space-y-3">
-          <label class="text-sm font-medium leading-none">New Password</label>
-          <p-password [feedback]="false" [toggleMask]="true" fluid size="small"/>
+          <label class="text-sm font-medium leading-none" for="newPassword">New Password</label>
+          <p-password [feedback]="false" [toggleMask]="true" fluid size="small" id="newPassword" />
         </div>
 
         <div class="flex flex-col space-y-3">
-          <label class="text-sm font-medium leading-none">Confirm New Password</label>
-          <p-password [feedback]="false" [toggleMask]="true" fluid size="small"/>
+          <label class="text-sm font-medium leading-none" for="confirmNewPassword">Confirm New Password</label>
+          <p-password [feedback]="false" [toggleMask]="true" fluid size="small" id="confirmNewPassword" />
         </div>
 
         <p-button label="Update Password" size="small" variant="outlined"></p-button>
@@ -76,7 +81,7 @@
   </div>
 
   <div class="flex justify-end gap-4 pt-6">
-    <p-button label="Cancel" severity="contrast" size="small" variant="outlined"/>
-    <p-button label="Save Changes" severity="primary" size="small"/>
+    <p-button label="Cancel" severity="contrast" size="small" variant="outlined" />
+    <p-button label="Save Changes" severity="primary" size="small" />
   </div>
 </div>

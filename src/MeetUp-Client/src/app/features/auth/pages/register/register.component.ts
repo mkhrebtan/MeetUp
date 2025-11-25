@@ -1,31 +1,23 @@
-﻿import {Component, inject} from '@angular/core';
-import {Button} from 'primeng/button';
-import {Card} from 'primeng/card';
-import {InputText} from 'primeng/inputtext';
-import {Password} from 'primeng/password';
-import {RouterLink} from '@angular/router';
-import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Store} from '@ngrx/store';
-import {AuthActions} from '../../store/auth.actions';
-import {AuthSelectors} from '../../store/auth.selectors';
-import {AsyncPipe} from '@angular/common';
+﻿import { Component, inject } from '@angular/core';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
+import { InputText } from 'primeng/inputtext';
+import { Password } from 'primeng/password';
+import { RouterLink } from '@angular/router';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Store } from '@ngrx/store';
+import { AuthActions } from '../../store/auth.actions';
+import { AuthSelectors } from '../../store/auth.selectors';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   standalone: true,
-  imports: [
-    Button,
-    Card,
-    InputText,
-    Password,
-    RouterLink,
-    ReactiveFormsModule,
-    AsyncPipe,
-  ]
+  imports: [Button, Card, InputText, Password, RouterLink, ReactiveFormsModule, AsyncPipe],
 })
 export class RegisterComponent {
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
   registerForm = this.fb.group({
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
@@ -38,8 +30,7 @@ export class RegisterComponent {
 
   register(): void {
     if (this.registerForm.valid) {
-      this.store.dispatch(AuthActions.register({userData: this.registerForm.value as any}));
+      this.store.dispatch(AuthActions.register({ userData: this.registerForm.getRawValue() }));
     }
   }
 }
-

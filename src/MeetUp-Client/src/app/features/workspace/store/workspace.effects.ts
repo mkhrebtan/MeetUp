@@ -1,11 +1,11 @@
-import {inject, Injectable} from '@angular/core';
-import {Actions, createEffect, ofType} from '@ngrx/effects';
-import {WorkspaceService} from '../services/workspace.service';
-import {WorkspaceActions} from './workspace.actions';
-import {catchError, map, switchMap, tap} from 'rxjs/operators';
-import {of} from 'rxjs';
-import {LoggerService} from '../../../core/services/logger.service';
-import {Router} from '@angular/router';
+import { inject, Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { WorkspaceService } from '../services/workspace.service';
+import { WorkspaceActions } from './workspace.actions';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { LoggerService } from '../../../core/services/logger.service';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class WorkspaceEffects {
@@ -17,69 +17,88 @@ export class WorkspaceEffects {
   loadWorkspace$ = createEffect(() =>
     this.actions$.pipe(
       ofType(WorkspaceActions.loadWorkspace),
-      switchMap(({id}) =>
+      switchMap(({ id }) =>
         this.workspaceService.loadWorkspace(id).pipe(
-          map((workspace) => WorkspaceActions.loadWorkspaceSuccess({workspace})),
+          map((workspace) => WorkspaceActions.loadWorkspaceSuccess({ workspace })),
           catchError((error) => {
             this.logger.error('Load workspace error:', error);
-            return of(WorkspaceActions.loadWorkspaceFailure({error: error.message || 'Unable to load workspace. Please try again.'}));
-          })
-        )
-      )
-    )
+            return of(
+              WorkspaceActions.loadWorkspaceFailure({
+                error: error.message || 'Unable to load workspace. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
   );
 
   createWorkspace$ = createEffect(() =>
     this.actions$.pipe(
       ofType(WorkspaceActions.createWorkspace),
-      switchMap(({name}) =>
+      switchMap(({ name }) =>
         this.workspaceService.createWorkspace(name).pipe(
-          map((workspace) => WorkspaceActions.createWorkspaceSuccess({workspace})),
+          map((workspace) => WorkspaceActions.createWorkspaceSuccess({ workspace })),
           catchError((error) => {
             this.logger.error('Create workspace error:', error);
-            return of(WorkspaceActions.createWorkspaceFailure({error: error.message || 'Unable to create workspace. Please try again.'}));
-          })
-        )
-      )
-    )
+            return of(
+              WorkspaceActions.createWorkspaceFailure({
+                error: error.message || 'Unable to create workspace. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
   );
 
   joinWorkspace$ = createEffect(() =>
     this.actions$.pipe(
       ofType(WorkspaceActions.joinWorkspace),
-      switchMap(({inviteCode}) =>
+      switchMap(({ inviteCode }) =>
         this.workspaceService.joinWorkspace(inviteCode).pipe(
-          map((workspace) => WorkspaceActions.joinWorkspaceSuccess({workspace})),
+          map((workspace) => WorkspaceActions.joinWorkspaceSuccess({ workspace })),
           catchError((error) => {
             this.logger.error('Join workspace error:', error);
-            return of(WorkspaceActions.joinWorkspaceFailure({error: error.message || 'Unable to join workspace. Please check the invite code and try again.'}));
-          })
-        )
-      )
-    )
+            return of(
+              WorkspaceActions.joinWorkspaceFailure({
+                error:
+                  error.message ||
+                  'Unable to join workspace. Please check the invite code and try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
   );
 
-  redirectToWorkspace$ = createEffect(() =>
+  redirectToWorkspace$ = createEffect(
+    () =>
       this.actions$.pipe(
-        ofType(WorkspaceActions.createWorkspaceSuccess, WorkspaceActions.joinWorkspaceSuccess, WorkspaceActions.loadWorkspaceSuccess),
-        tap((action: any) => {
+        ofType(
+          WorkspaceActions.createWorkspaceSuccess,
+          WorkspaceActions.joinWorkspaceSuccess,
+          WorkspaceActions.loadWorkspaceSuccess,
+        ),
+        tap((action) => {
           const workspaceId = action?.workspace?.id;
           if (workspaceId) {
-            this.router.navigate([`/workspace/${workspaceId}/dashboard`], {replaceUrl: true});
+            this.router.navigate([`/workspace/${workspaceId}/dashboard`], { replaceUrl: true });
           } else {
-            this.router.navigate(['/workspace'], {replaceUrl: true});
+            this.router.navigate(['/workspace'], { replaceUrl: true });
           }
         }),
       ),
-    {dispatch: false}
+    { dispatch: false },
   );
 
-  redirectOnFailure$ = createEffect(() =>
+  redirectOnFailure$ = createEffect(
+    () =>
       this.actions$.pipe(
         ofType(WorkspaceActions.loadWorkspaceFailure),
-        tap(() => this.router.navigate(['/workspace']))
+        tap(() => this.router.navigate(['/workspace'])),
       ),
-    {dispatch: false}
+    { dispatch: false },
   );
 }
-

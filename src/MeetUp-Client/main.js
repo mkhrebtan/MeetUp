@@ -9,8 +9,8 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   });
 
   // Load the index.html of your built Angular app.
@@ -18,8 +18,8 @@ function createWindow() {
     url.format({
       pathname: path.join(__dirname, 'dist/MeetUp-Client/browser/index.html'),
       protocol: 'file:',
-      slashes: true
-    })
+      slashes: true,
+    }),
   );
 
   // Open the DevTools (optional, for debugging)

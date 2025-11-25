@@ -1,6 +1,6 @@
-import {Routes} from '@angular/router';
-import {MeetingComponent} from './features/meeting/pages/meeting.component';
-import {AuthGuard} from './core/guards/auth.guard';
+import { Routes } from '@angular/router';
+import { MeetingComponent } from './features/meeting/pages/meeting.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -11,15 +11,12 @@ export const routes: Routes = [
   {
     path: 'workspace',
     loadChildren: () =>
-      import('./features/workspace/workspace.routes').then(
-        (m) => m.workspaceRoutes
-      ),
+      import('./features/workspace/workspace.routes').then((m) => m.workspaceRoutes),
     canActivate: [AuthGuard],
   },
   {
     path: 'auth',
-    loadChildren: () =>
-      import('./features/auth/auth.routes').then((m) => m.authRoutes),
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.authRoutes),
     canActivate: [],
   },
   {

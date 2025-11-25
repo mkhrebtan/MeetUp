@@ -1,15 +1,15 @@
-import {Component, inject, OnDestroy, signal} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {InputTextModule} from 'primeng/inputtext';
-import {ConnectionState, DisconnectReason, Room, RoomEvent} from 'livekit-client';
-import {ActivatedRoute, Router} from '@angular/router';
-import {MeetingService} from '../services/meetings/meeting.service';
-import {LivekitService} from '../services/livekit/livekit.service';
-import {MeetingModel} from '../../../models/meeting.model';
-import {RoomStageDataModel} from '../models/room-stage-data.model';
-import {MeetingRoomComponent} from '../components/meeting-room/meeting-room.component';
-import {MeetingStageComponent} from '../components/meeting-stage/meeting-stage.component';
-import {Button} from 'primeng/button';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+import { ConnectionState, DisconnectReason, Room, RoomEvent } from 'livekit-client';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MeetingService } from '../services/meetings/meeting.service';
+import { LivekitService } from '../services/livekit/livekit.service';
+import { MeetingModel } from '../../../models/meeting.model';
+import { RoomStageDataModel } from '../models/room-stage-data.model';
+import { MeetingRoomComponent } from '../components/meeting-room/meeting-room.component';
+import { MeetingStageComponent } from '../components/meeting-stage/meeting-stage.component';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-meeting',
@@ -17,18 +17,27 @@ import {Button} from 'primeng/button';
   template: `
     <div>
       @if (isRoomConnected()) {
-        <app-meeting-room [room]="room"/>
+        <app-meeting-room [room]="room" />
       } @else if (!isRoomConnected() && disconnectedReason()) {
         <div class="flex flex-col items-center justify-center h-screen gap-16">
           <h2 class="text-center text-4xl">{{ disconnectedReason() }}</h2>
           <div class="flex justify-center gap-4">
-            <p-button label="Rejoin" severity="secondary" (click)="disconnectedReason.set(undefined)" [raised]="true"/>
-            <p-button label="Return to meetings" severity="danger"
-                      (click)="redirectBack()" [raised]="true"/>
+            <p-button
+              label="Rejoin"
+              severity="secondary"
+              (click)="disconnectedReason.set(undefined)"
+              [raised]="true"
+            />
+            <p-button
+              label="Return to meetings"
+              severity="danger"
+              (click)="redirectBack()"
+              [raised]="true"
+            />
           </div>
         </div>
       } @else {
-        <app-meeting-stage (joinRoom)="connectToRoom($event)"/>
+        <app-meeting-stage (joinRoom)="connectToRoom($event)" />
       }
     </div>
   `,
@@ -53,8 +62,7 @@ export class MeetingComponent implements OnDestroy {
         videoCodec: 'av1',
       },
     });
-    this.room
-      .on(RoomEvent.Disconnected, this.handleRoomDisconnected);
+    this.room.on(RoomEvent.Disconnected, this.handleRoomDisconnected);
 
     this.meetingId = this.route.snapshot.paramMap.get('meetingId') ?? '';
     const meeting = this.meetingService.getMeetingById(this.meetingId);
@@ -66,15 +74,15 @@ export class MeetingComponent implements OnDestroy {
   }
 
   async ngOnDestroy() {
-    this.room
-      .off(RoomEvent.Disconnected, this.handleRoomDisconnected);
+    this.room.off(RoomEvent.Disconnected, this.handleRoomDisconnected);
     if (this.room.state !== ConnectionState.Disconnected) {
       await this.room.disconnect();
     }
   }
 
   connectToRoom(stageData: RoomStageDataModel) {
-    this.livekitService.getRoomToken(`user-${Math.floor(Math.random() * 100)}`, this.meeting.name)
+    this.livekitService
+      .getRoomToken(`user-${Math.floor(Math.random() * 100)}`, this.meeting.name)
       .subscribe({
         next: async (response) => {
           const token = response.token;
@@ -125,5 +133,5 @@ export class MeetingComponent implements OnDestroy {
     } else {
       this.disconnectedReason.set('Unknown disconnect reason');
     }
-  }
+  };
 }
