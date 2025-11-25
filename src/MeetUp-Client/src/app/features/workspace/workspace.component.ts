@@ -27,6 +27,8 @@ export class WorkspaceComponent implements OnInit {
   workspace$ = this.store.select(WorkspaceSelectors.selectActiveWorkspaceId);
   loadingCreate$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoadingCreate);
   loadingJoin$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoadingJoin);
+  errorCreate$ = this.store.select(WorkspaceSelectors.selectWorkspaceErrorCreate);
+  errorJoin$ = this.store.select(WorkspaceSelectors.selectWorkspaceErrorJoin);
   createWorkspaceForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
   });

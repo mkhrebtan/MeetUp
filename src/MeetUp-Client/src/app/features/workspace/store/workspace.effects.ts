@@ -24,7 +24,7 @@ export class WorkspaceEffects {
             this.logger.error('Load workspace error:', error);
             return of(
               WorkspaceActions.loadWorkspaceFailure({
-                error: error.message || 'Unable to load workspace. Please try again.',
+                error: error.error.detail || 'Unable to load workspace. Please try again.',
               }),
             );
           }),
@@ -43,7 +43,7 @@ export class WorkspaceEffects {
             this.logger.error('Create workspace error:', error);
             return of(
               WorkspaceActions.createWorkspaceFailure({
-                error: error.message || 'Unable to create workspace. Please try again.',
+                error: error.error.detail || 'Unable to create workspace. Please try again.',
               }),
             );
           }),
@@ -63,7 +63,7 @@ export class WorkspaceEffects {
             return of(
               WorkspaceActions.joinWorkspaceFailure({
                 error:
-                  error.message ||
+                  error.error.detail ||
                   'Unable to join workspace. Please check the invite code and try again.',
               }),
             );

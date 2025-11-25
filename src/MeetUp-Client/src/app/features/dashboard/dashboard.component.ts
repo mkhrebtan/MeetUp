@@ -5,13 +5,22 @@ import { Card } from 'primeng/card';
 import * as dashboardSelectors from './store/dashboard.selectors';
 import { DashboardActions } from './store/dashboard.actions';
 import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
+import { UpcomingMeetingItemComponent } from './components/upcoming-meeting-item/upcoming-meeting-item.component';
+import { UpcomingMeetingSkeletonComponent } from './components/upcoming-meeting-skeleton/upcoming-meeting-skeleton.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Card, KpiCardComponent, AsyncPipe, DatePipe],
+  imports: [
+    Button,
+    Card,
+    KpiCardComponent,
+    AsyncPipe,
+    UpcomingMeetingItemComponent,
+    UpcomingMeetingSkeletonComponent,
+  ],
 })
 export class DashboardComponent implements OnInit {
   private store = inject(Store);

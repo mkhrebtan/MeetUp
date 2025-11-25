@@ -53,6 +53,9 @@
               type="submit"
             ></p-button>
           </form>
+          @if (errorCreate$ | async; as error) {
+            <p class="text-red-500">{{ error }}</p>
+          }
         </p-card>
 
         <p-card>
@@ -90,6 +93,9 @@
               type="submit"
             ></p-button>
           </form>
+          @if (errorJoin$ | async; as error) {
+            <p class="text-red-500">{{ error }}</p>
+          }
         </p-card>
       </div>
     </main>

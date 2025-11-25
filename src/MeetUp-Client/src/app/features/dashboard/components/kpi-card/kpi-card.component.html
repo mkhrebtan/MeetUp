@@ -6,10 +6,10 @@
         <p-skeleton width="40%" height="2rem" />
       </div>
       <p-skeleton shape="circle" size="3rem" />
-    } @else {
+    } @else if(stat()) {
       <div>
-        <p class="text-sm text-muted-foreground">{{ stat().label }}</p>
-        <p class="text-3xl font-bold text-foreground mt-2">{{ stat().value }}</p>
+        <p class="text-sm text-muted-foreground">{{ stat()!.label }}</p>
+        <p class="text-3xl font-bold text-foreground mt-2">{{ stat()!.value }}</p>
       </div>
       <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
         <i [class]="icon()" class="text-primary" style="font-size: 1.25rem"></i>

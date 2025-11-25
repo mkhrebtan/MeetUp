@@ -1,0 +1,21 @@
+<div
+  class="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
+>
+  <div class="flex-1">
+    <h3 class="font-medium text-foreground">{{ meeting().title }}</h3>
+    <div class="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+      <span class="flex items-center gap-1">
+        <i class="pi pi-clock"></i>
+        {{ meeting().scheduledAt | date: 'short' }}
+      </span>
+
+      <span>{{ getDuration(meeting().duration) }}</span>
+
+      <span class="flex items-center gap-1">
+        <i class="pi pi-users"></i>
+        {{ meeting().participants }}
+      </span>
+    </div>
+  </div>
+  <p-button label="Join" severity="secondary" size="small" variant="outlined" />
+</div>

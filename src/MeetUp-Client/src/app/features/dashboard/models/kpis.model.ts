@@ -1,5 +1,7 @@
+import { KpiStatModel } from './kpi-stat.model';
+
 export interface KpisModel {
-  lastWeekMeetings: number;
-  lastWeekTotalHours: number;
-  totalMembers: number;
+  lastWeekMeetings: KpiStatModel;
+  lastWeekTotalHours: KpiStatModel;
+  totalMembers: KpiStatModel;
 }

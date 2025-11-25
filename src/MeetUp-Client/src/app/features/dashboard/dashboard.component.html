@@ -8,8 +8,14 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    @for (stat of (stats$ | async); track $index) {
-      <app-kpi-card [stat]="stat" [loading]="(statsLoading$ | async) ?? false" [icon]="statsIcons[$index]" />
+    @if (statsLoading$ | async; as loading) {
+      @for (i of statsIcons; track $index) {
+        <app-kpi-card [stat]="null" [loading]="loading" [icon]="statsIcons[$index]" />
+      }
+    } @else if (stats$ | async; as stats) {
+      <app-kpi-card [stat]="stats.lastWeekMeetings" [loading]="false" [icon]="statsIcons[0]" />
+      <app-kpi-card [stat]="stats.lastWeekTotalHours" [loading]="false" [icon]="statsIcons[1]" />
+      <app-kpi-card [stat]="stats.totalMembers" [loading]="false" [icon]="statsIcons[2]" />
     }
   </div>
 
@@ -19,29 +25,14 @@
         <h2 class="text-xl font-bold text-center">Upcoming Meetings</h2>
       </div>
       <div class="space-y-4">
-        @for (meeting of (upcomingMeetings$ | async); track meeting.id) {
-          <div
-            class="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
-          >
-            <div class="flex-1">
-              <h3 class="font-medium text-foreground">{{ meeting.title }}</h3>
-              <div class="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-clock"></i>
-                  {{ meeting.scheduledAt | date: 'short' }}
-                </span>
-
-                @let duration = meeting.duration > 60 ? `${meeting.duration / 60}h ${meeting.duration % 60}min` : `${meeting.duration}min`;
-                <span>{{ duration }}</span>
-
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-users"></i>
-                  {{ meeting.participants }}
-                </span>
-              </div>
-            </div>
-            <p-button label="Join" severity="secondary" size="small" variant="outlined" />
-          </div>
+        @if (meetingsLoading$ | async) {
+          @for (i of [1, 2, 3]; track i) {
+            <app-upcoming-meeting-skeleton />
+          }
+        } @else {
+          @for (meeting of upcomingMeetings$ | async; track meeting.id) {
+            <app-upcoming-meeting-item [meeting]="meeting" />
+          }
         }
       </div>
     </p-card>

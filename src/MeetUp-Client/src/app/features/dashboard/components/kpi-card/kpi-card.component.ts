@@ -10,7 +10,7 @@ import { KpiStatModel } from '../../models/kpi-stat.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class KpiCardComponent {
-  stat = input.required<KpiStatModel>();
+  stat = input.required<KpiStatModel | null>();
   loading = input<boolean>(false);
   icon = input.required<string>();
 }

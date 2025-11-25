@@ -21,9 +21,18 @@ export const initialState: DashboardState = {
     records: false,
   },
   kpis: {
-    lastWeekMeetings: 0,
-    lastWeekTotalHours: 0,
-    totalMembers: 0,
+    lastWeekMeetings: {
+      label: 'Last Week Meetings',
+      value: 0,
+    },
+    lastWeekTotalHours: {
+      label: 'Last Week Total Hours',
+      value: 0,
+    },
+    totalMembers: {
+      label: 'Total Members',
+      value: 0,
+    },
   },
   meetings: [],
   error: null,
@@ -45,6 +54,20 @@ export const dashboardFeature = createFeature({
     on(DashboardActions.loadKpisFailure, (state, { error }) => ({
       ...state,
       loading: { ...state.loading, kpis: false },
+      error,
+    })),
+    on(DashboardActions.loadMeetings, (state) => ({
+      ...state,
+      loading: { ...state.loading, meetings: true },
+    })),
+    on(DashboardActions.loadMeetingsSuccess, (state, { meetings }) => ({
+      ...state,
+      loading: { ...state.loading, meetings: false },
+      meetings,
+    })),
+    on(DashboardActions.loadMeetingsFailure, (state, { error }) => ({
+      ...state,
+      loading: { ...state.loading, meetings: false },
       error,
     })),
   ),

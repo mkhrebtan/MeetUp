@@ -34,3 +34,13 @@ export const selectWorkspaceError = createSelector(
   selectWorkspaceState,
   (state) => state.error.workspace,
 );
+
+export const selectWorkspaceErrorJoin = createSelector(
+  selectWorkspaceState,
+  (state) => state.error.join,
+);
+
+export const selectWorkspaceErrorCreate = createSelector(
+  selectWorkspaceState,
+  (state) => state.error.create,
+);
