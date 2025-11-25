@@ -29,12 +29,13 @@
     @if (user$ | async; as user) {
       <p-button #rlaProfile="routerLinkActive" [severity]="rlaProfile.isActive ? 'primary' : 'secondary'"
                 [text]="!rlaProfile.isActive"
-                routerLink="/profile"
+                routerLink="profile"
                 routerLinkActive="active-link"
       >
         <i class="pi pi-user ml-1 mr-3"></i>
         <div class="flex-1 min-w-0">
-          <p [class.text-foreground]="!rlaProfile.isActive" class="text-sm font-medium truncate">{{ user.firstName }} {{ user.lastName }}</p>
+          <p [class.text-foreground]="!rlaProfile.isActive"
+             class="text-sm font-medium truncate">{{ user.firstName }} {{ user.lastName }}</p>
           <p [class.text-muted-foreground]="!rlaProfile.isActive" class="text-xs truncate">{{ user.email }}</p>
         </div>
       </p-button>

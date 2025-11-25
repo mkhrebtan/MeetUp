@@ -60,7 +60,7 @@ export class AuthEffects {
   loginSuccess$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AuthActions.loginSuccess),
-        tap(() => this.router.navigate(['/workspace']))
+        tap(() => this.router.navigate(['workspace/dashboard']))
       ),
     {dispatch: false}
   );

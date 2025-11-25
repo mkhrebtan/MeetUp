@@ -1,10 +1,10 @@
 ﻿import {Component, inject, OnInit} from '@angular/core';
 import {MenuItem} from 'primeng/api';
 import {RouterLink, RouterLinkActive} from '@angular/router';
-import {Button} from 'primeng/button';
 import {Store} from '@ngrx/store';
 import {AuthSelectors} from '../../features/auth/store/auth.selectors';
 import {AsyncPipe} from '@angular/common';
+import {Button} from 'primeng/button';
 
 @Component({
   selector: 'app-sidebar',
@@ -12,15 +12,10 @@ import {AsyncPipe} from '@angular/common';
   imports: [
     RouterLink,
     RouterLinkActive,
-    Button,
-    AsyncPipe
+    AsyncPipe,
+    Button
   ],
   styles: [`
-    :host ::ng-deep p-button {
-      width: 100%;
-      justify-content: flex-start;
-    }
-
     :host ::ng-deep .p-button {
       width: 100%;
       justify-content: flex-start;
@@ -41,29 +36,28 @@ export class SidebarComponent implements OnInit {
       {
         label: 'Dashboard',
         icon: 'pi pi-home',
-        routerLink: ['/dashboard']
+        routerLink: ['dashboard']
       },
       {
         label: 'Meetings',
         icon: 'pi pi-video',
-        routerLink: ['/meetings']
+        routerLink: ['meetings']
       },
       {
         label: 'Records',
         icon: 'pi pi-file',
-        routerLink: ['/records']
+        routerLink: ['records']
       },
       {
         label: 'Members',
         icon: 'pi pi-users',
-        routerLink: ['/members']
+        routerLink: ['members']
       },
       {
         label: 'Settings',
         icon: 'pi pi-cog',
-        routerLink: ['/settings']
+        routerLink: ['settings']
       }
     ];
   }
 }
-

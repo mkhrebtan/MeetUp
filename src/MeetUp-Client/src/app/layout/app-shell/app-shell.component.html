@@ -1,6 +1,16 @@
 ﻿<div class="flex h-screen bg-muted">
   <app-sidebar></app-sidebar>
   <main class="flex-1 overflow-y-auto">
-    <router-outlet/>
+    @if (loading$ | async; as loading) {
+      <p-progress-spinner ariaLabel="loading"/>
+    } @else if (activeWorkspaceId$ | async; as activeWorkspaceId) {
+      <router-outlet/>
+    }
+
+    @if (error$ | async; as error) {
+      <div class="flex items-center justify-center h-full">
+        <div class="text-red-500 text-lg">{{ error }}</div>
+      </div>
+    }
   </main>
 </div>
