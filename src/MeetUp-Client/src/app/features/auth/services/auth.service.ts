@@ -24,9 +24,7 @@ export class AuthService {
       switchMap(() => this.fetchUser()),
       catchError((error) => {
         this.logger.error('Login error:', error);
-        return throwError(
-          () => new Error('Unable to login. Please check your credentials and try again.'),
-        );
+        return throwError(() => error);
       }),
     );
   }
@@ -35,9 +33,7 @@ export class AuthService {
     return this.apiService.post('auth/register', userData).pipe(
       catchError((error) => {
         this.logger.error('Registration error:', error);
-        return throwError(
-          () => new Error('Unable to complete registration. Please try again later.'),
-        );
+        return throwError(() => error);
       }),
     );
   }
@@ -66,7 +62,7 @@ export class AuthService {
     return this.apiService.get<User>('auth/me').pipe(
       catchError((error) => {
         this.logger.error('Fetch user error:', error);
-        return throwError(() => new Error('Unable to fetch user information. Please try again.'));
+        return throwError(() => error);
       }),
     );
   }

@@ -14,7 +14,7 @@ export class DashboardEffects {
       ofType(DashboardActions.loadKpis),
       switchMap(() => this.dashboardService.getKpis()),
       map((kpis) => DashboardActions.loadKpisSuccess({ kpis })),
-      catchError((error) => of(DashboardActions.loadKpisFailure({ error }))),
+      catchError((error) => of(DashboardActions.loadKpisFailure({ error: error.error.detail }))),
     ),
   );
 
@@ -23,7 +23,9 @@ export class DashboardEffects {
       ofType(DashboardActions.loadMeetings),
       switchMap(() => this.dashboardService.getMeetings(5)),
       map((meetings) => DashboardActions.loadMeetingsSuccess({ meetings })),
-      catchError((error) => of(DashboardActions.loadMeetingsFailure({ error }))),
+      catchError((error) =>
+        of(DashboardActions.loadMeetingsFailure({ error: error.error.detail })),
+      ),
     ),
   );
 }

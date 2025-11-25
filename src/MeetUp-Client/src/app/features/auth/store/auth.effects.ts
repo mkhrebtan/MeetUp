@@ -18,7 +18,7 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.fetchUser().pipe(
           map((user) => AuthActions.initSuccess({ user })),
-          catchError((error) => of(AuthActions.initFailure({ error: error.message }))),
+          catchError((error) => of(AuthActions.initFailure({ error: error.error.detail }))),
         ),
       ),
     ),
@@ -30,7 +30,7 @@ export class AuthEffects {
       switchMap(({ credentials }) =>
         this.authService.login(credentials).pipe(
           map((user) => AuthActions.loginSuccess({ user })),
-          catchError((error) => of(AuthActions.loginFailure({ error: error.message }))),
+          catchError((error) => of(AuthActions.loginFailure({ error: error.error.detail }))),
         ),
       ),
     ),
@@ -42,7 +42,7 @@ export class AuthEffects {
       switchMap(({ userData }) =>
         this.authService.register(userData).pipe(
           map(() => AuthActions.registerSuccess()),
-          catchError((error) => of(AuthActions.registerFailure({ error: error.message }))),
+          catchError((error) => of(AuthActions.registerFailure({ error: error.error.detail }))),
         ),
       ),
     ),
@@ -53,7 +53,7 @@ export class AuthEffects {
       ofType(AuthActions.logout),
       tap(() => this.authService.logout()),
       map(() => AuthActions.logoutSuccess()),
-      catchError((error) => of(AuthActions.logoutFailure({ error: error.message }))),
+      catchError((error) => of(AuthActions.logoutFailure({ error: error.error.detail }))),
     ),
   );
 
