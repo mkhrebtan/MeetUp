@@ -109,14 +109,14 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
         </div>
         @if (isParticipantsSidebarVisible()) {
           <app-participants-sidebar
-            class="flex-shrink-0 w-1/4 xl:w-1/5 animate-slidein"
+            class="shrink-0 w-1/4 xl:w-1/5 animate-slidein"
             [participants]="participantsList.items()"
             (closed)="toggleParticipantsSidebar()"
           />
         }
         @if (isChatVisible()) {
           <app-meeting-chat
-            class="flex-shrink-0 w-1/4 xl:w-1/5 animate-slidein"
+            class="shrink-0 w-1/4 xl:w-1/5 animate-slidein"
             [messages]="chatMessages()"
             (close)="toggleChat()"
             (messageSend)="sendChatMessage($event)"
@@ -124,7 +124,7 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
         }
       </section>
 
-      <div class="h-[1px] bg-neutral-800"></div>
+      <div class="h-px bg-neutral-800"></div>
 
       <app-meeting-room-controls
         [isMicrophoneEnabled]="isMicrophoneEnabled()"

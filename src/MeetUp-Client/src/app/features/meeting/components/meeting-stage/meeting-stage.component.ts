@@ -19,7 +19,7 @@ import { LivekitService } from '../../services/livekit/livekit.service';
     <div class="flex flex-col lg:flex-row w-full h-screen items-center justify-center p-25 gap-6">
       <div class="flex flex-1 flex-col items-center gap-4">
         <div
-          class="w-3/4 aspect-video lg:w-full lg:aspect-[4/3] relative rounded-xl overflow-hidden shadow-xl"
+          class="w-3/4 aspect-video lg:w-full lg:aspect-4/3 relative rounded-xl overflow-hidden shadow-xl"
         >
           <app-participant-video
             [videoTrack]="videoTrack"
