@@ -33,5 +33,5 @@ public class Meeting : Model
     
     public WorkspaceUser Organizer { get; set; } = null!;
     
-    public List<WorkspaceUser> Participants { get; set; } = [];
+    public List<MeetingParticipant> Participants { get; set; } = [];
 }

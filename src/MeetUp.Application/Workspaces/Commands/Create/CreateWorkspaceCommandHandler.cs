@@ -30,6 +30,7 @@ public class CreateWorkspaceCommandHandler(IApplicationDbContext context, IUserC
         {
             UserId = user.Id,
             IsActive = true,
+            Workspace = workspace,
             WorkspaceId = workspace.Id,
         };
 

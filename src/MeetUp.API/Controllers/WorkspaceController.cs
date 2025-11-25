@@ -34,7 +34,7 @@ public class WorkspaceController : ApiControllerBase
     
     [HttpGet("{id:guid}")]
     [Authorize]
-    public async Task<IResult> GetActive(
+    public async Task<IResult> Get(
         Guid id,
         [FromServices] IQueryHandler<GetWorkspaceQuery, WorkspaceDto> handler,
         CancellationToken cancellationToken)

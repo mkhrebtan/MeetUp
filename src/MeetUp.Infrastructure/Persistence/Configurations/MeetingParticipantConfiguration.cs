@@ -13,7 +13,7 @@ public class MeetingParticipantConfiguration : IEntityTypeConfiguration<MeetingP
         builder.HasIndex(mp => new { mp.MeetingId, mp.WorkspaceUserId, }).IsUnique();
 
         builder.HasOne(mp => mp.Meeting)
-            .WithMany()
+            .WithMany(m => m.Participants)
             .HasForeignKey(mp => mp.MeetingId)
             .OnDelete(DeleteBehavior.Cascade);
 

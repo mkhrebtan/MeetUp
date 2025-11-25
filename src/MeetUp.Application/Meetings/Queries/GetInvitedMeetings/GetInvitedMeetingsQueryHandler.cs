@@ -12,7 +12,7 @@ internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext conte
     public async Task<Result<IPagedList<MeetingDto>>> Handle(GetHostedMeetingsQuery request, CancellationToken cancellationToken)
     {
         var query = context.Meetings
-            .Where(m => m.Participants.Any(p => p.UserId == userContext.UserId) && m.WorkspaceId == request.WorkspaceId)
+            .Where(m => m.Participants.Any(p => p.WorkspaceUser.UserId == userContext.UserId) && m.WorkspaceId == request.WorkspaceId)
             .Select(m => new MeetingDto(
                 m.Id,
                 m.Title,

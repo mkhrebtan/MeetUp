@@ -40,7 +40,7 @@ namespace MeetUp.Infrastructure.Migrations
 
                     b.HasIndex("WorkspaceId");
 
-                    b.ToTable("Invitations");
+                    b.ToTable("Invitations", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.Meeting", b =>
@@ -99,7 +99,7 @@ namespace MeetUp.Infrastructure.Migrations
 
                     b.HasIndex("WorkspaceId");
 
-                    b.ToTable("Meetings");
+                    b.ToTable("Meetings", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.MeetingParticipant", b =>
@@ -121,7 +121,7 @@ namespace MeetUp.Infrastructure.Migrations
                     b.HasIndex("MeetingId", "WorkspaceUserId")
                         .IsUnique();
 
-                    b.ToTable("MeetingParticipants");
+                    b.ToTable("MeetingParticipants", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.User", b =>
@@ -159,7 +159,7 @@ namespace MeetUp.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.Workspace", b =>
@@ -191,7 +191,7 @@ namespace MeetUp.Infrastructure.Migrations
                     b.HasIndex("InviteCode")
                         .IsUnique();
 
-                    b.ToTable("Workspaces");
+                    b.ToTable("Workspaces", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.WorkspaceUser", b =>
@@ -216,7 +216,7 @@ namespace MeetUp.Infrastructure.Migrations
                     b.HasIndex("UserId", "WorkspaceId")
                         .IsUnique();
 
-                    b.ToTable("WorkspaceUsers");
+                    b.ToTable("WorkspaceUsers", (string)null);
                 });
 
             modelBuilder.Entity("MeetUp.Domain.Models.Invitation", b =>

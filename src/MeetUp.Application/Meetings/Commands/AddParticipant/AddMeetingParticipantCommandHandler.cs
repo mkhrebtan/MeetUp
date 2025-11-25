@@ -1,6 +1,7 @@
 ﻿using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Application.Meetings.Queries;
+using MeetUp.Domain.Models;
 using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,12 +32,16 @@ internal sealed class AddMeetingParticipantCommandHandler(IApplicationDbContext 
             return Result<MeetingDto>.Failure(Error.NotFound("WorkspaceUser.NotFound", "User is not part of the workspace."));
         }
 
-        if (meeting.Participants.Any(p => p.UserId == command.UserId))
+        if (meeting.Participants.Any(p => p.WorkspaceUser.UserId == command.UserId))
         {
             return Result<MeetingDto>.Failure(Error.Conflict("Meeting.ParticipantAlreadyAdded", "User is already a participant in this meeting."));
         }
 
-        meeting.Participants.Add(workspaceUser);
+        meeting.Participants.Add(new MeetingParticipant
+        {
+            MeetingId = meeting.Id,
+            WorkspaceUserId = workspaceUser.Id,
+        });
         await context.SaveChangesAsync(cancellationToken);
 
         var meetingDto = new MeetingDto(
