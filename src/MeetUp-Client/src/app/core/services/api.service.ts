@@ -13,7 +13,7 @@ export class ApiService {
 
   get<T>(
     endpoint: string,
-    params?: HttpParams | Record<string, string | number | boolean>,
+    params?: HttpParams | Record<string, string | number | boolean | number>,
   ): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}${endpoint}`, { params });
   }

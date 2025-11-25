@@ -8,28 +8,18 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    @for (stat of stats; track stat) {
-      <p-card>
-        <div class="flex items-center justify-between gap-4">
-          <div>
-            <p class="text-sm text-muted-foreground">{{ stat.label }}</p>
-            <p class="text-3xl font-bold text-foreground mt-2">{{ stat.value }}</p>
-          </div>
-          <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <i [class]="stat.icon" class="text-primary" style="font-size: 1.25rem"></i>
-          </div>
-        </div>
-      </p-card>
+    @for (stat of (stats$ | async); track $index) {
+      <app-kpi-card [stat]="stat" [loading]="(statsLoading$ | async) ?? false" [icon]="statsIcons[$index]" />
     }
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 grow">
     <p-card class="h-full">
       <div class="p-6 pt-1 space-y-1">
         <h2 class="text-xl font-bold text-center">Upcoming Meetings</h2>
       </div>
       <div class="space-y-4">
-        @for (meeting of upcomingMeetings; track meeting.id) {
+        @for (meeting of (upcomingMeetings$ | async); track meeting.id) {
           <div
             class="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
           >
@@ -38,10 +28,11 @@
               <div class="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
                 <span class="flex items-center gap-1">
                   <i class="pi pi-clock"></i>
-                  {{ meeting.time }}
+                  {{ meeting.scheduledAt | date: 'short' }}
                 </span>
 
-                <span>{{ meeting.time }}</span>
+                @let duration = meeting.duration > 60 ? `${meeting.duration / 60}h ${meeting.duration % 60}min` : `${meeting.duration}min`;
+                <span>{{ duration }}</span>
 
                 <span class="flex items-center gap-1">
                   <i class="pi pi-users"></i>

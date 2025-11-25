@@ -1,47 +1,35 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
+import * as dashboardSelectors from './store/dashboard.selectors';
+import { DashboardActions } from './store/dashboard.actions';
+import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
+import { AsyncPipe, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Card],
+  imports: [Button, Card, KpiCardComponent, AsyncPipe, DatePipe],
 })
-export class DashboardComponent {
-  stats = [
-    { label: 'Meetings This Week', value: '12', icon: 'pi pi-calendar' },
-    { label: 'Total Hours', value: '8.5', icon: 'pi pi-clock' },
-    { label: 'Active Members', value: '24', icon: 'pi pi-users' },
-  ];
+export class DashboardComponent implements OnInit {
+  private store = inject(Store);
 
-  upcomingMeetings = [
-    {
-      id: 1,
-      title: 'Product Design Review',
-      time: 'Today, 2:00 PM',
-      duration: '45 min',
-      participants: 5,
-      status: 'upcoming',
-    },
-    {
-      id: 2,
-      title: 'Engineering Standup',
-      time: 'Today, 4:30 PM',
-      duration: '15 min',
-      participants: 8,
-      status: 'upcoming',
-    },
-    {
-      id: 3,
-      title: 'Client Presentation',
-      time: 'Tomorrow, 10:00 AM',
-      duration: '60 min',
-      participants: 3,
-      status: 'scheduled',
-    },
-  ];
+  stats$ = this.store.select(dashboardSelectors.selectKpis);
+
+  statsIcons = ['pi pi-calendar', 'pi pi-clock', 'pi pi-users'];
+  statsLoading$ = this.store.select(dashboardSelectors.selectKpisLoading);
+  meetings$ = this.store.select(dashboardSelectors.selectMeetings);
+  meetingsLoading$ = this.store.select(dashboardSelectors.selectMeetingsLoading);
+  error$ = this.store.select(dashboardSelectors.selectError);
+
+  ngOnInit() {
+    this.store.dispatch(DashboardActions.loadKpis());
+    this.store.dispatch(DashboardActions.loadMeetings());
+  }
+
+  upcomingMeetings$ = this.store.select(dashboardSelectors.selectMeetings);
 
   recentRecords = [
     {

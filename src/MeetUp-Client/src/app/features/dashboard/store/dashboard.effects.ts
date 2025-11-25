@@ -1,18 +1,29 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { DashboardActions } from './dashboard.actions';
-import { tap } from 'rxjs';
+import { switchMap, map, catchError, of } from 'rxjs';
+import { DashboardService } from '../services/dashboard.service';
 
 @Injectable()
 export class DashboardEffects {
   private actions$ = inject(Actions);
+  private dashboardService = inject(DashboardService);
 
-  init$ = createEffect(
-    () =>
-      this.actions$.pipe(
-        ofType(DashboardActions.init),
-        tap(() => console.log('Dashboard initialized')),
-      ),
-    { dispatch: false },
+  loadKpis$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(DashboardActions.loadKpis),
+      switchMap(() => this.dashboardService.getKpis()),
+      map((kpis) => DashboardActions.loadKpisSuccess({ kpis })),
+      catchError((error) => of(DashboardActions.loadKpisFailure({ error }))),
+    ),
+  );
+
+  loadMeetings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(DashboardActions.loadMeetings),
+      switchMap(() => this.dashboardService.getMeetings(5)),
+      map((meetings) => DashboardActions.loadMeetingsSuccess({ meetings })),
+      catchError((error) => of(DashboardActions.loadMeetingsFailure({ error }))),
+    ),
   );
 }
