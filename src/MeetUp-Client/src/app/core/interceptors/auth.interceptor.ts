@@ -1,10 +1,17 @@
-﻿import {HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
+﻿import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHandlerFn,
+  HttpHeaders,
+  HttpInterceptorFn,
+  HttpParams,
+  HttpRequest
+} from '@angular/common/http';
 import {inject} from '@angular/core';
 import {TokenService} from '../services/token.service';
 import {environment} from "../../../enviroments/enviroment";
 import {catchError, filter, switchMap, take} from 'rxjs/operators';
 import {BehaviorSubject, throwError} from "rxjs";
-import {KeycloakService} from '../../features/auth/services/keycloak.service';
 import {LoggerService} from '../services/logger.service';
 
 let isRefreshing = false;
@@ -15,6 +22,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn,
 ) => {
   const tokenService = inject(TokenService);
+  const http = inject(HttpClient);
   const logger = inject(LoggerService);
   const token = tokenService.getAccessToken();
   const isApiUrl = req.url.startsWith(environment.apiUrl);
@@ -32,15 +40,15 @@ export const AuthInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error) => {
-      if (error instanceof HttpErrorResponse && error.status === 401 && token) {
-        return handle401Error(authReq, next, tokenService, logger);
+      if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 0) && token) {
+        return handle401Error(authReq, next, tokenService, logger, http);
       }
       return throwError(() => error);
     }),
   );
 };
 
-const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService: TokenService, logger: LoggerService) => {
+const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService: TokenService, logger: LoggerService, http: HttpClient) => {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshTokenSubject.next(null);
@@ -53,15 +61,26 @@ const handle401Error = (req: HttpRequest<any>, next: HttpHandlerFn, tokenService
       return throwError(() => new Error('Authentication expired. Please log in again.'));
     }
 
-    const keycloakService = inject(KeycloakService);
+    const url = `${environment.keycloak.authority}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
 
-    return keycloakService.refreshToken(refreshToken)
+    const body = new HttpParams()
+      .set('client_id', environment.keycloak.client)
+      .set('grant_type', 'refresh_token')
+      .set('refresh_token', refreshToken);
+
+    return http.post<any>(url, body, {
+      headers: new HttpHeaders({
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      )
+    })
       .pipe(
         switchMap((tokenResponse) => {
           isRefreshing = false;
-          tokenService.setTokens(tokenResponse.accessToken, tokenResponse.refreshToken);
-          refreshTokenSubject.next(tokenResponse.refreshToken);
-          return next(addTokenHeader(req, tokenResponse.accessToken));
+          tokenService.setTokens(tokenResponse.access_token, tokenResponse.refresh_token);
+          refreshTokenSubject.next(tokenResponse.refresh_token);
+          logger.info('Token refreshed successfully');
+          return next(addTokenHeader(req, tokenResponse.access_token));
         }),
         catchError((err) => {
           isRefreshing = false;
