@@ -9,6 +9,7 @@ import {definePreset} from '@primeuix/themes';
 import {AuthInterceptor} from './core/interceptors/auth.interceptor';
 import {CORE_PROVIDERS} from './core/core.config';
 import {AUTH_PROVIDERS} from './features/auth/auth.config';
+import {WORKSPACE_PROVIDERS} from './features/workspace/workspace.config';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -46,5 +47,6 @@ export const appConfig: ApplicationConfig = {
     }),
     ...CORE_PROVIDERS,
     ...AUTH_PROVIDERS,
+    ...WORKSPACE_PROVIDERS
   ]
 };
