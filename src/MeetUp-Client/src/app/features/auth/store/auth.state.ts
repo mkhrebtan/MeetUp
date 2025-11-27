@@ -7,6 +7,7 @@ export interface AuthState {
   error: {
     login: string | null;
     register: string | null;
+    init: string | null;
   };
 }
 
@@ -17,5 +18,6 @@ export const initialAuthState: AuthState = {
   error: {
     login: null,
     register: null,
+    init: null,
   },
 };

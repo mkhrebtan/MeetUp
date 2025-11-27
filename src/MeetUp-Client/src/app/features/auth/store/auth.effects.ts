@@ -18,7 +18,13 @@ export class AuthEffects {
       switchMap(() =>
         this.authService.fetchUser().pipe(
           map((user) => AuthActions.initSuccess({ user })),
-          catchError((error) => of(AuthActions.initFailure({ error: error.error.detail }))),
+          catchError((error) =>
+            of(
+              AuthActions.initFailure({
+                error: error.error.detail ?? 'An unknown error occurred',
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -30,7 +36,13 @@ export class AuthEffects {
       switchMap(({ credentials }) =>
         this.authService.login(credentials).pipe(
           map((user) => AuthActions.loginSuccess({ user })),
-          catchError((error) => of(AuthActions.loginFailure({ error: error.error.detail }))),
+          catchError((error) =>
+            of(
+              AuthActions.loginFailure({
+                error: error.error.detail ?? 'An unknown error occurred',
+              }),
+            ),
+          ),
         ),
       ),
     ),
@@ -79,6 +91,15 @@ export class AuthEffects {
     () =>
       this.actions$.pipe(
         ofType(AuthActions.logoutSuccess),
+        tap(() => this.router.navigate(['/auth/login'])),
+      ),
+    { dispatch: false },
+  );
+
+  redirectToAuth$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.initFailure),
         tap(() => this.router.navigate(['/auth/login'])),
       ),
     { dispatch: false },

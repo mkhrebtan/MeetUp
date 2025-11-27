@@ -12,6 +12,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.initFailure, (state, { error }) => ({
@@ -20,8 +21,9 @@ export const authReducer = createReducer(
     isAuthenticated: false,
     loading: false,
     error: {
-      login: error,
+      login: null,
       register: null,
+      init: error,
     },
   })),
 
@@ -31,6 +33,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.loginSuccess, (state, { user }) => ({
@@ -41,6 +44,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.loginFailure, (state, { error }) => ({
@@ -51,6 +55,7 @@ export const authReducer = createReducer(
     error: {
       login: error,
       register: null,
+      init: null,
     },
   })),
 
@@ -60,6 +65,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.registerSuccess, (state) => ({
@@ -68,6 +74,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.registerFailure, (state, { error }) => ({
@@ -76,6 +83,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: error,
+      init: null,
     },
   })),
 
@@ -85,6 +93,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.logoutSuccess, (state) => ({
@@ -95,6 +104,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
   on(AuthActions.logoutFailure, (state) => ({
@@ -103,6 +113,7 @@ export const authReducer = createReducer(
     error: {
       login: null,
       register: null,
+      init: null,
     },
   })),
 );

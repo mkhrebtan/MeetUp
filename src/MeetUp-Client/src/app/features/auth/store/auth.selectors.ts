@@ -9,4 +9,9 @@ export const AuthSelectors = {
   selectLoading: createSelector(selectAuthState, (state) => state.loading),
   selectLoginError: createSelector(selectAuthState, (state) => state.error.login),
   selectRegisterError: createSelector(selectAuthState, (state) => state.error.register),
+  selectActiveWorkspaceId: createSelector(
+    selectAuthState,
+    (state) => state.user?.activeWorkspaceId,
+  ),
+  selectUserRole: createSelector(selectAuthState, (state) => state.user?.role),
 };

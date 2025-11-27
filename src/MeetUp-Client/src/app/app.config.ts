@@ -14,6 +14,8 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { CORE_PROVIDERS } from './core/core.config';
 import { AUTH_PROVIDERS } from './features/auth/auth.config';
 import { WORKSPACE_PROVIDERS } from './features/workspace/workspace.config';
+import { MEMBERS_PROVIDERS } from './features/members/members.config';
+import { MessageService } from 'primeng/api';
 
 const MyPreset = definePreset(Aura, {
   semantic: {
@@ -48,8 +50,10 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+    MessageService,
     ...CORE_PROVIDERS,
     ...AUTH_PROVIDERS,
     ...WORKSPACE_PROVIDERS,
+    ...MEMBERS_PROVIDERS,
   ],
 };
