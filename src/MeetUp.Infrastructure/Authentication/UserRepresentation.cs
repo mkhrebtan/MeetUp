@@ -10,11 +10,13 @@ public record UserRepresentation
     
     public string Email { get; init; } = null!;
     
-    public bool EmailVerified { get; init; } = false;
+    public bool EmailVerified { get; init; } = true;
     
-    public bool Enabled { get; init; } = false;
+    public bool Enabled { get; init; } = true;
     
     public List<CredentialRepresentation> Credentials { get; init; } = [];
     
     public List<string> Groups { get; init; } = [];
+
+    public Dictionary<string, string[]> Attributes = [];
 }

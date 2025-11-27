@@ -8,7 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Workspaces.Commands.Create;
 
-public class CreateWorkspaceCommandHandler(IApplicationDbContext context, IUserContext userContext, IInviteCodeGenerator codeGenerator)
+public class CreateWorkspaceCommandHandler(
+    IApplicationDbContext context,
+    IUserContext userContext,
+    IInviteCodeGenerator codeGenerator,
+    IIdentityProvider identityProvider)
     : ICommandHandler<CreateWorkspaceCommand, CreateWorkspaceCommandResponse>
 {
     public async Task<Result<CreateWorkspaceCommandResponse>> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
@@ -42,6 +46,8 @@ public class CreateWorkspaceCommandHandler(IApplicationDbContext context, IUserC
             WorkspaceId = workspace.Id,
         };
 
+        await identityProvider.UpdateRole(user, cancellationToken);
+        
         context.Workspaces.Add(workspace);
         context.WorkspaceUsers.Add(workspaceUser);
         

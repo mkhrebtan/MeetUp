@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Workspaces.Commands.Join;
 
-public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserContext userContext)
+public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserContext userContext, IIdentityProvider identityProvider)
     : ICommandHandler<JoinWorkspaceCommand, JoinWorkspaceCommandResponse>
 {
     public async Task<Result<JoinWorkspaceCommandResponse>> Handle(JoinWorkspaceCommand request, CancellationToken cancellationToken)
@@ -34,6 +34,8 @@ public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserCon
         };
         user.Role = WorkspaceRole.Member;
 
+        await identityProvider.UpdateRole(user, cancellationToken);
+        
         context.WorkspaceUsers.Add(workspaceUser);
         await context.SaveChangesAsync(cancellationToken);
 
