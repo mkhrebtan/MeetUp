@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { Workspace } from '../models/workspace.model';
-import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -14,14 +13,31 @@ export class WorkspaceService {
   }
 
   createWorkspace(name: string) {
-    return this.apiService
-      .post<{ workspace: Workspace }>('workspace', { name })
-      .pipe(map((response) => response.workspace));
+    return this.apiService.post<Workspace>('workspace', { name });
   }
 
   joinWorkspace(inviteCode: string) {
-    return this.apiService
-      .post<{ workspace: Workspace }>('workspace/join', { inviteCode })
-      .pipe(map((response) => response.workspace));
+    return this.apiService.post<Workspace>('workspace/join', { inviteCode });
+  }
+
+  updateSettings(
+    id: string,
+    name: string,
+    invitationPolicy: string,
+    meetingsCreationPolicy: string,
+  ) {
+    return this.apiService.patch<Workspace>(`workspace/${id}`, {
+      name,
+      invitationPolicy,
+      meetingsCreationPolicy,
+    });
+  }
+
+  leaveWorkspace(id: string) {
+    return this.apiService.delete<void>(`workspace/${id}/leave`);
+  }
+
+  deleteWorkspace(id: string) {
+    return this.apiService.delete<void>(`workspace/${id}`);
   }
 }

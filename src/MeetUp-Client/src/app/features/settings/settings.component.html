@@ -4,7 +4,8 @@
     <p class="text-muted-foreground mt-1">Manage your workspace preferences and permissions</p>
   </div>
 
-  <div class="space-y-8">
+  @let userRole = userRole$ | async;
+  <form [formGroup]="settingsForm" (ngSubmit)="onSubmit()" class="space-y-8">
     <p-card class="px-2">
       <div class="py-4 pt-1 space-y-1">
         <div class="flex items-center gap-2 mb-2">
@@ -16,7 +17,7 @@
       <div class="space-y-4">
         <div class="grid gap-2">
           <label class="font-semibold text-foreground" for="name">Workspace Name</label>
-          <input [defaultValue]="'Acme Corp'" fluid pInputText pSize="small" type="text" id="name" />
+          <input formControlName="name" fluid pInputText pSize="small" type="text" id="name" [readonly]="userRole !== 'Admin'" />
         </div>
       </div>
     </p-card>
@@ -32,20 +33,10 @@
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <div class="space-y-0.5">
-            <label class="text-base font-semibold text-foreground" for="recording">Recording</label>
-            <p class="text-sm text-muted-foreground">Allow members to record meetings</p>
+            <label class="text-base font-semibold text-foreground" for="recording">Meetings Creation</label>
+            <p class="text-sm text-muted-foreground">Who can create meetings</p>
           </div>
-          <p-select size="small" id="recording" />
-        </div>
-
-        <div class="h-px w-full bg-border mt-6 mb-6"></div>
-
-        <div class="flex items-center justify-between">
-          <div class="space-y-0.5">
-            <label class="text-base font-semibold text-foreground" for="screenSharing">Screen Sharing</label>
-            <p class="text-sm text-muted-foreground">Who can share their screen during meetings</p>
-          </div>
-          <p-select size="small" id="screenSharing" />
+          <p-select size="small" id="recording" formControlName="meetingsCreationPolicy" [options]="meetingsCreationPolicyOptions" [disabled]="userRole !== 'Admin'" />
         </div>
 
         <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -55,14 +46,14 @@
             <label class="text-base font-semibold text-foreground" for="invitations">Invitations</label>
             <p class="text-sm text-muted-foreground">Who can invite new members to the workspace</p>
           </div>
-          <p-select size="small" id="invitations" />
+          <p-select size="small" id="invitations" formControlName="invitationPolicy" [options]="invitationPolicyOptions" [disabled]="userRole !== 'Admin'"/>
         </div>
       </div>
     </p-card>
 
     <div class="flex justify-end gap-4">
-      <p-button label="Cancel" severity="contrast" size="small" variant="outlined" />
-      <p-button label="Save Changes" severity="primary" size="small" />
+      <p-button label="Cancel" severity="contrast" size="small" variant="outlined" [disabled]="!settingsChanged()" (click)="onCancel()"/>
+      <p-button label="Save Changes" severity="primary" size="small" [disabled]="!settingsChanged()" type="submit"/>
     </div>
 
     <div class="h-px w-full bg-border mt-6 mb-6"></div>
@@ -86,22 +77,25 @@
               severity="danger"
               size="small"
               variant="outlined"
+              (click)="onLeave()"
             />
           </div>
 
-          <div class="h-px w-full bg-border mt-6 mb-6"></div>
+          @if (userRole === 'Admin') {
+              <div class="h-px w-full bg-border mt-6 mb-6"></div>
 
-          <div class="flex items-center justify-between">
-            <div class="space-y-1">
-              <h4 class="font-medium">Delete Workspace</h4>
-              <p class="text-sm text-muted-foreground">
-                Permanently delete this workspace and all associated data. This cannot be undone.
-              </p>
-            </div>
-            <p-button icon="pi pi-trash" label="Delete Workspace" severity="danger" size="small" />
-          </div>
+              <div class="flex items-center justify-between">
+                <div class="space-y-1">
+                  <h4 class="font-medium">Delete Workspace</h4>
+                  <p class="text-sm text-muted-foreground">
+                    Permanently delete this workspace and all associated data. This cannot be undone.
+                  </p>
+                </div>
+                <p-button icon="pi pi-trash" label="Delete Workspace" severity="danger" size="small" (click)="onDelete()" />
+              </div>
+            }
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </div>

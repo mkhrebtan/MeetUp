@@ -44,3 +44,30 @@ export const selectWorkspaceErrorCreate = createSelector(
   selectWorkspaceState,
   (state) => state.error.create,
 );
+
+export const selectWorkspaceName = createSelector(selectActiveWorkspace, (state) => state?.name);
+
+export const selectWorkspaceInvitationPolicy = createSelector(
+  selectActiveWorkspace,
+  (state) => state?.invitationPolicy,
+);
+
+export const selectWorkspaceMeetingsCreationPolicy = createSelector(
+  selectActiveWorkspace,
+  (state) => state?.meetingsCreationPolicy,
+);
+
+export const selectWorkspaceLoadingSettings = createSelector(
+  selectWorkspaceLoadingState,
+  (loading) => loading.settings,
+);
+
+export const selectWorkspaceErrorSettings = createSelector(
+  selectWorkspaceState,
+  (state) => state.error.settings,
+);
+
+export const selectActiveWorkspaceInviteCode = createSelector(
+  selectActiveWorkspace,
+  (state) => state?.inviteCode,
+);

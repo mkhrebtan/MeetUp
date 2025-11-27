@@ -38,8 +38,8 @@ export class WorkspaceComponent implements OnInit {
       '',
       [
         Validators.required,
-        Validators.minLength(12),
-        Validators.maxLength(12),
+        Validators.minLength(11),
+        Validators.maxLength(11),
         Validators.pattern(/^[A-Z0-9]{3}-[A-Z0-9]{3}-[A-Z0-9]{3}$/),
       ],
     ],

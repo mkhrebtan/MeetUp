@@ -6,11 +6,13 @@ export interface WorkspaceState {
     create: boolean;
     workspace: boolean;
     join: boolean;
+    settings: boolean;
   };
   error: {
     create: string | null;
     workspace: string | null;
     join: string | null;
+    settings: string | null;
   };
 }
 
@@ -20,10 +22,12 @@ export const initialState: WorkspaceState = {
     create: false,
     workspace: false,
     join: false,
+    settings: false,
   },
   error: {
     create: null,
     workspace: null,
     join: null,
+    settings: null,
   },
 };

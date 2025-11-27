@@ -57,7 +57,7 @@ export class WorkspaceEffects {
       ofType(WorkspaceActions.joinWorkspace),
       switchMap(({ inviteCode }) =>
         this.workspaceService.joinWorkspace(inviteCode).pipe(
-          map((workspace) => WorkspaceActions.joinWorkspaceSuccess({ workspace })),
+          map((workspace) => WorkspaceActions.joinWorkspaceSuccess({ workspace: workspace })),
           catchError((error) => {
             this.logger.error('Join workspace error:', error);
             return of(
@@ -73,6 +73,35 @@ export class WorkspaceEffects {
     ),
   );
 
+  updateSettings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkspaceActions.updateSettings),
+      switchMap(({ id, name, invitationPolicy, meetingsCreationPolicy }) =>
+        this.workspaceService
+          .updateSettings(id, name, invitationPolicy, meetingsCreationPolicy)
+          .pipe(
+            map(() => {
+              this.logger.info('Workspace settings updated successfully');
+              return WorkspaceActions.updateSettingsSuccess({
+                name,
+                invitationPolicy,
+                meetingsCreationPolicy,
+              });
+            }),
+            catchError((error) => {
+              this.logger.error('Update settings error:', error);
+              return of(
+                WorkspaceActions.updateSettingsFailure({
+                  error:
+                    error.error.detail || 'Unable to update workspace settings. Please try again.',
+                }),
+              );
+            }),
+          ),
+      ),
+    ),
+  );
+
   redirectToWorkspace$ = createEffect(
     () =>
       this.actions$.pipe(
@@ -81,11 +110,12 @@ export class WorkspaceEffects {
           WorkspaceActions.joinWorkspaceSuccess,
           WorkspaceActions.loadWorkspaceSuccess,
         ),
-        tap((action) => {
-          const workspaceId = action?.workspace?.id;
-          if (workspaceId) {
-            this.router.navigate([`/workspace/${workspaceId}/dashboard`], { replaceUrl: true });
+        tap(({ workspace }) => {
+          if (workspace?.id) {
+            this.logger.info('Redirecting to workspace dashboard:', workspace.id);
+            this.router.navigate([`/workspace/${workspace.id}/dashboard`], { replaceUrl: true });
           } else {
+            this.logger.warn('No workspace ID found, redirecting to workspace selection');
             this.router.navigate(['/workspace'], { replaceUrl: true });
           }
         }),
@@ -98,6 +128,62 @@ export class WorkspaceEffects {
       this.actions$.pipe(
         ofType(WorkspaceActions.loadWorkspaceFailure),
         tap(() => this.router.navigate(['/workspace'])),
+      ),
+    { dispatch: false },
+  );
+
+  leaveWorkspace$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkspaceActions.leaveWorkspace),
+      switchMap(({ id }) =>
+        this.workspaceService.leaveWorkspace(id).pipe(
+          map(() => {
+            this.logger.info('Left workspace successfully');
+            return WorkspaceActions.leaveWorkspaceSuccess({ id });
+          }),
+          catchError((error) => {
+            this.logger.error('Leave workspace error:', error);
+            return of(
+              WorkspaceActions.leaveWorkspaceFailure({
+                error: error.error.detail || 'Unable to leave workspace. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
+
+  deleteWorkspace$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkspaceActions.deleteWorkspace),
+      switchMap(({ id }) =>
+        this.workspaceService.deleteWorkspace(id).pipe(
+          map(() => {
+            this.logger.info('Deleted workspace successfully');
+            return WorkspaceActions.deleteWorkspaceSuccess({ id });
+          }),
+          catchError((error) => {
+            this.logger.error('Delete workspace error:', error);
+            return of(
+              WorkspaceActions.deleteWorkspaceFailure({
+                error: error.error.detail || 'Unable to delete workspace. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
+
+  redirectToHome$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(WorkspaceActions.leaveWorkspaceSuccess, WorkspaceActions.deleteWorkspaceSuccess),
+        tap(() => {
+          this.logger.info('Redirecting to workspace selection');
+          this.router.navigate(['/workspace'], { replaceUrl: true });
+        }),
       ),
     { dispatch: false },
   );

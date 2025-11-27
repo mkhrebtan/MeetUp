@@ -15,5 +15,26 @@ export const WorkspaceActions = createActionGroup({
     'Join Workspace': props<{ inviteCode: string }>(),
     'Join Workspace Success': props<{ workspace: Workspace }>(),
     'Join Workspace Failure': props<{ error: string }>(),
+
+    'Update Settings': props<{
+      id: string;
+      name: string;
+      invitationPolicy: string;
+      meetingsCreationPolicy: string;
+    }>(),
+    'Update Settings Success': props<{
+      name: string;
+      invitationPolicy: string;
+      meetingsCreationPolicy: string;
+    }>(),
+    'Update Settings Failure': props<{ error: string }>(),
+
+    'Leave Workspace': props<{ id: string }>(),
+    'Leave Workspace Success': props<{ id: string }>(),
+    'Leave Workspace Failure': props<{ error: string }>(),
+
+    'Delete Workspace': props<{ id: string }>(),
+    'Delete Workspace Success': props<{ id: string }>(),
+    'Delete Workspace Failure': props<{ error: string }>(),
   },
 });
