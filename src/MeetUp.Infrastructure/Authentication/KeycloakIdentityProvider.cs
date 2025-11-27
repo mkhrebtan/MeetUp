@@ -9,7 +9,10 @@ using Microsoft.Extensions.Options;
 
 namespace MeetUp.Infrastructure.Authentication;
 
-public class KeycloakIdentityProvider(IHttpClientFactory httpClientFactory, IOptions<KeycloakSettings> keycloakSettings)
+public class KeycloakIdentityProvider(
+    IHttpClientFactory httpClientFactory,
+    IOptions<KeycloakSettings> keycloakSettings,
+    IUserContext userContext)
     : IIdentityProvider
 {
     private readonly Uri _tokenUrl = new($"{keycloakSettings.Value.KeycloakUrl}/realms/{keycloakSettings.Value.Realm}/protocol/openid-connect/token");
@@ -67,9 +70,18 @@ public class KeycloakIdentityProvider(IHttpClientFactory httpClientFactory, IOpt
         
         using var httpClient = httpClientFactory.CreateClient();
         httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
-        var response = await httpClient.PutAsJsonAsync($"{_createUserUrl}/{user.Id}", userRepresentation, cancellationToken);
+        var groupId = user.Role.Equals(WorkspaceRole.Admin) ? keycloakSettings.Value.AdminGroupId : keycloakSettings.Value.MemberGroupId;
+        HttpResponseMessage response;
+        if (!user.Role.Equals(WorkspaceRole.NotSet))
+        {
+            response = await httpClient.PutAsJsonAsync($"{_createUserUrl}/{userContext.UserId}/groups/{groupId}", userRepresentation, cancellationToken);
+        }
+        else
+        {
+            response = await httpClient.DeleteAsync($"{_createUserUrl}/{userContext.UserId}/groups/{groupId}", cancellationToken);
+        }
+
         response.EnsureSuccessStatusCode();
-        
         return Result.Success();
     }
 

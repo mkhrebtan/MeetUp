@@ -19,7 +19,7 @@ internal class GetUserInvitationsQueryHandler(IApplicationDbContext context, IUs
         }
 
         var invitations = await context.Invitations
-            .Where(i => i.UserId == user.Id)
+            .Where(i => i.UserEmail == user.Email)
             .Select(i => new InvitationDto(
                 i.Workspace.Name,
                 i.Workspace.InviteCode,

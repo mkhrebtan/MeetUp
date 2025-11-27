@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Workspaces.Commands.Delete;
 
-internal sealed class DeleteWorkspaceCommandHandler(IApplicationDbContext context, IUserContext userContext) : ICommandHandler<DeleteWorkspaceCommand>
+internal sealed class DeleteWorkspaceCommandHandler(IApplicationDbContext context, IUserContext userContext, IIdentityProvider identityProvider) : ICommandHandler<DeleteWorkspaceCommand>
 {
     public async Task<Result> Handle(DeleteWorkspaceCommand request, CancellationToken cancellationToken = default)
     {
@@ -26,12 +26,14 @@ internal sealed class DeleteWorkspaceCommandHandler(IApplicationDbContext contex
 
         var workspaceUser = await context.WorkspaceUsers
             .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.UserId == user.Id, cancellationToken);
-
         if (workspaceUser is null || !user.Role.Equals(WorkspaceRole.Admin))
         {
             return Result.Failure(Error.Forbidden("Workspace.Forbidden", "User is not allowed to delete this workspace."));
         }
 
+        user.Role = WorkspaceRole.NotSet;
+        await identityProvider.UpdateRole(user, cancellationToken);
+        
         context.Workspaces.Remove(workspace);
         await context.SaveChangesAsync(cancellationToken);
 

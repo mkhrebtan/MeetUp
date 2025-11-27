@@ -39,6 +39,11 @@ public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserCon
         context.WorkspaceUsers.Add(workspaceUser);
         await context.SaveChangesAsync(cancellationToken);
 
-        return Result<JoinWorkspaceCommandResponse>.Success(new JoinWorkspaceCommandResponse(workspace.Id, workspace.Name, workspace.InviteCode));
+        return Result<JoinWorkspaceCommandResponse>.Success(new JoinWorkspaceCommandResponse(
+            workspace.Id,
+            workspace.Name,
+            workspace.InviteCode,
+            workspace.InvitationPolicy.Code,
+            workspace.MeetingsCreationPolicy.Code));
     }
 }

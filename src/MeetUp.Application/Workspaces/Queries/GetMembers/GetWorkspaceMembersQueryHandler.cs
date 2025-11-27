@@ -9,9 +9,15 @@ internal class GetWorkspaceMembersQueryHandler(IApplicationDbContext context, IP
 {
     public async Task<Result<IPagedList<WorkspaceMemberDto>>> Handle(GetWorkspaceMembersQuery request, CancellationToken cancellationToken)
     {
-        var query =  context.WorkspaceUsers
-            .Where(wm => wm.WorkspaceId == request.WorkspaceId)
-            .Select(wm => new WorkspaceMemberDto(
+        var query = context.WorkspaceUsers
+            .Where(wm => wm.WorkspaceId == request.WorkspaceId);
+
+        if (request.SearchTerm != null)
+        {
+            query = query.Where(wm => wm.User.FirstName.Contains(request.SearchTerm) || wm.User.LastName.Contains(request.SearchTerm));
+        }
+
+        var projection = query.Select(wm => new WorkspaceMemberDto(
                 wm.UserId,
                 wm.User.FirstName,
                 wm.User.LastName,
@@ -19,12 +25,7 @@ internal class GetWorkspaceMembersQueryHandler(IApplicationDbContext context, IP
                 wm.User.Role.ToString(),
                 wm.JoinedAt));
 
-        if (request.SearchTerm != null)
-        {
-            query = query.Where(wm => wm.FirstName.Contains(request.SearchTerm) || wm.LastName.Contains(request.SearchTerm));
-        }
-
-        var list = await pagedList.Create(query, request.Page, request.PageSize);
+        var list = await pagedList.Create(projection, request.Page, request.PageSize);
         
         return Result<IPagedList<WorkspaceMemberDto>>.Success(list);
     }

@@ -53,7 +53,12 @@ public class CreateWorkspaceCommandHandler(
         
         await context.SaveChangesAsync(cancellationToken);
         
-        return Result<CreateWorkspaceCommandResponse>.Success(new CreateWorkspaceCommandResponse(workspace.Id, workspace.Name, workspace.InviteCode));
+        return Result<CreateWorkspaceCommandResponse>.Success(new CreateWorkspaceCommandResponse(
+            workspace.Id,
+            workspace.Name,
+            workspace.InviteCode,
+            workspace.InvitationPolicy.Code,
+            workspace.MeetingsCreationPolicy.Code));
     }
 
     private async Task<string> GetUniqueInviteCode()

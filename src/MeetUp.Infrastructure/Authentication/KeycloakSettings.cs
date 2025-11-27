@@ -13,4 +13,8 @@ public record KeycloakSettings
     public string ClientId { get; init; } = null!;
     
     public string ClientSecret { get; init; } = null!;
+
+    public string AdminGroupId { get; init; } = null!;
+    
+    public string MemberGroupId { get; init; } = null!;
 };
