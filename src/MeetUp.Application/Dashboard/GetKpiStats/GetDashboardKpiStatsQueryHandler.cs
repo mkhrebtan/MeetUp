@@ -29,12 +29,12 @@ internal sealed class GetDashboardKpiStatsQueryHandler(IApplicationDbContext con
 
         var totalMeetingsLastWeek = await context.Meetings
             .Where(m => 
-                (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
+                (m.OrganizerId == workspaceUser.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                 m.ScheduledAt >= DateTime.UtcNow.AddDays(-7))
             .CountAsync(cancellationToken);
 
         var totalHoursLastWeek = await context.Meetings
-            .Where(m => (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
+            .Where(m => (m.OrganizerId == workspaceUser.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                         m.ScheduledAt >= DateTime.UtcNow.AddDays(-7))
             .SumAsync(m => m.Duration.TotalHours, cancellationToken);
 

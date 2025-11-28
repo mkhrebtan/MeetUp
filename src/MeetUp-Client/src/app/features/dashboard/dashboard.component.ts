@@ -8,6 +8,7 @@ import { KpiCardComponent } from './components/kpi-card/kpi-card.component';
 import { AsyncPipe } from '@angular/common';
 import { UpcomingMeetingItemComponent } from './components/upcoming-meeting-item/upcoming-meeting-item.component';
 import { UpcomingMeetingSkeletonComponent } from './components/upcoming-meeting-skeleton/upcoming-meeting-skeleton.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,6 +21,7 @@ import { UpcomingMeetingSkeletonComponent } from './components/upcoming-meeting-
     AsyncPipe,
     UpcomingMeetingItemComponent,
     UpcomingMeetingSkeletonComponent,
+    RouterLink,
   ],
 })
 export class DashboardComponent implements OnInit {
