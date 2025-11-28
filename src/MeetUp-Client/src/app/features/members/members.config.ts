@@ -1,3 +1,11 @@
-import { Provider } from '@angular/core';
+import { Provider, EnvironmentProviders } from '@angular/core';
 
-export const MEMBERS_PROVIDERS: Provider[] = [];
+import { provideState } from '@ngrx/store';
+import { provideEffects } from '@ngrx/effects';
+import { membersReducer } from './store/members.reducer';
+import { MembersEffects } from './store/members.effects';
+
+export const MEMBERS_PROVIDERS: (Provider | EnvironmentProviders)[] = [
+  provideState('members', membersReducer),
+  provideEffects(MembersEffects),
+];
