@@ -40,6 +40,6 @@ public class CreateMeetingCommandValidator : AbstractValidator<CreateMeetingComm
     
     private static bool BeAValidDate(DateTime date)
     {
-        return date > DateTime.UtcNow;
+        return date >= DateTime.UtcNow;
     }
 }

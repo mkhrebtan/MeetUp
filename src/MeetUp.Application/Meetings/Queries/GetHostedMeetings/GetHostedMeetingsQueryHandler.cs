@@ -11,15 +11,25 @@ internal sealed class GetHostedMeetingsQueryHandler(IApplicationDbContext contex
 {
     public async Task<Result<IPagedList<MeetingDto>>> Handle(GetHostedMeetingsQuery request, CancellationToken cancellationToken)
     {
-        var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        var user = await context.WorkspaceUsers
+            .Include(wu => wu.User)
+            .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.User.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result<IPagedList<MeetingDto>>.Failure(Error.NotFound("User.NotFound", "User not found."));
         }
 
         var query = context.Meetings
-            .Where(m => m.OrganizerId == user.Id && m.WorkspaceId == request.WorkspaceId)
+            .Where(m => m.OrganizerId == user.Id && m.WorkspaceId == request.WorkspaceId);
+        
+        query = request.Passed ? query.Where(m => m.ScheduledAt < DateTime.UtcNow) : query.Where(m => m.ScheduledAt >= DateTime.UtcNow);
+        
+        if (request.SearchTerm != null)
+        {
+            query = query.Where(m => m.Title.Contains(request.SearchTerm));
+        }
+        
+        var dtos = query
             .Select(m => new MeetingDto(
                 m.Id,
                 m.Title,
@@ -27,14 +37,10 @@ internal sealed class GetHostedMeetingsQueryHandler(IApplicationDbContext contex
                 m.ScheduledAt,
                 m.Duration,
                 m.Participants.Count,
-                m.IsActive));
+                m.IsActive,
+                m.InviteCode));
 
-        if (request.SearchTerm != null)
-        {
-            query = query.Where(m => m.Title.Contains(request.SearchTerm));
-        }
-
-        var pagedListResult = await pagedList.Create(query, request.Page, request.PageSize);
+        var pagedListResult = await pagedList.Create(dtos, request.Page, request.PageSize);
 
         return Result<IPagedList<MeetingDto>>.Success(pagedListResult);
     }

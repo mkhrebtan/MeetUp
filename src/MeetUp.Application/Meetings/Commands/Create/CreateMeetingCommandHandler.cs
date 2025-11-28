@@ -13,9 +13,10 @@ internal class CreateMeetingCommandHandler(IApplicationDbContext context, IUserC
 {
     public async Task<Result<CreateMeetingCommandResponse>> Handle(CreateMeetingCommand request, CancellationToken cancellationToken)
     {
-        var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
-        if (user is null)
+        var workspaceUser = await context.WorkspaceUsers
+            .Include(wu => wu.User)
+            .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.User.Email == userContext.Email, cancellationToken);
+        if (workspaceUser is null)
         {
             return Result<CreateMeetingCommandResponse>.Failure(Error.NotFound("User.NotFound", "User not found."));
         }
@@ -48,7 +49,7 @@ internal class CreateMeetingCommandHandler(IApplicationDbContext context, IUserC
             ScreenSharePolicy = screenSharePolicy,
             RecordingPolicy = recordingPolicy,
             ChatPolicy = chatPolicy,
-            OrganizerId = user.Id,
+            OrganizerId = workspaceUser.Id,
             InviteCode = await GetUniqueInviteCode(),
         };
 

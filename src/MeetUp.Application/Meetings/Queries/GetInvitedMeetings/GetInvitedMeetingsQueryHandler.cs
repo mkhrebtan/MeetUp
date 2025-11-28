@@ -8,19 +8,29 @@ using Microsoft.EntityFrameworkCore;
 namespace MeetUp.Application.Meetings.Queries.GetInvitedMeetings;
 
 internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext context, IUserContext userContext, IPagedList<MeetingDto> pagedList)
-    : IQueryHandler<GetHostedMeetingsQuery, IPagedList<MeetingDto>>
+    : IQueryHandler<GetInvitedMeetingsQuery, IPagedList<MeetingDto>>
 {
-    public async Task<Result<IPagedList<MeetingDto>>> Handle(GetHostedMeetingsQuery request, CancellationToken cancellationToken)
+    public async Task<Result<IPagedList<MeetingDto>>> Handle(GetInvitedMeetingsQuery request, CancellationToken cancellationToken)
     {
-        var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        var user = await context.WorkspaceUsers            
+            .Include(wu => wu.User)
+            .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.User.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result<IPagedList<MeetingDto>>.Failure(Error.NotFound("User.NotFound", "User not found."));
         }
 
         var query = context.Meetings
-            .Where(m => m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id) && m.WorkspaceId == request.WorkspaceId)
+            .Where(m => m.Participants.Any(p => p.WorkspaceUser.Id == user.Id) && m.WorkspaceId == request.WorkspaceId);
+
+        query = request.Passed ? query.Where(m => m.ScheduledAt < DateTime.UtcNow) : query.Where(m => m.ScheduledAt >= DateTime.UtcNow);
+        
+        if (request.SearchTerm != null)
+        {
+            query = query.Where(m => m.Title.Contains(request.SearchTerm));
+        }
+        
+        var dtos = query
             .Select(m => new MeetingDto(
                 m.Id,
                 m.Title,
@@ -28,14 +38,10 @@ internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext conte
                 m.ScheduledAt,
                 m.Duration,
                 m.Participants.Count,
-                m.IsActive));
-
-        if (request.SearchTerm != null)
-        {
-            query = query.Where(m => m.Title.Contains(request.SearchTerm));
-        }
+                m.IsActive,
+                m.InviteCode));
         
-        var pagedListResult = await pagedList.Create(query, request.Page, request.PageSize);
+        var pagedListResult = await pagedList.Create(dtos, request.Page, request.PageSize);
 
         return Result<IPagedList<MeetingDto>>.Success(pagedListResult);
     }

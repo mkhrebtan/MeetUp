@@ -15,17 +15,17 @@
   </div>
 
   <p-card>
-    <form [formGroup]="meetingForm">
+    <form [formGroup]="meetingForm" (ngSubmit)="onSubmit()">
       <div class="space-y-6">
         <div class="grid gap-2">
           <label for="meetingTitle">Meeting Title</label>
-          <input pInputText pSize="small" placeholder="e.g., Weekly Sync" type="text" id="meetingTitle" />
+          <input pInputText pSize="small" placeholder="e.g., Weekly Sync" type="text" id="meetingTitle" formControlName="title" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="grid gap-2">
             <label for="meetingDate">Date</label>
-            <p-date-picker [showIcon]="true" fluid size="small" id="meetingDate" />
+            <p-date-picker [showIcon]="true" fluid size="small" id="meetingDate" formControlName="date" />
           </div>
           <div class="grid gap-2">
             <label for="meetingTime">Time</label>
@@ -35,19 +35,62 @@
               fluid
               icon="pi pi-clock"
               size="small"
+              formControlName="time"
             />
           </div>
         </div>
 
         <div class="grid gap-2">
-          <label for="meetingDuration">Duration</label>
-          <p-input-number size="small" id="meetingDuration" />
+          <label for="meetingDuration">Duration (minutes)</label>
+          <p-input-number size="small" id="meetingDuration" formControlName="duration" [min]="1" />
         </div>
 
-        <div class="grid gap-2">
+        <!-- <div class="grid gap-2">
           <label for="meetingParticipants">Participants</label>
           <input pInputText pSize="small" placeholder="Search members..." type="text" />
           <p class="text-xs text-muted-foreground">Separate emails with commas</p>
+        </div> -->
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="grid gap-2">
+            <label for="chatPolicy">Chat Policy</label>
+            <p-select
+              [options]="chatPolicyOptions"
+              fluid
+              id="chatPolicy"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select policy"
+              size="small"
+              formControlName="chatPolicy"
+            />
+          </div>
+          <div class="grid gap-2">
+            <label for="screenSharePolicy">Screen Share</label>
+            <p-select
+              [options]="screenSharePolicyOptions"
+              fluid
+              id="screenSharePolicy"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select policy"
+              size="small"
+              formControlName="screenSharePolicy"
+            />
+          </div>
+          <div class="grid gap-2">
+            <label for="recordingPolicy">Recording</label>
+            <p-select
+              [options]="recordingPolicyOptions"
+              fluid
+              id="recordingPolicy"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select policy"
+              size="small"
+              formControlName="recordingPolicy"
+            />
+          </div>
         </div>
 
         <div class="grid gap-2">
@@ -59,6 +102,7 @@
             placeholder="Meeting agenda..."
             rows="4"
             id="meetingDescription"
+            formControlName="description"
           ></textarea>
         </div>
       </div>
@@ -73,6 +117,12 @@
       size="small"
       variant="outlined"
     />
-    <p-button label="Create Meeting" severity="primary" size="small" />
+    <p-button 
+      label="Create Meeting" 
+      severity="primary" 
+      size="small" 
+      (onClick)="onSubmit()"
+      [disabled]="meetingForm.invalid"
+    />
   </div>
 </div>

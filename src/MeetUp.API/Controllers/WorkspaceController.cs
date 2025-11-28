@@ -1,5 +1,9 @@
 ﻿using MeetUp.API.Extensions;
+using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
+using MeetUp.Application.Meetings.Queries;
+using MeetUp.Application.Meetings.Queries.GetHostedMeetings;
+using MeetUp.Application.Meetings.Queries.GetInvitedMeetings;
 using MeetUp.Application.Workspaces.Commands.Create;
 using MeetUp.Application.Workspaces.Commands.Delete;
 using MeetUp.Application.Workspaces.Commands.InviteMember;
@@ -120,5 +124,35 @@ public class WorkspaceController : ApiControllerBase
     {
         var result = await handler.Handle(new RemoveWorkspaceMemberCommand(id, email), cancellationToken);
         return result.IsSuccess ? Results.NoContent() : result.GetProblem();
+    }
+    
+    [HttpGet("{id:guid}/meetings/hosted")]
+    [Authorize(Roles = "Admin, Member")]
+    public async Task<IResult> GetHostedMeetings(
+        Guid id,
+        [FromQuery] string? searchTerm,
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromQuery] bool passed,
+        [FromServices] IQueryHandler<GetHostedMeetingsQuery, IPagedList<MeetingDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new GetHostedMeetingsQuery(id, searchTerm, page, pageSize, passed), cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+    
+    [HttpGet("{id:guid}/meetings/invited")]
+    [Authorize(Roles = "Admin, Member")]
+    public async Task<IResult> GetInvitedMeetings(
+        Guid id,
+        [FromQuery] string? searchTerm,
+        [FromQuery] int page,
+        [FromQuery] int pageSize,
+        [FromQuery] bool passed,
+        [FromServices] IQueryHandler<GetInvitedMeetingsQuery, IPagedList<MeetingDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new GetInvitedMeetingsQuery(id, searchTerm, page, pageSize, passed), cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
 }

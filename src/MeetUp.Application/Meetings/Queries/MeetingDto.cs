@@ -7,4 +7,5 @@ public record MeetingDto(
     DateTime ScheduledAt, 
     TimeSpan Duration,
     int Participants,
-    bool IsActive);
+    bool IsActive,
+    string InviteCode);

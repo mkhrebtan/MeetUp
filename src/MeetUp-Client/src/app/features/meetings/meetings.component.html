@@ -4,62 +4,215 @@
       <h1 class="text-3xl font-bold text-foreground">Meetings</h1>
       <p class="text-muted-foreground mt-1">Manage and join your upcoming sessions</p>
     </div>
-    <p-button icon="pi pi-plus" label="Schedule Meeting" routerLink="create" size="small" />
+    <div class="flex gap-3">
+      <p-button
+        icon="pi pi-sign-in"
+        label="Join Meeting"
+        severity="secondary"
+        size="small"
+        variant="outlined"
+        (onClick)="openJoinDialog()"
+      />
+      @if (canCreateMeeting()) {
+        <p-button icon="pi pi-plus" label="Schedule Meeting" routerLink="create" size="small" />
+      }
+    </div>
   </div>
+
+  <p-dialog
+    [(visible)]="showJoinDialog"
+    [modal]="true"
+    [style]="{ width: '450px' }"
+    header="Join Meeting"
+  >
+    <form [formGroup]="joinMeetingForm" (ngSubmit)="submitJoinMeeting()">
+      <div class="grid gap-2">
+        <label for="inviteCode">Invite Code</label>
+        <input
+          pInputText
+          pSize="small"
+          placeholder="Enter meeting invite code"
+          type="text"
+          id="inviteCode"
+          formControlName="inviteCode"
+        />
+      </div>
+    </form>
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancel"
+        severity="contrast"
+        size="small"
+        variant="outlined"
+        (onClick)="closeJoinDialog()"
+      />
+      <p-button
+        label="Join"
+        size="small"
+        (onClick)="submitJoinMeeting()"
+        [disabled]="joinMeetingForm.invalid"
+      />
+    </ng-template>
+  </p-dialog>
 
   <div class="flex items-center gap-4 mb-6">
     <p-iconfield class="flex-1 max-w-md">
       <p-inputicon class="pi pi-search" />
-      <input fluid pInputText pSize="small" placeholder="Search meetings.." type="text" />
+      <input
+        fluid
+        pInputText
+        pSize="small"
+        placeholder="Search meetings.."
+        type="text"
+        [formControl]="searchControl"
+      />
     </p-iconfield>
-    <div class="flex gap-2">
-      <p-button label="Today" size="small" variant="outlined" />
-      <p-button label="Upcoming" size="small" variant="outlined" />
-      <p-button label="Past" size="small" variant="outlined" />
-    </div>
+    <p-button
+      [label]="showPassed() ? 'Hide Passed Meetings' : 'Show Passed Meetings'"
+      size="small"
+      variant="outlined"
+      (click)="toggleShowPassed()"
+    />
   </div>
 
-  <div class="space-y-4">
-    @for (meeting of meetings; track meeting.id) {
-      <p-card>
-        <div class="p-4 flex items-center justify-between">
-          <div class="flex items-center gap-6">
-            <div
-              class="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10 text-primary"
-            >
-              <span class="text-sm font-bold uppercase">
-                {{ meeting.date | date: 'MMM' }}
-              </span>
-              <span class="text-2xl font-bold">
-                {{ meeting.date | date: 'dd' }}
-              </span>
-            </div>
+  <div class="space-y-8">
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Hosted Meetings</h2>
+      <div class="space-y-4">
+        @if (hostedMeetings().length === 0) {
+          <p class="text-muted-foreground">No hosted meetings found.</p>
+        }
+        @for (meeting of hostedMeetings(); track meeting.id) {
+          <p-card>
+            <div class="p-4 flex items-center justify-between">
+              <div class="flex items-center gap-6">
+                <div
+                  class="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10 text-primary"
+                >
+                  <span class="text-sm font-bold uppercase">
+                    {{ meeting.scheduledAt | date: 'MMM' }}
+                  </span>
+                  <span class="text-2xl font-bold">
+                    {{ meeting.scheduledAt | date: 'dd' }}
+                  </span>
+                </div>
 
-            <div>
-              <h3 class="text-lg font-semibold text-foreground">{{ meeting.title }}</h3>
-              <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-clock"></i>
-                  {{ meeting.time }} ({{ meeting.duration }})
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-users"></i>
-                  {{ meeting.participants.length }} participants
-                </span>
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-video"></i>
-                  Video Call
-                </span>
+                <div>
+                  <h3 class="text-lg font-semibold text-foreground">{{ meeting.title }}</h3>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-clock"></i>
+                      {{ meeting.scheduledAt | date: 'shortTime' }} ({{ meeting.duration }})
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-users"></i>
+                      {{ meeting.participants }} participants
+                    </span>
+                    <span
+                      class="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                      (click)="copyInviteCode($event, meeting.inviteCode)"
+                      (keydown.enter)="copyInviteCode($event, meeting.inviteCode)"
+                      tabindex="0"
+                      pTooltip="Copy Invite Code"
+                      tooltipPosition="bottom"
+                    >
+                      <i class="pi pi-key"></i>
+                      {{ meeting.inviteCode }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <p-button
+                  [routerLink]="['/meeting', meeting.id]"
+                  [label]="meeting.isActive ? 'Rejoin' : 'Start'"
+                  size="small"
+                />
+                <p-button
+                  icon="pi pi-trash"
+                  size="small"
+                  severity="danger"
+                  variant="text"
+                  (onClick)="deleteMeeting(meeting.id)"
+                  pTooltip="Delete Meeting"
+                  tooltipPosition="bottom"
+                />
               </div>
             </div>
-          </div>
+          </p-card>
+        }
+      </div>
+    </section>
 
-          <div class="flex items-center gap-3">
-            <p-button [routerLink]="['/meeting', meeting.id]" label="Join" size="small" />
-            <p-button icon="pi pi-ellipsis-v" size="small" variant="text" />
-          </div>
-        </div>
-      </p-card>
-    }
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Invited Meetings</h2>
+      <div class="space-y-4">
+        @if (invitedMeetings().length === 0) {
+          <p class="text-muted-foreground">No invited meetings found.</p>
+        }
+        @for (meeting of invitedMeetings(); track meeting.id) {
+          <p-card>
+            <div class="p-4 flex items-center justify-between">
+              <div class="flex items-center gap-6">
+                <div
+                  class="flex flex-col items-center justify-center w-16 h-16 rounded-lg bg-primary/10 text-primary"
+                >
+                  <span class="text-sm font-bold uppercase">
+                    {{ meeting.scheduledAt | date: 'MMM' }}
+                  </span>
+                  <span class="text-2xl font-bold">
+                    {{ meeting.scheduledAt | date: 'dd' }}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 class="text-lg font-semibold text-foreground">{{ meeting.title }}</h3>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-clock"></i>
+                      {{ meeting.scheduledAt | date: 'shortTime' }} ({{ meeting.duration }})
+                    </span>
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-users"></i>
+                      {{ meeting.participants }} participants
+                    </span>
+                    <span
+                      class="flex items-center gap-1 cursor-pointer hover:text-primary transition-colors"
+                      (click)="copyInviteCode($event, meeting.inviteCode)"
+                      (keydown.enter)="copyInviteCode($event, meeting.inviteCode)"
+                      tabindex="0"
+                      pTooltip="Copy Invite Code"
+                      tooltipPosition="bottom"
+                    >
+                      <i class="pi pi-key"></i>
+                      {{ meeting.inviteCode }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <p-button
+                  [routerLink]="meeting.isActive ? ['/meeting', meeting.id] : null"
+                  [label]="meeting.isActive ? 'Join' : 'Not Started'"
+                  [disabled]="!meeting.isActive"
+                  size="small"
+                />
+                <p-button
+                  icon="pi pi-sign-out"
+                  size="small"
+                  severity="danger"
+                  variant="text"
+                  (onClick)="leaveMeeting(meeting.id)"
+                  pTooltip="Leave Meeting"
+                  tooltipPosition="bottom"
+                />
+              </div>
+            </div>
+          </p-card>
+        }
+      </div>
+    </section>
   </div>
 </div>

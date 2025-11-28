@@ -6,7 +6,7 @@ public class AddMeetingParticipantCommandValidator : AbstractValidator<AddMeetin
 {
     public AddMeetingParticipantCommandValidator()
     {
-        RuleFor(x => x.UserId).NotEmpty().WithMessage("User ID is required.");
+        RuleFor(x => x.UserIds).NotEmpty().WithMessage("User IDs are required.");
         RuleFor(x => x.MeetingId).NotEmpty().WithMessage("Meeting ID is required.");
     }
 }

@@ -4,6 +4,7 @@ using MeetUp.Application.Meetings.Queries;
 using MeetUp.Domain.Models;
 using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace MeetUp.Application.Meetings.Commands.AddParticipant;
 
@@ -11,37 +12,46 @@ internal sealed class AddMeetingParticipantCommandHandler(IApplicationDbContext 
 {
     public async Task<Result<MeetingDto>> Handle(AddMeetingParticipantCommand command, CancellationToken cancellationToken = default)
     {
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Id == command.UserId, cancellationToken);
-        if (user is null)
-        {
-            return Result<MeetingDto>.Failure(Error.NotFound("User.NotFound", "User not found."));
-        }
-
         var meeting = await context.Meetings
             .Include(m => m.Participants)
+                .ThenInclude(p => p.WorkspaceUser)
             .FirstOrDefaultAsync(m => m.Id == command.MeetingId, cancellationToken);
+        
         if (meeting is null)
         {
             return Result<MeetingDto>.Failure(Error.NotFound("Meeting.NotFound", "Meeting not found."));
         }
 
-        var workspaceUser = await context.WorkspaceUsers
-            .FirstOrDefaultAsync(wu => wu.UserId == command.UserId && wu.WorkspaceId == meeting.WorkspaceId, cancellationToken);
-        if (workspaceUser is null)
+        var workspaceUsers = await context.WorkspaceUsers
+            .Where(wu => wu.WorkspaceId == meeting.WorkspaceId && command.UserIds.Contains(wu.UserId))
+            .ToDictionaryAsync(wu => wu.UserId, cancellationToken);
+
+        var usersNotInWorkspace = command.UserIds.Where(id => !workspaceUsers.ContainsKey(id)).ToList();
+        if (usersNotInWorkspace.Count != 0)
         {
-            return Result<MeetingDto>.Failure(Error.NotFound("WorkspaceUser.NotFound", "User is not part of the workspace."));
+            return Result<MeetingDto>.Failure(Error.NotFound("WorkspaceUser.NotFound", $"Users with Ids {string.Join(", ", usersNotInWorkspace)} are not part of the workspace."));
         }
 
-        if (meeting.Participants.Any(p => p.WorkspaceUser.UserId == command.UserId))
+        var existingParticipantUserIds = meeting.Participants
+            .Select(p => p.WorkspaceUser.UserId)
+            .ToHashSet();
+
+        var alreadyAddedUsers = command.UserIds.Where(id => existingParticipantUserIds.Contains(id)).ToList();
+        if (alreadyAddedUsers.Count != 0)
         {
-            return Result<MeetingDto>.Failure(Error.Conflict("Meeting.ParticipantAlreadyAdded", "User is already a participant in this meeting."));
+            return Result<MeetingDto>.Failure(Error.Conflict("Meeting.ParticipantAlreadyAdded", $"Users with Ids {string.Join(", ", alreadyAddedUsers)} are already participants."));
         }
 
-        meeting.Participants.Add(new MeetingParticipant
+        foreach (var userId in command.UserIds)
         {
-            MeetingId = meeting.Id,
-            WorkspaceUserId = workspaceUser.Id,
-        });
+            var workspaceUser = workspaceUsers[userId];
+            meeting.Participants.Add(new MeetingParticipant
+            {
+                MeetingId = meeting.Id,
+                WorkspaceUserId = workspaceUser.Id,
+            });
+        }
+
         await context.SaveChangesAsync(cancellationToken);
 
         var meetingDto = new MeetingDto(
@@ -51,9 +61,9 @@ internal sealed class AddMeetingParticipantCommandHandler(IApplicationDbContext 
             meeting.ScheduledAt,
             meeting.Duration,
             meeting.Participants.Count,
-            meeting.IsActive);
+            meeting.IsActive,
+            meeting.InviteCode);
 
         return Result<MeetingDto>.Success(meetingDto);
-
     }
 }

@@ -11,8 +11,9 @@ internal sealed class DeleteMeetingCommandHandler(IApplicationDbContext context,
 {
     public async Task<Result> Handle(DeleteMeetingCommand request, CancellationToken cancellationToken = default)
     {
-        var user = await context.Users
-            .FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        var user = await context.WorkspaceUsers            
+            .Include(wu => wu.User)
+            .FirstOrDefaultAsync(wu => wu.User.Email == userContext.Email, cancellationToken);
         if (user is null)
         {
             return Result.Failure(Error.NotFound("User.NotFound", "User not found."));
