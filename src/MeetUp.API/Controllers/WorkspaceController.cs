@@ -8,6 +8,7 @@ using MeetUp.Application.Workspaces.Commands.Leave;
 using MeetUp.Application.Workspaces.Commands.Update;
 using MeetUp.Application.Workspaces.Queries.Get;
 using MeetUp.Application.Workspaces.Queries.GetMembers;
+using MeetUp.Application.Workspaces.Commands.RemoveMember;
 using MeetUp.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -106,6 +107,18 @@ public class WorkspaceController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var result = await handler.Handle(command with { WorkspaceId = id, }, cancellationToken);
+        return result.IsSuccess ? Results.NoContent() : result.GetProblem();
+    }
+    
+    [HttpDelete("{id:guid}/members/{email}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IResult> RemoveMember(
+        Guid id,
+        string email,
+        [FromServices] ICommandHandler<RemoveWorkspaceMemberCommand> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new RemoveWorkspaceMemberCommand(id, email), cancellationToken);
         return result.IsSuccess ? Results.NoContent() : result.GetProblem();
     }
 }

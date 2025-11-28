@@ -36,6 +36,12 @@ public class JoinWorkspaceCommandHandler(IApplicationDbContext context, IUserCon
 
         await identityProvider.UpdateRole(user, cancellationToken);
         
+        var invitation = await context.Invitations.FirstOrDefaultAsync(i => i.WorkspaceId == workspace.Id && i.UserEmail == user.Email, cancellationToken);
+        if (invitation is not null)
+        {
+            context.Invitations.Remove(invitation);
+        }
+        
         context.WorkspaceUsers.Add(workspaceUser);
         await context.SaveChangesAsync(cancellationToken);
 

@@ -2,4 +2,4 @@
 
 namespace MeetUp.Application.Workspaces.Commands.InviteMember;
 
-public record InviteWorkspaceMemberCommand(Guid WorkspaceId, string Email) : ICommand;
+public record InviteWorkspaceMembersCommand(Guid WorkspaceId, string[] Emails) : ICommand;

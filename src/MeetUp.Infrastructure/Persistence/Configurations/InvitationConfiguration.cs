@@ -10,16 +10,11 @@ public class InvitationConfiguration : IEntityTypeConfiguration<Invitation>
     {
         builder.HasKey(i => i.Id);
 
-        builder.Property(i => i.UserId)
+        builder.Property(i => i.UserEmail)
             .IsRequired();
 
         builder.Property(i => i.WorkspaceId)
             .IsRequired();
-
-        builder.HasOne(i => i.User)
-            .WithMany()
-            .HasForeignKey(i => i.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(i => i.Workspace)
             .WithMany()

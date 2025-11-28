@@ -1,15 +1,17 @@
-﻿using MeetUp.Application.Common.Interfaces;
+﻿using MeetUp.Application.Authentication;
+using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
+using MeetUp.Domain.Enums;
 using MeetUp.Domain.Models;
 using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Workspaces.Commands.InviteMember;
 
-internal class InviteWorkspaceMemberCommandHandler(IApplicationDbContext context)
-    : ICommandHandler<InviteWorkspaceMemberCommand>
+internal class InviteWorkspaceMemberCommandHandler(IApplicationDbContext context, IUserContext userContext)
+    : ICommandHandler<InviteWorkspaceMembersCommand>
 {
-    public async Task<Result> Handle(InviteWorkspaceMemberCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(InviteWorkspaceMembersCommand request, CancellationToken cancellationToken)
     {
         var workspace = await context.Workspaces
             .FirstOrDefaultAsync(w => w.Id == request.WorkspaceId, cancellationToken);
@@ -17,30 +19,40 @@ internal class InviteWorkspaceMemberCommandHandler(IApplicationDbContext context
         {
             return Result.Failure(Error.NotFound("Workspace.NotFound", "Workspace with id " + request.WorkspaceId + " not found"));
         }
-        
-        var user = await context.Users.FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
-        if (user is null)
+
+        var inviter = await context.Users.FirstOrDefaultAsync(u => u.Email == userContext.Email, cancellationToken);
+        if (inviter is null)
         {
-            return Result.Failure(Error.NotFound("User.NotFound", "User with email " + request.Email + " not found"));
+            return Result.Failure(Error.NotFound("User.NotFound", "User with email " + userContext.Email + " not found"));
         }
 
-        if (context.WorkspaceUsers.Any(wu => wu.UserId == user.Id))
+        if (workspace.InvitationPolicy.Equals(InvitationPolicy.OnlyAdmins) && !inviter.Role.Equals(WorkspaceRole.Admin))
         {
-            return Result.Failure(Error.Conflict("Workspace.UserAlreadyMember", "User with email " + request.Email + " is already a member of the workspace"));
+            return Result.Failure(Error.Forbidden("Workspace.InvitationPolicyViolation", "Only admins can invite members to this workspace."));
         }
 
-        if (context.Invitations.Any(i => i.UserId == user.Id && i.WorkspaceId == workspace.Id))
+        var existingWorkspaceUsers = await context.WorkspaceUsers
+            .Where(wu => wu.WorkspaceId == request.WorkspaceId && ((IEnumerable<string>)request.Emails).Contains(wu.User.Email)).ToListAsync(cancellationToken);
+        if (existingWorkspaceUsers.Count != 0)
         {
-            return Result.Failure(Error.Conflict("Workspace.InvitationAlreadySent", "An invitation has already been sent to " + request.Email + " for this workspace"));
+            return Result.Failure(Error.Conflict("Workspace.MemberAlreadyExists", "Some users are already members of this workspace."));
         }
-        
-        var invitation = new Invitation
-        {
-            UserId = user.Id,
-            WorkspaceId = workspace.Id,
-        };
 
-        context.Invitations.Add(invitation);
+        var existingInvitations = await context.Invitations
+            .Where(i => i.WorkspaceId == request.WorkspaceId && ((IEnumerable<string>)request.Emails).Contains(i.UserEmail))
+            .ToListAsync(cancellationToken);
+
+        var newInvitations = request.Emails
+            .Where(email => existingInvitations.All(ei => ei.UserEmail != email) && existingWorkspaceUsers.All(ewu => ewu.User.Email != email))
+            .Select(email => new Invitation
+            {
+                WorkspaceId = request.WorkspaceId,
+                UserEmail = email,
+
+            })
+            .ToList();
+
+        context.Invitations.AddRange(newInvitations);
         await context.SaveChangesAsync(cancellationToken);
         
         return Result.Success();
