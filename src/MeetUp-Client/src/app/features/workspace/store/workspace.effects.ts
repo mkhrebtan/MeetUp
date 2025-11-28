@@ -20,6 +20,11 @@ export class WorkspaceEffects {
       switchMap(({ id }) =>
         this.workspaceService.loadWorkspace(id).pipe(
           map((workspace) => WorkspaceActions.loadWorkspaceSuccess({ workspace })),
+          tap(({ workspace }) => {
+            if (workspace) {
+              localStorage.setItem('activeWorkspaceId', workspace.id);
+            }
+          }),
           catchError((error) => {
             this.logger.error('Load workspace error:', error);
             return of(
@@ -187,7 +192,7 @@ export class WorkspaceEffects {
       ),
     { dispatch: false },
   );
-  
+
   loadInvitations$ = createEffect(() =>
     this.actions$.pipe(
       ofType(WorkspaceActions.loadInvitations),

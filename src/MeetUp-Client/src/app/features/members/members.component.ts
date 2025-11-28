@@ -25,7 +25,7 @@ import { MembersActions } from './store/members.actions';
 import { DialogModule } from 'primeng/dialog';
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
-import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthSelectors } from '../auth/store/auth.selectors';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
@@ -81,7 +81,10 @@ export class MembersComponent implements OnInit {
   isCopied = signal(false);
 
   ngOnInit(): void {
-    this.store.select(AuthSelectors.selectUserRole).pipe(take(1)).subscribe((role) => this.userRole.set(role));
+    this.store
+      .select(AuthSelectors.selectUserRole)
+      .pipe(take(1))
+      .subscribe((role) => this.userRole.set(role));
 
     const search$ = this.searchControl.valueChanges.pipe(
       startWith(''),

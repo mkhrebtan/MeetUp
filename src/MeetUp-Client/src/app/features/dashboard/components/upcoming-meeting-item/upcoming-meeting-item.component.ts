@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Button } from 'primeng/button';
 import { MeetingModel } from '../../models/meeting.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-upcoming-meeting-item',
-  imports: [DatePipe, Button],
+  imports: [DatePipe, Button, RouterLink],
   templateUrl: './upcoming-meeting-item.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

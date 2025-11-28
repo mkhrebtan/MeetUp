@@ -1,13 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { SettingsActions } from './settings.actions';
-import { switchMap, map, catchError, of, tap, withLatestFrom } from 'rxjs';
+import { switchMap, map, catchError, of, tap } from 'rxjs';
 import { SettingsService } from '../services/settings.service';
 import { MessageService } from 'primeng/api';
 import { WorkspaceActions } from '../../workspace/store/workspace.actions';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import * as WorkspaceSelectors from '../../workspace/store/workspace.selectors';
 
 @Injectable()
 export class SettingsEffects {
