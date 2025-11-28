@@ -24,6 +24,29 @@
         </p>
       </div>
 
+      @if(invitations$ | async; as invitations) {
+        @if(invitations.length > 0) {
+          <div class="mb-12">
+            <h2 class="text-2xl font-bold tracking-tight mb-4">Your Invitations</h2>
+            <div class="space-y-4">
+              @for (invitation of invitations; track invitation.inviteCode) {
+                <p-card>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h3 class="font-semibold text-lg">{{ invitation.workspaceName }}</h3>
+                      <p class="text-muted-foreground text-sm">
+                        Invited on {{ invitation.createdAt | date:'mediumDate' }}
+                      </p>
+                    </div>
+                    <p-button label="Join" (click)="onJoinInvitation(invitation.inviteCode)" />
+                  </div>
+                </p-card>
+              }
+            </div>
+          </div>
+        }
+      }
+
       <div class="grid md:grid-cols-2 gap-8">
         <p-card>
           <div class="py-6 pt-1 space-y-1">

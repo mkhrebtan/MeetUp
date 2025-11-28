@@ -71,3 +71,18 @@ export const selectActiveWorkspaceInviteCode = createSelector(
   selectActiveWorkspace,
   (state) => state?.inviteCode,
 );
+
+export const selectInvitations = createSelector(
+  selectWorkspaceState,
+  (state) => state.invitations,
+);
+
+export const selectInvitationsLoading = createSelector(
+  selectWorkspaceLoadingState,
+  (loading) => loading.invitations,
+);
+
+export const selectInvitationsError = createSelector(
+  selectWorkspaceState,
+  (state) => state.error.invitations,
+);

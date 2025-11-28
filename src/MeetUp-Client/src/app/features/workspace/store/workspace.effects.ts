@@ -187,4 +187,23 @@ export class WorkspaceEffects {
       ),
     { dispatch: false },
   );
+  
+  loadInvitations$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(WorkspaceActions.loadInvitations),
+      switchMap(() =>
+        this.workspaceService.getInvitations().pipe(
+          map((invitations) => WorkspaceActions.loadInvitationsSuccess({ invitations })),
+          catchError((error) => {
+            this.logger.error('Load invitations error:', error);
+            return of(
+              WorkspaceActions.loadInvitationsFailure({
+                error: error.error.detail || 'Unable to load invitations. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
 }

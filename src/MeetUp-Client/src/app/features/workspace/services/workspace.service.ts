@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api.service';
 import { Workspace } from '../models/workspace.model';
+import { Invitation } from '../models/invitation.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,10 @@ export class WorkspaceService {
 
   loadWorkspace(id: string) {
     return this.apiService.get<Workspace>(`workspace/${id}`);
+  }
+  
+  getInvitations() {
+    return this.apiService.get<Invitation[]>('users/invitations');
   }
 
   createWorkspace(name: string) {

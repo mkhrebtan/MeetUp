@@ -8,7 +8,7 @@ import { AuthActions } from '../auth/store/auth.actions';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkspaceActions } from './store/workspace.actions';
 import * as WorkspaceSelectors from './store/workspace.selectors';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { ProgressSpinner } from 'primeng/progressspinner';
 import { RouterOutlet } from '@angular/router';
 
@@ -17,7 +17,16 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './workspace.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, Card, InputText, ReactiveFormsModule, AsyncPipe, ProgressSpinner, RouterOutlet],
+  imports: [
+    Button,
+    Card,
+    InputText,
+    ReactiveFormsModule,
+    AsyncPipe,
+    ProgressSpinner,
+    RouterOutlet,
+    DatePipe,
+  ],
 })
 export class WorkspaceComponent implements OnInit {
   private store = inject(Store);
@@ -29,6 +38,10 @@ export class WorkspaceComponent implements OnInit {
   loadingJoin$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoadingJoin);
   errorCreate$ = this.store.select(WorkspaceSelectors.selectWorkspaceErrorCreate);
   errorJoin$ = this.store.select(WorkspaceSelectors.selectWorkspaceErrorJoin);
+  invitations$ = this.store.select(WorkspaceSelectors.selectInvitations);
+  loadingInvitations$ = this.store.select(WorkspaceSelectors.selectInvitationsLoading);
+  errorInvitations$ = this.store.select(WorkspaceSelectors.selectInvitationsError);
+
   createWorkspaceForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
   });
@@ -49,6 +62,8 @@ export class WorkspaceComponent implements OnInit {
     this.user$.subscribe((user) => {
       if (user?.activeWorkspaceId) {
         this.store.dispatch(WorkspaceActions.loadWorkspace({ id: user.activeWorkspaceId }));
+      } else {
+        this.store.dispatch(WorkspaceActions.loadInvitations());
       }
     });
   }
@@ -71,5 +86,10 @@ export class WorkspaceComponent implements OnInit {
         WorkspaceActions.joinWorkspace({ inviteCode: this.joinWorkspaceForm.value.inviteCode! }),
       );
     }
+  }
+
+  onJoinInvitation(inviteCode: string) {
+    this.joinWorkspaceForm.setValue({ inviteCode });
+    this.onJoinWorkspaceSubmit();
   }
 }

@@ -1,5 +1,6 @@
-import { createActionGroup, props } from '@ngrx/store';
+import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Workspace } from '../models/workspace.model';
+import { Invitation } from '../models/invitation.model';
 
 export const WorkspaceActions = createActionGroup({
   source: 'Workspace',
@@ -8,6 +9,10 @@ export const WorkspaceActions = createActionGroup({
     'Load Workspace Success': props<{ workspace: Workspace | null }>(),
     'Load Workspace Failure': props<{ error: string }>(),
 
+    'Load Invitations': emptyProps(),
+    'Load Invitations Success': props<{ invitations: Invitation[] }>(),
+    'Load Invitations Failure': props<{ error: string }>(),
+    
     'Create Workspace': props<{ name: string }>(),
     'Create Workspace Success': props<{ workspace: Workspace }>(),
     'Create Workspace Failure': props<{ error: string }>(),
@@ -38,3 +43,4 @@ export const WorkspaceActions = createActionGroup({
     'Delete Workspace Failure': props<{ error: string }>(),
   },
 });
+

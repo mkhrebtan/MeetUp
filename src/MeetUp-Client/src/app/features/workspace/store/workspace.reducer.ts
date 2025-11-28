@@ -7,135 +7,101 @@ export const workspaceReducer = createReducer(
   on(WorkspaceActions.loadWorkspace, (state) => ({
     ...state,
     loading: {
+      ...state.loading,
       workspace: true,
-      join: false,
-      create: false,
-      settings: false,
     },
     error: {
-      create: null,
+      ...state.error,
       workspace: null,
-      join: null,
-      settings: null,
     },
   })),
   on(WorkspaceActions.loadWorkspaceSuccess, (state, { workspace }) => ({
     ...state,
     loading: {
+      ...state.loading,
       workspace: false,
-      join: false,
-      create: false,
-      settings: false,
     },
     activeWorkspace: workspace,
   })),
   on(WorkspaceActions.loadWorkspaceFailure, (state, { error }) => ({
     ...state,
     loading: {
+      ...state.loading,
       workspace: false,
-      join: false,
-      create: false,
-      settings: false,
     },
     error: {
-      create: null,
+      ...state.error,
       workspace: error,
-      join: null,
-      settings: null,
     },
   })),
   on(WorkspaceActions.createWorkspace, (state) => ({
     ...state,
     loading: {
-      workspace: false,
-      join: false,
+      ...state.loading,
       create: true,
-      settings: false,
     },
     error: {
+      ...state.error,
       create: null,
-      workspace: null,
-      join: null,
-      settings: null,
     },
   })),
   on(WorkspaceActions.createWorkspaceSuccess, (state, { workspace }) => ({
     ...state,
     loading: {
-      workspace: false,
-      join: false,
+      ...state.loading,
       create: false,
-      settings: false,
     },
     activeWorkspace: workspace,
   })),
   on(WorkspaceActions.createWorkspaceFailure, (state, { error }) => ({
     ...state,
     loading: {
-      workspace: false,
-      join: false,
+      ...state.loading,
       create: false,
-      settings: false,
     },
     error: {
+      ...state.error,
       create: error,
-      workspace: null,
-      join: null,
-      settings: null,
     },
   })),
   on(WorkspaceActions.joinWorkspace, (state) => ({
     ...state,
     loading: {
-      workspace: false,
+      ...state.loading,
       join: true,
-      create: false,
-      settings: false,
     },
     error: {
-      create: null,
-      workspace: null,
+      ...state.error,
       join: null,
-      settings: null,
     },
   })),
   on(WorkspaceActions.joinWorkspaceSuccess, (state, { workspace }) => ({
     ...state,
     loading: {
-      workspace: false,
+      ...state.loading,
       join: false,
-      create: false,
-      settings: false,
     },
     activeWorkspace: workspace,
   })),
   on(WorkspaceActions.joinWorkspaceFailure, (state, { error }) => ({
     ...state,
     loading: {
-      workspace: false,
+      ...state.loading,
       join: false,
-      create: false,
-      settings: false,
     },
     error: {
-      create: null,
-      workspace: null,
+      ...state.error,
       join: error,
-      settings: null,
     },
   })),
   on(WorkspaceActions.updateSettings, (state) => ({
     ...state,
     loading: {
-      workspace: false,
-      join: false,
-      create: false,
+      ...state.loading,
       settings: true,
     },
     error: {
-      create: null,
-      workspace: null,
-      join: null,
+      ...state.error,
       settings: null,
     },
   })),
@@ -144,9 +110,7 @@ export const workspaceReducer = createReducer(
     (state, { name, invitationPolicy, meetingsCreationPolicy }) => ({
       ...state,
       loading: {
-        workspace: false,
-        join: false,
-        create: false,
+        ...state.loading,
         settings: false,
       },
       activeWorkspace: state.activeWorkspace
@@ -162,15 +126,11 @@ export const workspaceReducer = createReducer(
   on(WorkspaceActions.updateSettingsFailure, (state, { error }) => ({
     ...state,
     loading: {
-      workspace: false,
-      join: false,
-      create: false,
+      ...state.loading,
       settings: false,
     },
     error: {
-      create: null,
-      workspace: null,
-      join: null,
+      ...state.error,
       settings: error,
     },
   })),
@@ -181,5 +141,35 @@ export const workspaceReducer = createReducer(
   on(WorkspaceActions.deleteWorkspaceSuccess, (state) => ({
     ...state,
     activeWorkspace: null,
+  })),
+  on(WorkspaceActions.loadInvitations, (state) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      invitations: true,
+    },
+    error: {
+      ...state.error,
+      invitations: null,
+    },
+  })),
+  on(WorkspaceActions.loadInvitationsSuccess, (state, { invitations }) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      invitations: false,
+    },
+    invitations,
+  })),
+  on(WorkspaceActions.loadInvitationsFailure, (state, { error }) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      invitations: false,
+    },
+    error: {
+      ...state.error,
+      invitations: error,
+    },
   })),
 );
