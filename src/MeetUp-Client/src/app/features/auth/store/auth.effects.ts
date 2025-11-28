@@ -36,13 +36,17 @@ export class AuthEffects {
       switchMap(({ credentials }) =>
         this.authService.login(credentials).pipe(
           map((user) => AuthActions.loginSuccess({ user })),
-          catchError((error) =>
-            of(
-              AuthActions.loginFailure({
-                error: error.error.detail ?? 'An unknown error occurred',
-              }),
-            ),
-          ),
+          catchError((error) => {
+            if (error.status === 401) {
+              return of(AuthActions.loginFailure({ error: 'Invalid credentials' }));
+            } else {
+              return of(
+                AuthActions.loginFailure({
+                  error: error.error.detail ?? 'An unknown error occurred',
+                }),
+              );
+            }
+          }),
         ),
       ),
     ),
@@ -54,7 +58,17 @@ export class AuthEffects {
       switchMap(({ userData }) =>
         this.authService.register(userData).pipe(
           map(() => AuthActions.registerSuccess()),
-          catchError((error) => of(AuthActions.registerFailure({ error: error.error.detail }))),
+          catchError((error) => {
+            if (error.status === 409) {
+              return of(AuthActions.registerFailure({ error: 'Email already in use' }));
+            } else {
+              return of(
+                AuthActions.registerFailure({
+                  error: error.error.detail ?? 'An unknown error occurred',
+                }),
+              );
+            }
+          }),
         ),
       ),
     ),
