@@ -27,8 +27,8 @@ import {
 } from 'livekit-client';
 import { ParticipantCardComponent } from '../participant-card/participant-card.component';
 import { ParticipantsSidebarComponent } from '../participants-sidebar/participants-sidebar.component';
-import { LayoutService } from '../../services/layout/layout.service';
-import { LivekitService } from '../../services/livekit/livekit.service';
+import { LayoutService } from '../../services/layout.service';
+import { LivekitService } from '../../services/livekit.service';
 import { MessageService } from 'primeng/api';
 import { Toast } from 'primeng/toast';
 import { DevicesModel } from '../../models/devices.model';
@@ -42,6 +42,8 @@ import { AspectRatioModel } from '../../models/aspect-ratio.model';
 import { DimensionModel } from '../../models/dimension.model';
 import { Button } from 'primeng/button';
 import { MeetingPagedList } from '../../utils/meeting-paged-list';
+import { Meeting } from '../../models/meeting.model';
+import { RoomMetadata } from '../../models/room-metadata.model';
 
 @Component({
   selector: 'app-meeting-room',
@@ -57,7 +59,7 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
   template: `
     <div class="h-screen flex flex-col p-4 bg-neutral-900 gap-4">
       <section class="flex flex-auto gap-4 overflow-hidden">
-        <div class="flex flex-col lg:flex-row gap-4 overflow-hidden w-full" #mainContainer>
+        <div class="flex flex-col lg:flex-row gap-4 overflow-hidden w-full relative" #mainContainer>
           @if (isScreenShareEnabled()) {
             <div class="flex flex-3 xl:flex-3 justify-center items-center overflow-hidden">
               <app-participant-video
@@ -96,6 +98,8 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
                 label="Show Others"
                 (click)="participantsList.nextPage()"
                 severity="secondary"
+                size="small"
+                class="absolute bottom-0 right-5 z-10"
               />
             }
             @if (participantsList.hasPreviousPage()) {
@@ -103,6 +107,8 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
                 label="Go Back"
                 (click)="participantsList.previousPage()"
                 severity="secondary"
+                size="small"
+                class="absolute bottom-0 left-5 z-10"
               />
             }
           </div>
@@ -118,7 +124,7 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
           <app-meeting-chat
             class="shrink-0 w-1/4 xl:w-1/5 animate-slidein"
             [messages]="chatMessages()"
-            (close)="toggleChat()"
+            (closed)="toggleChat()"
             (messageSend)="sendChatMessage($event)"
           />
         }
@@ -127,13 +133,16 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
       <div class="h-px bg-neutral-800"></div>
 
       <app-meeting-room-controls
+        [isHost]="meeting().isHost"
         [isMicrophoneEnabled]="isMicrophoneEnabled()"
         [isVideoEnabled]="isVideoEnabled()"
         [isParticipantsSidebarVisible]="isParticipantsSidebarVisible()"
+        [isChatAllowed]="roomMetadata().ChatEnabled"
+        [isScreenShareAllowed]="roomMetadata().ScreenShareEnabled"
         [isChatVisible]="isChatVisible()"
         [screenShareState]="screenShareState()"
         [devices]="devices()"
-        [roomName]="room().name"
+        [roomName]="roomMetadata().RoomName"
         (audioToggle)="toggleAudio()"
         (videoToggle)="toggleVideo()"
         (chatToggle)="toggleChat()"
@@ -143,6 +152,9 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
         (audioInputChange)="changeAudioInput($event)"
         (audioOutputChange)="changeAudioOutput($event)"
         (videoInputChange)="changeVideoInput($event)"
+        (chatPermissionToggle)="toggleChatPermission()"
+        (screenSharePermissionToggle)="toggleScreenSharePermission()"
+        (endMeeting)="onEndMeeting()"
       />
 
       <p-toast />
@@ -153,6 +165,12 @@ import { MeetingPagedList } from '../../utils/meeting-paged-list';
 })
 export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   room = input.required<Room>();
+  meeting = input.required<Meeting>();
+  roomMetadata = signal<RoomMetadata>({
+    RoomName: '',
+    ChatEnabled: false,
+    ScreenShareEnabled: false,
+  });
   @ViewChild('participantsContainer') participantsContainer!: ElementRef<HTMLElement>;
   @ViewChild('mainContainer') mainContainer!: ElementRef<HTMLElement>;
   gridDimension = signal<DimensionModel>({ width: 0, height: 0 });
@@ -189,6 +207,9 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   messageService = inject(MessageService);
 
   async ngOnInit() {
+    console.log(this.room().metadata);
+    this.roomMetadata.set(JSON.parse(this.room().metadata ?? '{}'));
+    console.log(this.roomMetadata());
     this.participantsList = new MeetingPagedList(
       [this.room().localParticipant, ...this.room().remoteParticipants.values()],
       this.DEFAULT_PAGE_SIZE,
@@ -201,7 +222,8 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
       .on(RoomEvent.TrackSubscribed, this.handleTrackSubscribed)
       .on(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed)
       .on(RoomEvent.LocalTrackPublished, this.handleLocalTrackPublished)
-      .on(RoomEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
+      .on(RoomEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished)
+      .on(RoomEvent.RoomMetadataChanged, this.handleMetadataChanged);
     this.isMicrophoneEnabled.set(this.room().localParticipant.isMicrophoneEnabled);
     this.isVideoEnabled.set(this.room().localParticipant.isCameraEnabled);
     await this.loadDevices();
@@ -227,7 +249,8 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
       .off(RoomEvent.TrackSubscribed, this.handleTrackSubscribed)
       .off(RoomEvent.TrackUnsubscribed, this.handleTrackUnsubscribed)
       .off(RoomEvent.LocalTrackPublished, this.handleLocalTrackPublished)
-      .off(RoomEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished);
+      .off(RoomEvent.LocalTrackUnpublished, this.handleLocalTrackUnpublished)
+      .off(RoomEvent.RoomMetadataChanged, this.handleMetadataChanged);
     if (this.room().state !== ConnectionState.Disconnected) {
       await this.room()?.disconnect();
     }
@@ -292,6 +315,68 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     await localParticipant.sendChatMessage(message);
   }
 
+  toggleChatPermission() {
+    this.livekitService
+      .updateRoomMetadata(this.room().name, {
+        RoomName: this.roomMetadata().RoomName,
+        ChatEnabled: !this.roomMetadata().ChatEnabled,
+        ScreenShareEnabled: this.roomMetadata().ScreenShareEnabled,
+      })
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Chat Permission',
+            detail: 'Chat permission updated successfully',
+          });
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.detail || 'Failed to update chat permission',
+          });
+        },
+      });
+  }
+
+  toggleScreenSharePermission() {
+    this.livekitService
+      .updateRoomMetadata(this.room().name, {
+        RoomName: this.roomMetadata().RoomName,
+        ChatEnabled: this.roomMetadata().ChatEnabled,
+        ScreenShareEnabled: !this.roomMetadata().ScreenShareEnabled,
+      })
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Screen Share Permission',
+            detail: 'Screen share permission updated successfully',
+          });
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.detail || 'Failed to update screen share permission',
+          });
+        },
+      });
+  }
+
+  onEndMeeting() {
+    this.livekitService.deleteRoom(this.meeting().id).subscribe({
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.detail || 'Failed to end meeting',
+        });
+      },
+    });
+  }
+
   onParticipantSpeaking(participant: Participant) {
     this.participantsList.bringToFront(participant);
   }
@@ -301,7 +386,7 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     this.messageService.add({
       severity: 'info',
       summary: 'Participant Joined',
-      detail: `${participant.identity} joined the meeting`,
+      detail: `${participant.name} joined the meeting`,
     });
     this.recalculateLayout();
   };
@@ -311,7 +396,7 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
     this.messageService.add({
       severity: 'info',
       summary: 'Participant Left',
-      detail: `${participant.identity} left the meeting`,
+      detail: `${participant.name} left the meeting`,
     });
     this.recalculateLayout();
   };
@@ -326,7 +411,7 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
       ...prev,
       {
         message: msg.message,
-        sender: isLocal ? 'You' : (participant?.identity ?? 'Unknown'),
+        sender: isLocal ? 'You' : (participant?.name ?? 'Unknown'),
         timestamp: new Date(msg.timestamp),
         isLocalParticipant: isLocal,
       },
@@ -353,10 +438,27 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
       this.screenShareTrack.set(pub.track as LocalVideoTrack);
     }
   };
+
   private handleLocalTrackUnpublished = (pub: LocalTrackPublication) => {
     if (pub.source === Track.Source.ScreenShare) {
       this.isScreenShareEnabled.set(false);
       this.screenShareTrack.set(null);
+    }
+  };
+
+  private handleMetadataChanged = (metadata: string) => {
+    this.roomMetadata.set(JSON.parse(metadata || '{}') as RoomMetadata);
+    if (
+      !this.roomMetadata().ScreenShareEnabled &&
+      this.isScreenShareEnabled() &&
+      this.screenShareState() === 'local' &&
+      !this.meeting().isHost
+    ) {
+      this.toggleScreenShare();
+    }
+
+    if (!this.roomMetadata().ChatEnabled && this.isChatVisible() && !this.meeting().isHost) {
+      this.toggleChat();
     }
   };
 

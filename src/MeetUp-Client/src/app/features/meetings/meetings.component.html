@@ -125,7 +125,7 @@
 
               <div class="flex items-center gap-3">
                 <p-button
-                  [routerLink]="['/meeting', meeting.id]"
+                  [routerLink]="['/room', meeting.id]"
                   [label]="meeting.isActive ? 'Rejoin' : 'Start'"
                   size="small"
                 />
@@ -194,7 +194,7 @@
 
               <div class="flex items-center gap-3">
                 <p-button
-                  [routerLink]="meeting.isActive ? ['/meeting', meeting.id] : null"
+                  [routerLink]="meeting.isActive ? ['/room', meeting.id] : null"
                   [label]="meeting.isActive ? 'Join' : 'Not Started'"
                   [disabled]="!meeting.isActive"
                   size="small"

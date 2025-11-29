@@ -11,7 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RoomStageDataModel } from '../../models/room-stage-data.model';
 import { ParticipantVideoComponent } from '../participant-video/participant-video.component';
 import { DevicesModel } from '../../models/devices.model';
-import { LivekitService } from '../../services/livekit/livekit.service';
+import { LivekitService } from '../../services/livekit.service';
 
 @Component({
   selector: 'app-meeting-stage',

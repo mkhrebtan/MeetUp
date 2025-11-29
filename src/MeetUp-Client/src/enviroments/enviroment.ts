@@ -10,6 +10,7 @@ export const environment = {
     realm: 'meetup',
     client: 'meetup_web',
   },
+  livekitUrl: 'ws://localhost:7880',
 };
 
 /*

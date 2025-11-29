@@ -8,11 +8,12 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faMessage } from '@fortawesome/free-regular-svg-icons';
 import { Tooltip } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TieredMenu } from 'primeng/tieredmenu';
 
 @Component({
   selector: 'app-meeting-room-controls',
   standalone: true,
-  imports: [CommonModule, Button, SplitButton, FaIconComponent, Tooltip],
+  imports: [CommonModule, Button, SplitButton, FaIconComponent, Tooltip, TieredMenu],
   template: `
     <section class="grid grid-cols-3 items-center gap-2 px-4">
       <div class="flex gap-2 w-fit h-full">
@@ -21,6 +22,7 @@ import { MessageService } from 'primeng/api';
           (onClick)="onAudioToggle()"
           [severity]="isMicrophoneEnabled() ? 'secondary' : 'danger'"
           [model]="devicesMenuItems().audioInputs_Outputs"
+          size="small"
         >
           <ng-template #content>
             <i class="pi pi-microphone px-1 before:text-lg"></i>
@@ -44,39 +46,77 @@ import { MessageService } from 'primeng/api';
           size="large"
           [severity]="isParticipantsSidebarVisible() ? 'contrast' : 'secondary'"
           (click)="onParticipantsToggle()"
-        />
-        <p-button
-          icon="pi pi-desktop"
-          size="large"
-          [severity]="screenShareState() === 'local' ? 'contrast' : 'secondary'"
-          [disabled]="screenShareState() === 'remote'"
-          [pTooltip]="screenShareTooltip()"
+          pTooltip="Show participants"
           tooltipPosition="top"
-          (click)="onScreenShareToggle()"
         />
-        <p-button icon="pi pi-stop-circle" size="large" severity="secondary" (click)="log()" />
         <p-button
           size="large"
           severity="secondary"
           [severity]="isChatVisible() ? 'contrast' : 'secondary'"
           (click)="onChatToggle()"
           class="btn-inside-h-full"
+          [pTooltip]="isChatAllowed() ? 'Chat' : 'Chat is disabled'"
+          tooltipPosition="top"
+          [disabled]="!isHost() && !isChatAllowed()"
         >
           <ng-template #content>
             <fa-icon [icon]="faMessage" />
           </ng-template>
         </p-button>
+        <p-button
+          icon="pi pi-desktop"
+          size="large"
+          [severity]="screenShareState() === 'local' ? 'contrast' : 'secondary'"
+          [disabled]="screenShareState() === 'remote' || (!isHost() && !isScreenShareAllowed())"
+          [pTooltip]="screenShareTooltip()"
+          tooltipPosition="top"
+          (click)="onScreenShareToggle()"
+        />
+        @if (isHost()) {
+          <p-button
+            icon="pi pi-stop-circle"
+            size="large"
+            severity="secondary"
+            pTooltip="Start/Stop recording"
+            tooltipPosition="top"
+            (click)="onRecordingToggle()"
+          />
+        }
+        @if (isHost()) {
+          <p-button
+            icon="pi pi-ellipsis-v"
+            size="large"
+            (click)="menu.toggle($event)"
+            severity="secondary"
+            pTooltip="More options"
+            tooltipPosition="top"
+          />
+          <p-tiered-menu #menu [model]="roomTieredMenuItems()" [popup]="true" />
+        }
       </div>
 
       <div class="flex gap-4 items-center justify-self-end">
         <p class="text-white justify-self-end">{{ roomName() }}</p>
-        <p-button icon="pi pi-sign-out" severity="danger" (click)="onDisconnect()" size="large" />
+        @if (isHost()) {
+          <p-button
+            icon="pi pi-sign-out"
+            severity="danger"
+            (click)="menuLeave.toggle($event)"
+            size="large"
+          />
+          <p-tiered-menu #menuLeave [model]="leaveTieredMenuItems()" [popup]="true" />
+        } @else {
+          <p-button icon="pi pi-sign-out" severity="danger" (click)="onDisconnect()" size="large" />
+        }
       </div>
     </section>
   `,
   styles: [],
 })
 export class MeetingRoomControlsComponent {
+  isHost = input.required<boolean>();
+  isChatAllowed = input.required<boolean>();
+  isScreenShareAllowed = input.required<boolean>();
   isMicrophoneEnabled = input.required<boolean>();
   isVideoEnabled = input.required<boolean>();
   isParticipantsSidebarVisible = input.required<boolean>();
@@ -85,6 +125,8 @@ export class MeetingRoomControlsComponent {
   devices = input.required<DevicesModel>();
   roomName = input.required<string>();
 
+  chatPermissionToggle = output<void>();
+  screenSharePermissionToggle = output<void>();
   audioToggle = output<void>();
   videoToggle = output<void>();
   participantsToggle = output<void>();
@@ -95,6 +137,7 @@ export class MeetingRoomControlsComponent {
   audioInputChange = output<string>();
   videoInputChange = output<string>();
   audioOutputChange = output<string>();
+  endMeeting = output<void>();
 
   devicesMenuItems: Signal<DevicesMenuItemsModel> = computed(() => {
     return {
@@ -122,13 +165,55 @@ export class MeetingRoomControlsComponent {
     };
   });
   screenShareTooltip = computed(() => {
-    if (this.screenShareState() === 'remote') {
+    if (!this.isHost() && !this.isScreenShareAllowed()) {
+      return 'Screen sharing is disabled';
+    } else if (this.screenShareState() === 'remote') {
       return 'Someone else is sharing the screen';
     } else if (this.screenShareState() === 'local') {
       return 'Stop sharing';
     } else {
       return 'Start sharing';
     }
+  });
+  roomTieredMenuItems = computed(() => {
+    return [
+      {
+        label: 'Chat',
+        command: () => this.toggleChatPermission(),
+        icon: this.isChatAllowed() ? 'pi pi-check' : 'pi pi-times',
+        tooltip: this.isChatAllowed()
+          ? 'Enable chat for participants'
+          : 'Disable chat for participants',
+        tooltipPosition: 'top',
+      },
+      {
+        label: 'Screen Share',
+        command: () => this.toggleScreenSharePermission(),
+        icon: this.isScreenShareAllowed() ? 'pi pi-check' : 'pi pi-times',
+        tooltip: this.isScreenShareAllowed()
+          ? 'Enable screen share for participants'
+          : 'Disable screen share for participants',
+        tooltipPosition: 'top',
+      },
+    ];
+  });
+  leaveTieredMenuItems = computed(() => {
+    return [
+      {
+        label: 'End meeting',
+        command: () => this.onEndMeeting(),
+        icon: 'pi pi-times',
+        tooltip: 'End the meeting',
+        tooltipPosition: 'top',
+      },
+      {
+        label: 'Leave',
+        command: () => this.onDisconnect(),
+        icon: 'pi pi-sign-out',
+        tooltip: 'Leave the meeting',
+        tooltipPosition: 'top',
+      },
+    ];
   });
   protected readonly faMessage = faMessage;
 
@@ -162,6 +247,10 @@ export class MeetingRoomControlsComponent {
     this.disconnect.emit();
   }
 
+  onEndMeeting(): void {
+    this.endMeeting.emit();
+  }
+
   onAudioInputChange(deviceId: string): void {
     this.audioInputChange.emit(deviceId);
   }
@@ -174,7 +263,18 @@ export class MeetingRoomControlsComponent {
     this.audioOutputChange.emit(deviceId);
   }
 
+  toggleChatPermission(): void {
+    this.chatPermissionToggle.emit();
+  }
+
+  toggleScreenSharePermission(): void {
+    this.screenSharePermissionToggle.emit();
+  }
+
   log() {
-    console.log(this.screenShareState());
+    console.log({
+      isChatAllowed: this.isChatAllowed(),
+      isScreenShareAllowed: this.isScreenShareAllowed(),
+    });
   }
 }

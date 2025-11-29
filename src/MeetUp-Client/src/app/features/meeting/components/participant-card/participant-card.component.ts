@@ -32,10 +32,10 @@ import { ParticipantVideoComponent } from '../participant-video/participant-vide
       [class.border-2]="isSpeaking()"
       [class.border-green-400]="isSpeaking()"
     >
-      @if (isVideoEnabled() && participant().identity) {
+      @if (isVideoEnabled() && participant().name) {
         <p-chip
           class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-10 animate-fadein"
-          [label]="participant().identity"
+          [label]="participant().name"
         ></p-chip>
       }
 
@@ -45,7 +45,7 @@ import { ParticipantVideoComponent } from '../participant-video/participant-vide
         [videoTrack]="videoTrack()"
         [isVideoEnabled]="isVideoEnabled()"
         [isLocal]="isLocal()"
-        [identity]="participant().identity"
+        [identity]="participant().name!"
       />
     </div>
   `,

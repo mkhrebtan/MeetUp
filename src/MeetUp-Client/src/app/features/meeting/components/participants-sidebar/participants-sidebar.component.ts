@@ -22,7 +22,7 @@ import { ScrollPanel } from 'primeng/scrollpanel';
       <p-scroll-panel class="h-full">
         <ul class="flex flex-col gap-2">
           @for (participant of sortedParticipants(); track participant.identity) {
-            <li class="bg-neutral-900/50 rounded-xl py-2 px-4">{{ participant.identity }}</li>
+            <li class="bg-neutral-900/50 rounded-xl py-2 px-4">{{ participant.name }}</li>
           }
         </ul>
       </p-scroll-panel>

@@ -1,6 +1,6 @@
 ﻿import { Injectable } from '@angular/core';
-import { DimensionModel } from '../../models/dimension.model';
-import { GridInputModel } from '../../models/grid-input.model';
+import { DimensionModel } from '../models/dimension.model';
+import { GridInputModel } from '../models/grid-input.model';
 
 @Injectable({
   providedIn: 'root',
