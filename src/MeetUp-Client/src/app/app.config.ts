@@ -16,6 +16,7 @@ import { AUTH_PROVIDERS } from './features/auth/auth.config';
 import { WORKSPACE_PROVIDERS } from './features/workspace/workspace.config';
 import { MEMBERS_PROVIDERS } from './features/members/members.config';
 import { MEETING_PROVIDERS } from './features/meeting/meeting.config';
+import { PROFILE_PROVIDERS } from './features/profile/profile.config';
 import { MessageService } from 'primeng/api';
 
 const MyPreset = definePreset(Aura, {
@@ -57,5 +58,6 @@ export const appConfig: ApplicationConfig = {
     ...WORKSPACE_PROVIDERS,
     ...MEMBERS_PROVIDERS,
     ...MEETING_PROVIDERS,
+    ...PROFILE_PROVIDERS,
   ],
 };

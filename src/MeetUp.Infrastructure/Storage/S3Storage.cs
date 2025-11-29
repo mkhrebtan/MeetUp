@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using MeetUp.Application.Common.Interfaces;
+using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.Extensions.Options;
 
 namespace MeetUp.Infrastructure.Storage;
@@ -24,5 +25,17 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
         };
 
         return await s3Client.GetPreSignedURLAsync(request);
+    }
+
+    public async Task<Result> DeleteFileAsync(Guid key)
+    {
+        var request = new DeleteObjectRequest
+        {
+            BucketName = s3Settings.Value.BucketName,
+            Key = $"meetup/{key}",
+        };
+
+        await s3Client.DeleteObjectAsync(request);
+        return Result.Success();
     }
 }

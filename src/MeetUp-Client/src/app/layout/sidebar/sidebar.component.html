@@ -29,10 +29,14 @@
         #rlaProfile="routerLinkActive"
         [severity]="rlaProfile.isActive ? 'primary' : 'secondary'"
         [text]="!rlaProfile.isActive"
-        routerLink="profile"
+        routerLink="/profile"
         routerLinkActive="active-link"
       >
-        <i class="pi pi-user ml-1 mr-3"></i>
+        @if (user.avatarUrl) {
+          <img [ngSrc]="user.avatarUrl" class="w-10 h-10 rounded-full object-cover" width="40" height="40" alt="User Avatar" />
+        } @else {
+          <i class="pi pi-user ml-1 mr-3"></i>
+        }
         <div class="flex-1 min-w-0">
           <p [class.text-foreground]="!rlaProfile.isActive" class="text-sm font-medium truncate">
             {{ user.firstName }} {{ user.lastName }}

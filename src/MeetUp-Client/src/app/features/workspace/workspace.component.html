@@ -12,7 +12,24 @@
           </div>
           MeetUp
         </div>
-        <p-button label="Sign Out" severity="secondary" text (click)="logOut()"></p-button>
+        @if (user$ | async; as user) {
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" routerLink="/profile">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                @if (user.avatarUrl) {
+                  <img [ngSrc]="user.avatarUrl" class="w-full h-full rounded-full object-cover" alt="User Avatar" width="40" height="40" />
+                } @else {
+                  <i class="pi pi-user text-primary" style="font-size: 1.25rem"></i>
+                }
+              </div>
+              <div class="flex flex-col">
+                <span class="font-semibold text-sm">{{ user.firstName }} {{ user.lastName }}</span>
+                <span class="text-xs text-muted-foreground">{{ user.email }}</span>
+              </div>
+            </div>
+            <p-button label="Sign Out" severity="secondary" text (click)="logOut()"></p-button>
+          </div>
+        }
       </div>
     </header>
 

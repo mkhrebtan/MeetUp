@@ -17,9 +17,19 @@ internal sealed class UpdateUserCommandHandler(IApplicationDbContext context, IU
             return Result.Failure(Error.NotFound("User.NotFound", "User not found."));
         }
 
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
-        user.Email = request.Email;
+        if (request.Email is not  null && user.Email != request.Email)
+        {
+            var emailExists = await context.Users.AnyAsync(u => u.Email == request.Email, cancellationToken);
+            if (emailExists)
+            {
+                return Result.Failure(Error.Conflict("User.EmailConflict", "Email already taken."));
+            }
+
+            user.Email = request.Email;
+        }
+        
+        user.FirstName = request.FirstName ?? user.FirstName;
+        user.LastName = request.LastName ?? user.LastName;
         user.AvatarUrl = request.AvatarUrl ?? string.Empty;
 
         await context.SaveChangesAsync(cancellationToken);

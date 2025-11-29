@@ -8,9 +8,9 @@ import { AuthActions } from '../auth/store/auth.actions';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkspaceActions } from './store/workspace.actions';
 import * as WorkspaceSelectors from './store/workspace.selectors';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, NgOptimizedImage } from '@angular/common';
 import { ProgressSpinner } from 'primeng/progressspinner';
-import { RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-workspace',
@@ -25,7 +25,9 @@ import { RouterOutlet } from '@angular/router';
     AsyncPipe,
     ProgressSpinner,
     RouterOutlet,
+    RouterLink,
     DatePipe,
+    NgOptimizedImage,
   ],
 })
 export class WorkspaceComponent implements OnInit {

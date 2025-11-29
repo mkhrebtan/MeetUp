@@ -5,4 +5,5 @@ export interface User {
   lastName: string;
   role: string;
   activeWorkspaceId: string | null;
+  avatarUrl: string | null;
 }

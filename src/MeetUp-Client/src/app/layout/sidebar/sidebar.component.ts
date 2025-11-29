@@ -3,13 +3,13 @@ import { MenuItem } from 'primeng/api';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AuthSelectors } from '../../features/auth/store/auth.selectors';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { Button } from 'primeng/button';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  imports: [RouterLink, RouterLinkActive, AsyncPipe, Button],
+  imports: [RouterLink, RouterLinkActive, AsyncPipe, Button, NgOptimizedImage],
   styles: [
     `
       :host ::ng-deep .p-button {

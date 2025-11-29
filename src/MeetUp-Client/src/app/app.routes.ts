@@ -24,4 +24,10 @@ export const routes: Routes = [
     component: MeetingComponent,
     canActivate: [AuthGuard],
   },
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./features/profile/profile.component').then((m) => m.ProfileComponent),
+    canActivate: [AuthGuard],
+  },
 ];

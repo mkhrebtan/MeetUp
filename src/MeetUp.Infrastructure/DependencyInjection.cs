@@ -51,11 +51,7 @@ public static class DependencyInjection
         
         services.AddTransient(typeof(IPagedList<>), typeof(PagedList<>));
         
-        services.Configure<S3Settings>(options =>
-        {
-            options.BucketName = configuration.GetSection(S3Settings.SectionName)[nameof(S3Settings.BucketName)]!;
-            options.Region = configuration.GetSection(S3Settings.SectionName)[nameof(S3Settings.Region)]!;
-        });
+        services.Configure<S3Settings>(configuration.GetSection("AWS"));
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.AddAWSService<IAmazonS3>();
         services.AddScoped<IStorage, S3Storage>();

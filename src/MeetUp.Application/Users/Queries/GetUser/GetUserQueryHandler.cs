@@ -22,6 +22,6 @@ internal sealed class GetUserQueryHandler(IApplicationDbContext context, IUserCo
             .Select(wu => wu.Workspace)
             .FirstOrDefaultAsync(cancellationToken);
         
-        return Result<UserDto>.Success(new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.Role.Name, activeWorkspace?.Id));
+        return Result<UserDto>.Success(new UserDto(user.Id, user.Email, user.FirstName, user.LastName, user.Role.Name, activeWorkspace?.Id, user.AvatarUrl));
     }
 }
