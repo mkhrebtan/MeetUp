@@ -6,7 +6,7 @@ import { InputText } from 'primeng/inputtext';
 import { Card } from 'primeng/card';
 import { Badge } from 'primeng/badge';
 import { Store } from '@ngrx/store';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, NgOptimizedImage } from '@angular/common';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { BehaviorSubject, combineLatest, take } from 'rxjs';
@@ -20,6 +20,7 @@ import {
 import {
   selectActiveWorkspaceId,
   selectActiveWorkspaceInviteCode,
+  selectWorkspaceInvitationPolicy,
 } from '../workspace/store/workspace.selectors';
 import { MembersActions } from './store/members.actions';
 import { DialogModule } from 'primeng/dialog';
@@ -43,6 +44,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     Badge,
     AsyncPipe,
     DatePipe,
+    NgOptimizedImage,
     PaginatorModule,
     ReactiveFormsModule,
     DialogModule,
@@ -72,6 +74,7 @@ export class MembersComponent implements OnInit {
   workspaceId$ = this.store.select(selectActiveWorkspaceId);
   totalCount$ = this.store.select(selectMembersTotalCount);
   inviteCode$ = this.store.select(selectActiveWorkspaceInviteCode);
+  invitationPolicy$ = this.store.select(selectWorkspaceInvitationPolicy);
   userRole = signal<string | undefined>(undefined);
 
   searchControl = new FormControl('');

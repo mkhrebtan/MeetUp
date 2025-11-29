@@ -44,7 +44,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> Get(
         Guid id,
         [FromServices] IQueryHandler<GetWorkspaceQuery, WorkspaceDto> handler,
@@ -55,7 +55,7 @@ public class WorkspaceController : ApiControllerBase
     }
 
     [HttpPatch("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IResult> Update(
         Guid id,
         UpdateWorkspaceCommand command,
@@ -67,7 +67,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpDelete("{id:guid}/leave")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> Leave(
         Guid id,
         [FromServices] ICommandHandler<LeaveWorkspaceCommand> handler,
@@ -78,7 +78,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpDelete("{id:guid}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IResult> Delete(
         Guid id,
         [FromServices] ICommandHandler<DeleteWorkspaceCommand> handler,
@@ -89,7 +89,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}/members")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> GetMembers(
         Guid id,
         [FromQuery] string? searchTerm,
@@ -103,7 +103,7 @@ public class WorkspaceController : ApiControllerBase
     }
 
     [HttpPost("{id:guid}/invite")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> Invite(
         Guid id,
         InviteWorkspaceMembersCommand command,
@@ -115,7 +115,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpDelete("{id:guid}/members/{email}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public async Task<IResult> RemoveMember(
         Guid id,
         string email,
@@ -127,7 +127,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}/meetings/hosted")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> GetHostedMeetings(
         Guid id,
         [FromQuery] string? searchTerm,
@@ -142,7 +142,7 @@ public class WorkspaceController : ApiControllerBase
     }
     
     [HttpGet("{id:guid}/meetings/invited")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> GetInvitedMeetings(
         Guid id,
         [FromQuery] string? searchTerm,

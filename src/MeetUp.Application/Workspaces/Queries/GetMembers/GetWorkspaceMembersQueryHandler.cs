@@ -22,6 +22,7 @@ internal class GetWorkspaceMembersQueryHandler(IApplicationDbContext context, IP
                 wm.User.FirstName,
                 wm.User.LastName,
                 wm.User.Email,
+                wm.User.AvatarUrl,
                 wm.User.Role.ToString(),
                 wm.JoinedAt));
 

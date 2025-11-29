@@ -5,7 +5,9 @@
       <h1 class="text-3xl font-bold text-foreground">Members</h1>
       <p class="text-muted-foreground mt-1">Manage workspace members and permissions</p>
     </div>
-    <p-button icon="pi pi-plus" label="Invite Members" size="small" (click)="showDialog()" />
+    @if (userRole() !== 'Member' || (invitationPolicy$ | async) !== 'ONLY_ADMINS') {
+      <p-button icon="pi pi-plus" label="Invite Members" size="small" (click)="showDialog()" />
+    }
   </div>
 
   <div class="flex items-center gap-4 mb-6">
@@ -42,9 +44,13 @@
             <div class="p-4 flex items-center justify-between">
               <div class="flex items-center gap-4">
                 <div
-                  class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg"
+                  class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg overflow-hidden"
                 >
-                  {{ member.firstName[0] }}{{ member.lastName[0] }}
+                  @if (member.avatarUrl) {
+                    <img [ngSrc]="member.avatarUrl" class="w-full h-full object-cover" width="48" height="48" alt="Member Avatar" />
+                  } @else {
+                    {{ member.firstName[0] }}{{ member.lastName[0] }}
+                  }
                 </div>
 
                 <div>
