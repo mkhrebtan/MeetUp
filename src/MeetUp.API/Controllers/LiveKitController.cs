@@ -12,7 +12,7 @@ namespace MeetUp.API.Controllers;
 public class LiveKitController(IConfiguration configuration) : ApiControllerBase
 {
     [HttpPost("token/{meetingId:guid}")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> GetToken(
         Guid meetingId,
         ICommandHandler<GetRoomAccessTokenCommand, GetAccessTokenCommandResponse> commandHandler,
@@ -24,7 +24,7 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
     }
     
     [HttpDelete("room/{meetingId:guid}")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> DeleteRoom(
         Guid meetingId,
         [FromServices] ICommandHandler<DeleteRoomCommand> handler,
@@ -35,7 +35,7 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
     }
 
     [HttpPut("room/{meetingId:guid}/metadata")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> UpdateRoomMetadata(
         Guid meetingId,
         [FromBody] RoomMetadata metadata,

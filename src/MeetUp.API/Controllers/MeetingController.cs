@@ -16,7 +16,7 @@ namespace MeetUp.API.Controllers;
 public class MeetingController : ApiControllerBase
 {
     [HttpPost("")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> Create(
         CreateMeetingCommand command,
         [FromServices] ICommandHandler<CreateMeetingCommand, CreateMeetingCommandResponse> handler,
@@ -27,7 +27,7 @@ public class MeetingController : ApiControllerBase
     }
 
     [HttpPost("{meetingId:guid}/participants")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> AddParticipants(
         Guid meetingId,
         AddMeetingParticipantCommand command,
@@ -39,7 +39,7 @@ public class MeetingController : ApiControllerBase
     }
     
     [HttpDelete("{meetingId:guid}")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> Delete(
         Guid meetingId,
         [FromServices] ICommandHandler<DeleteMeetingCommand> handler,
@@ -52,7 +52,7 @@ public class MeetingController : ApiControllerBase
     public record JoinMeetingRequest(string InviteCode);
     
     [HttpPost("join")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> JoinMeeting(
         [FromBody] JoinMeetingRequest request,
         [FromServices] ICommandHandler<JoinMeetingCommand> handler,
@@ -63,7 +63,7 @@ public class MeetingController : ApiControllerBase
     }
     
     [HttpDelete("{meetingId:guid}/leave")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> LeaveMeeting(
         Guid meetingId,
         [FromServices] ICommandHandler<LeaveMeetingCommand> handler,
@@ -74,7 +74,7 @@ public class MeetingController : ApiControllerBase
     }
     
     [HttpGet("{meetingId:guid}")]
-    [Authorize(Roles = "Admin, Member")]
+    [Authorize]
     public async Task<IResult> GetMeeting(
         Guid meetingId,
         [FromServices] IQueryHandler<GetMeetingQuery, MeetingDetailsDto> handler,
