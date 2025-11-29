@@ -29,6 +29,7 @@ internal sealed class GetMeetingQueryHandler(IApplicationDbContext context, IUse
 
         var meetingDto = new MeetingDetailsDto(
             meeting.Id,
+            meeting.WorkspaceId,
             meeting.Title,
             workspaceUser.Id == meeting.OrganizerId,
             meeting.ChatPolicy.Equals(ChatPolicy.Enabled),
