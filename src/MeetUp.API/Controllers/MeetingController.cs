@@ -77,7 +77,7 @@ public class MeetingController : ApiControllerBase
     [Authorize(Roles = "Admin, Member")]
     public async Task<IResult> GetMeeting(
         Guid meetingId,
-        [FromServices] IQueryHandler<GetMeetingQuery, MeetingDto> handler,
+        [FromServices] IQueryHandler<GetMeetingQuery, MeetingDetailsDto> handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.Handle(new GetMeetingQuery(meetingId), cancellationToken);
