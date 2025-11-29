@@ -118,6 +118,7 @@ export class WorkspaceEffects {
         tap(({ workspace }) => {
           if (workspace?.id) {
             this.logger.info('Redirecting to workspace dashboard:', workspace.id);
+            localStorage.setItem('activeWorkspaceId', workspace.id);
             this.router.navigate([`/workspace/${workspace.id}/dashboard`], { replaceUrl: true });
           } else {
             this.logger.warn('No workspace ID found, redirecting to workspace selection');

@@ -3,6 +3,7 @@ import { WorkspaceComponent } from './workspace.component';
 import { WORKSPACE_PROVIDERS } from './workspace.config';
 import { AuthGuard } from '../../core/guards/auth.guard';
 import { AppShellComponent } from '../../layout/app-shell/app-shell-component';
+import { WorkspaceGuard } from '../../core/guards/workspace.guard';
 
 export const workspaceRoutes: Routes = [
   {
@@ -14,7 +15,7 @@ export const workspaceRoutes: Routes = [
         // mounted at /workspace (from app.routes) so this should only be the dynamic id segment
         path: ':workspaceId',
         component: AppShellComponent,
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, WorkspaceGuard],
         children: [
           {
             path: '',

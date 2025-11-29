@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { MeetingComponent } from './features/meeting/pages/meeting.component';
+import { MeetingComponent } from './features/meeting/meeting.component';
 import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
