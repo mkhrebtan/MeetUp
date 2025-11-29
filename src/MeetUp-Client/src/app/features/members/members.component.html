@@ -1,5 +1,5 @@
 <p-confirmdialog />
-<div class="p-8 max-w-6xl mx-auto flex flex-col">
+<div class="p-8 max-w-6xl mx-auto flex flex-col w-full h-full">
   <div class="flex items-center justify-between mb-8">
     <div>
       <h1 class="text-3xl font-bold text-foreground">Members</h1>
@@ -28,56 +28,56 @@
     </div> -->
   </div>
 
-  @if (loading$ | async) {
-    <div class="flex justify-center p-8 text-muted-foreground">Loading members...</div>
-  }
+  <div class="flex-1">
+    @if (loading$ | async) {
+      <div class="flex justify-center p-8 text-muted-foreground">Loading members...</div>
+    } @else if (error$ | async; as error) {
+      <div class="p-4 mb-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+        {{ error }}
+      </div>
+    } @else {
+      <div class="space-y-3 flex-1">
+        @for (member of members$ | async; track member.id) {
+          <p-card>
+            <div class="p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg"
+                >
+                  {{ member.firstName[0] }}{{ member.lastName[0] }}
+                </div>
 
-  @if (error$ | async; as error) {
-    <div class="p-4 mb-4 bg-red-50 text-red-600 rounded-md border border-red-200">
-      {{ error }}
-    </div>
-  }
-
-  <div class="space-y-3 flex-1">
-    @for (member of members$ | async; track member.id) {
-      <p-card>
-        <div class="p-4 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div
-              class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg"
-            >
-              {{ member.firstName[0] }}{{ member.lastName[0] }}
-            </div>
-
-            <div>
-              <div class="flex items-center gap-3">
-                <h3 class="font-semibold text-foreground">{{ member.firstName }} {{ member.lastName }}</h3>
-                @switch (member.role) {
-                  @case ('Admin') {
-                    <p-badge value="Admin" />
-                  }
-                  @case ('Moderator') {
-                    <p-badge severity="secondary" value="Moderator" />
-                  }
-                }
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="font-semibold text-foreground">{{ member.firstName }} {{ member.lastName }}</h3>
+                    @switch (member.role) {
+                      @case ('Admin') {
+                        <p-badge value="Admin" />
+                      }
+                      @case ('Moderator') {
+                        <p-badge severity="secondary" value="Moderator" />
+                      }
+                    }
+                  </div>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-envelope"></i>
+                      {{ member.email }}
+                    </span>
+                    <span>•</span>
+                    <span>Joined {{ member.joinedAt | date }}</span>
+                  </div>
+                </div>
               </div>
-              <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                <span class="flex items-center gap-1">
-                  <i class="pi pi-envelope"></i>
-                  {{ member.email }}
-                </span>
-                <span>•</span>
-                <span>Joined {{ member.joinedAt | date }}</span>
-              </div>
+
+              @if (userRole() === 'Admin') {
+                <p-button icon="pi pi-trash" size="small" variant="text" (click)="onRemoveMember(member.email)" />
+              }
+
             </div>
-          </div>
-
-          @if (userRole() === 'Admin') {
-            <p-button icon="pi pi-trash" size="small" variant="text" (click)="onRemoveMember(member.email)" />
-          }
-
-        </div>
-      </p-card>
+          </p-card>
+        }
+      </div>
     }
   </div>
 

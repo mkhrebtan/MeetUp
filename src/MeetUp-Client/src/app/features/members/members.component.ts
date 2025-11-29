@@ -51,6 +51,14 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ConfirmDialogModule,
   ],
   providers: [ConfirmationService],
+  styles: `
+    :host {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+  `,
 })
 export class MembersComponent implements OnInit {
   private store = inject(Store);
