@@ -4,8 +4,10 @@ public record MeetingDto(
     Guid Id,
     string Title,
     string? Description,
-    DateTime ScheduledAt, 
+    DateTime ScheduledAt,
     TimeSpan Duration,
     int Participants,
-    bool IsActive,
-    string InviteCode);
+    string InviteCode)
+{
+    public bool IsActive { get; set; } = false;
+}

@@ -6,6 +6,7 @@ using MeetUp.Application.Meetings.Commands.Delete;
 using MeetUp.Application.Meetings.Commands.JoinMeeting;
 using MeetUp.Application.Meetings.Commands.LeaveMeeting;
 using MeetUp.Application.Meetings.Queries;
+using MeetUp.Application.Meetings.Queries.GetMeeting;
 using MeetUp.Application.Meetings.Queries.GetPossibleTimeQuery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -70,5 +71,16 @@ public class MeetingController : ApiControllerBase
     {
         var result = await handler.Handle(new LeaveMeetingCommand(meetingId), cancellationToken);
         return result.IsSuccess ? Results.NoContent() : result.GetProblem();
+    }
+    
+    [HttpGet("{meetingId:guid}")]
+    [Authorize(Roles = "Admin, Member")]
+    public async Task<IResult> GetMeeting(
+        Guid meetingId,
+        [FromServices] IQueryHandler<GetMeetingQuery, MeetingDto> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new GetMeetingQuery(meetingId), cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
 }

@@ -32,7 +32,6 @@ internal sealed class GetUpcomingMeetingsQueryHandler(IApplicationDbContext cont
                 m.ScheduledAt,
                 m.Duration,
                 m.Participants.Count,
-                m.IsActive,
                 m.InviteCode))
             .ToListAsync(cancellationToken);
 

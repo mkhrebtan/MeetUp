@@ -7,7 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeetUp.Application.Meetings.Queries.GetInvitedMeetings;
 
-internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext context, IUserContext userContext, IPagedList<MeetingDto> pagedList)
+internal sealed class GetInvitedMeetingsQueryHandler(
+    IApplicationDbContext context,
+    IUserContext userContext,
+    IPagedList<MeetingDto> pagedList,
+    IRoomService roomService)
     : IQueryHandler<GetInvitedMeetingsQuery, IPagedList<MeetingDto>>
 {
     public async Task<Result<IPagedList<MeetingDto>>> Handle(GetInvitedMeetingsQuery request, CancellationToken cancellationToken)
@@ -38,10 +42,12 @@ internal sealed class GetInvitedMeetingsQueryHandler(IApplicationDbContext conte
                 m.ScheduledAt,
                 m.Duration,
                 m.Participants.Count,
-                m.IsActive,
                 m.InviteCode));
         
         var pagedListResult = await pagedList.Create(dtos, request.Page, request.PageSize);
+        
+        var meetingsStatus = await roomService.GetMeetingsStatus(pagedListResult.Items.Select(m => m.Id).ToArray());
+        pagedListResult.Items.ForEach(m => m.IsActive = meetingsStatus[m.Id]);
 
         return Result<IPagedList<MeetingDto>>.Success(pagedListResult);
     }
