@@ -45,6 +45,18 @@
       - "5432:5432"
     networks:
       - meetup-network
+  
+  meetup.livekit:
+    image: livekit/livekit-server:latest
+    container_name: meetup.livekit
+    env_file:
+      - .env
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    networks:
+      - meetup-network
 
 volumes:
   meetup_keycloak_data:

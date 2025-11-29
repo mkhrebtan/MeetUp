@@ -29,7 +29,7 @@ public class LiveKitService(IOptions<LiveKitSettings> settings) : IRoomService
             .WithName($"{user.FirstName} {user.LastName}")
             .WithGrants(new VideoGrants
             {
-                RoomJoin = !isHost,
+                RoomJoin = true,
                 Room = meeting.Id.ToString(),
                 RoomAdmin = isHost,
                 RoomRecord = isHost,
@@ -49,6 +49,39 @@ public class LiveKitService(IOptions<LiveKitSettings> settings) : IRoomService
         var rooms = await _roomServiceClient.ListRooms(request);
 
         return meetingIds.ToDictionary(meetingId => meetingId, meetingId => rooms.Rooms.Any(r => r.Name == meetingId.ToString()));
+    }
+
+    public async Task<Result> UpdateRoomMetadata(Guid meetingId, RoomMetadata metadata)
+    {
+        var roomExists = await RoomExistsAsync(meetingId);
+        if (!roomExists)
+        {
+            return Result.Failure(Error.NotFound("Room.NotFound", "Room not found."));
+        }
+        
+        var request = new UpdateRoomMetadataRequest
+        {
+            Room = meetingId.ToString(),
+            Metadata = JsonSerializer.Serialize(metadata),
+        };
+        await _roomServiceClient.UpdateRoomMetadata(request);
+        return Result.Success();
+    }
+
+    public async Task<Result> DeleteRoom(Guid meetingId)
+    {
+        var roomExists = await RoomExistsAsync(meetingId);
+        if (!roomExists)
+        {
+            return Result.Failure(Error.NotFound("Room.NotFound", "Room not found."));
+        }
+        
+        var request = new DeleteRoomRequest
+        {
+            Room =  meetingId.ToString(),
+        };
+        await _roomServiceClient.DeleteRoom(request);
+        return Result.Success();
     }
 
     private async Task<bool> RoomExistsAsync(Guid meetingId)
@@ -76,12 +109,3 @@ public class LiveKitService(IOptions<LiveKitSettings> settings) : IRoomService
         await _roomServiceClient.CreateRoom(request);
     }
 }
-
-internal record RoomMetadata
-{
-    internal required string RoomName { get; init; }
-    
-    internal bool ChatEnabled { get; init; } = false;
-    
-    internal bool ScreenShareEnabled { get; init; } = false;
-};
