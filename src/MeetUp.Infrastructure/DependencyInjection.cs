@@ -4,6 +4,7 @@ using MeetUp.Application.Common.Interfaces;
 using MeetUp.Infrastructure.Authentication;
 using MeetUp.Infrastructure.Common;
 using MeetUp.Infrastructure.Persistence;
+using MeetUp.Infrastructure.Rooms;
 using MeetUp.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,10 @@ public static class DependencyInjection
         services.AddDefaultAWSOptions(configuration.GetAWSOptions());
         services.AddAWSService<IAmazonS3>();
         services.AddScoped<IStorage, S3Storage>();
-        
+
+        services.Configure<LiveKitSettings>(configuration.GetSection("LIVEKIT"));
+        services.AddScoped<IRoomService, LiveKitService>();
+            
         return services;
     }
 }

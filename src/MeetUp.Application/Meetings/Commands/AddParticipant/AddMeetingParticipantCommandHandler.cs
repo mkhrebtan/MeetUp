@@ -61,7 +61,6 @@ internal sealed class AddMeetingParticipantCommandHandler(IApplicationDbContext 
             meeting.ScheduledAt,
             meeting.Duration,
             meeting.Participants.Count,
-            meeting.IsActive,
             meeting.InviteCode);
 
         return Result<MeetingDto>.Success(meetingDto);
