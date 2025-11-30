@@ -6,6 +6,8 @@ using MeetUp.Application.Workspaces.Commands.RemoveMember;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using MeetUp.Application.Users.Queries.GetUser;
+
 namespace MeetUp.API.Controllers;
 
 [Authorize]
@@ -25,10 +27,10 @@ public class UsersController : ApiControllerBase
     [Authorize]
     public async Task<IResult> UpdateUser(
         [FromBody] UpdateUserCommand command,
-        [FromServices] ICommandHandler<UpdateUserCommand> handler,
+        [FromServices] ICommandHandler<UpdateUserCommand, UserDto> handler,
         CancellationToken cancellationToken)
     {
         var result = await handler.Handle(command, cancellationToken);
-        return result.IsSuccess ? Results.NoContent() : result.GetProblem();
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
 }

@@ -33,7 +33,7 @@ export class ProfileEffects {
   updateProfileSuccess$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ProfileActions.updateProfileSuccess),
-      map(({ user }) => AuthActions.initSuccess({ user })),
+      map(({ user }) => AuthActions.updateUserSuccess({ user })),
     ),
   );
 
