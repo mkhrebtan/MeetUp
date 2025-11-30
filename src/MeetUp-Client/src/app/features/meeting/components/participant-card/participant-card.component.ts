@@ -32,9 +32,9 @@ import { ParticipantVideoComponent } from '../participant-video/participant-vide
       [class.border-2]="isSpeaking()"
       [class.border-green-400]="isSpeaking()"
     >
-      @if (isVideoEnabled() && participant().name) {
+      @if ((isVideoEnabled() || avatarUrl()) && participant().name) {
         <p-chip
-          class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-10 animate-fadein"
+          class="absolute bottom-2 !bg-neutral-900/50 border border-white/20 !text-white left-2 !py-1 z-20 animate-fadein"
           [label]="participant().name"
         ></p-chip>
       }
@@ -46,6 +46,7 @@ import { ParticipantVideoComponent } from '../participant-video/participant-vide
         [isVideoEnabled]="isVideoEnabled()"
         [isLocal]="isLocal()"
         [identity]="participant().name!"
+        [avatarUrl]="avatarUrl()"
       />
     </div>
   `,
@@ -57,6 +58,7 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
   isVideoEnabled = signal(false);
   videoTrack = signal<VideoTrack | null>(null);
   isLocal = signal(false);
+  avatarUrl = signal<string | null>(null);
 
   @ViewChild('audioElement') audioElement!: ElementRef;
 
@@ -64,6 +66,7 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
 
   ngOnInit() {
     this.isLocal.set(this.participant() instanceof LocalParticipant);
+    this.updateAvatarUrl();
 
     this.participant()
       .on(ParticipantEvent.TrackSubscribed, this.handleTrackSubscribed)
@@ -107,6 +110,24 @@ export class ParticipantCardComponent implements OnInit, OnDestroy, AfterViewIni
     const audioTrack = this.participant().getTrackPublication(Track.Source.Microphone)?.track;
     if (audioTrack) {
       audioTrack.detach();
+    }
+  }
+
+  private handleMetadataChanged = () => {
+    this.updateAvatarUrl();
+  };
+
+  private updateAvatarUrl() {
+    const metadata = this.participant().metadata;
+    if (metadata) {
+      try {
+        const data = JSON.parse(metadata);
+        this.avatarUrl.set(data.AvatarUrl || null);
+      } catch {
+        this.avatarUrl.set(null);
+      }
+    } else {
+      this.avatarUrl.set(null);
     }
   }
 

@@ -35,6 +35,10 @@ public class LiveKitService(IOptions<LiveKitSettings> settings) : IRoomService
                 RoomRecord = isHost,
                 RoomCreate = isHost,
             })
+            .WithMetadata(JsonSerializer.Serialize(new
+            {
+                AvatarUrl = user.AvatarUrl,
+            }))
             .WithTtl(TimeSpan.FromMinutes(settings.Value.AccessTokenExpiresInMinutes));
         var jwt = token.ToJwt();
         return Result<string>.Success(jwt);
