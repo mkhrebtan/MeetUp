@@ -45,6 +45,13 @@
             {{ user.email }}
           </p>
         </div>
+        <p-button
+          icon="pi pi-sign-out"
+          size="small"
+          severity="danger"
+          variant="text"
+          (click)="$event.stopPropagation(); signOut()"
+        />
       </p-button>
     } @else {
       <div class="flex items-center gap-3">

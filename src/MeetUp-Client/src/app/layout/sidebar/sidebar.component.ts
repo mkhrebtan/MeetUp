@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { AuthSelectors } from '../../features/auth/store/auth.selectors';
 import { AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { Button } from 'primeng/button';
+import { AuthActions } from '../../features/auth/store/auth.actions';
 
 @Component({
   selector: 'app-sidebar',
@@ -53,5 +54,9 @@ export class SidebarComponent implements OnInit {
         routerLink: ['settings'],
       },
     ];
+  }
+
+  signOut() {
+    this.store.dispatch(AuthActions.logout());
   }
 }

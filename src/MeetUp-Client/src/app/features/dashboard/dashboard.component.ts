@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
@@ -9,6 +9,8 @@ import { AsyncPipe } from '@angular/common';
 import { UpcomingMeetingItemComponent } from './components/upcoming-meeting-item/upcoming-meeting-item.component';
 import { UpcomingMeetingSkeletonComponent } from './components/upcoming-meeting-skeleton/upcoming-meeting-skeleton.component';
 import { RouterLink } from '@angular/router';
+import { selectWorkspaceMeetingsCreationPolicy } from '../workspace/store/workspace.selectors';
+import { AuthSelectors } from '../auth/store/auth.selectors';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +36,21 @@ export class DashboardComponent implements OnInit {
   meetings$ = this.store.select(dashboardSelectors.selectMeetings);
   meetingsLoading$ = this.store.select(dashboardSelectors.selectMeetingsLoading);
   error$ = this.store.select(dashboardSelectors.selectError);
+
+  meetingsCreationPolicy = this.store.selectSignal(selectWorkspaceMeetingsCreationPolicy);
+  userRole = this.store.selectSignal(AuthSelectors.selectUserRole);
+
+  canCreateMeeting = computed(() => {
+    const policy = this.meetingsCreationPolicy();
+    const role = this.userRole();
+
+    if (!policy) return false;
+
+    if (policy === 'ALL_MEMBERS') return true;
+    if (policy === 'ONLY_ADMINS' && role === 'Admin') return true;
+
+    return false;
+  });
 
   ngOnInit() {
     this.store.dispatch(DashboardActions.loadKpis());
