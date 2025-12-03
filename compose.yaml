@@ -1,4 +1,17 @@
 ﻿services:
+  meetup.client:
+    image: meetup.client
+    container_name: meetup.client
+    build:
+      context: ./src/MeetUp-Client
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    networks:
+      - meetup-network
+    depends_on:
+      - meetup.api
+
   meetup.api:
     image: meetup.api
     container_name: meetup.api
@@ -7,8 +20,8 @@
     env_file:
       - .env
     build:
-      context: ./src/MeetUp.API
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/MeetUp.API/Dockerfile
     ports:
       - "5000:80"
       - "5001:443"

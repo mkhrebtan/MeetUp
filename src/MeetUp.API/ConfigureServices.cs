@@ -21,7 +21,7 @@ public static class ConfigureServices
         {
             options.AddPolicy("AllowLocalhostFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:8080", "http://localhost:4200", "https://192.168.0.104:4200")
+                policy.WithOrigins("http://localhost:8080", "http://localhost:4200", "https://meetup.client:4200")
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });
