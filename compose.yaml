@@ -68,6 +68,44 @@
       - "7880:7880"
       - "7881:7881"
       - "7882:7882/udp"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    environment:
+      - LIVEKIT_CONFIG_FILE=/etc/livekit.yaml
+      - LIVEKIT_REDIS_ADDRESS=meetup.redis:6379
+    networks:
+      - meetup-network
+
+  egress:
+    container_name: meetup.egress
+    image: livekit/egress:latest
+    cap_add:
+      - SYS_ADMIN # Required for Chrome capture
+    env_file:
+      - .env
+    volumes:
+      - ./egress.yaml:/etc/egress.yaml
+    environment:
+      - EGRESS_CONFIG_FILE=/etc/egress.yaml
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}         # <--- REQUIRED
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} # <--- REQUIRED
+      # If you use the LiveKit keys in yaml via ${...}, add them too:
+      - LIVEKIT_API_KEY=${LIVEKIT__ApiKey}
+      - LIVEKIT_API_SECRET=${LIVEKIT__ApiSecret}
+    shm_size: 2g  
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    networks:
+      - meetup-network
+
+  redis:
+    container_name: meetup.redis
+    image: redis:7-alpine
+    command: redis-server --save 20 1 --loglevel warning
+    ports:
+      - "6379:6379"
     networks:
       - meetup-network
 

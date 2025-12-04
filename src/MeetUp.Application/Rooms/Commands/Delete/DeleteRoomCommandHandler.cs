@@ -3,7 +3,7 @@ using MeetUp.Application.Mediator;
 using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
 
-namespace MeetUp.Application.Rooms.Delete;
+namespace MeetUp.Application.Rooms.Commands.Delete;
 
 internal sealed class DeleteRoomCommandHandler(IApplicationDbContext context, IRoomService roomService) : ICommandHandler<DeleteRoomCommand>
 {

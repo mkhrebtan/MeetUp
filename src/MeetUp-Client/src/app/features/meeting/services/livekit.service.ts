@@ -32,4 +32,17 @@ export class LivekitService {
   deleteRoom(meetingId: string) {
     return this.apiService.delete(`livekit/room/${meetingId}`);
   }
+
+  startRecording(meetingId: string) {
+    return this.apiService.post<{ recordingId: string }>(
+      `livekit/room/${meetingId}/record/start`,
+      {},
+    );
+  }
+
+  stopRecording(meetingId: string, recordingId: string) {
+    return this.apiService.post(`livekit/room/${meetingId}/record/stop`, {
+      recordingId,
+    });
+  }
 }

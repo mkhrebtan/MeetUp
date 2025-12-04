@@ -3,7 +3,7 @@ using MeetUp.Application.Mediator;
 using MeetUp.Domain.Shared.ErrorHandling;
 using Microsoft.EntityFrameworkCore;
 
-namespace MeetUp.Application.Rooms.UpdateMetadata;
+namespace MeetUp.Application.Rooms.Commands.UpdateMetadata;
 
 internal sealed class UpdateRoomMetadataCommandHandler(
     IApplicationDbContext context,

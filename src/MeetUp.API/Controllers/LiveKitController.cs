@@ -2,8 +2,10 @@
 using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Application.Rooms.Commands.AccessToken;
-using MeetUp.Application.Rooms.Delete;
-using MeetUp.Application.Rooms.UpdateMetadata;
+using MeetUp.Application.Rooms.Commands.Delete;
+using MeetUp.Application.Rooms.Commands.StartRecord;
+using MeetUp.Application.Rooms.Commands.StopRecord;
+using MeetUp.Application.Rooms.Commands.UpdateMetadata;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +46,30 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
     {
         var command = new UpdateRoomMetadataCommand(meetingId, metadata);
         var result = await handler.Handle(command, cancellationToken);
+        return result.IsSuccess ? Results.NoContent() : result.GetProblem();
+    }
+
+    [HttpPost("room/{meetingId:guid}/record/start")]
+    [Authorize]
+    public async Task<IResult> StartRecording(
+        Guid meetingId,
+        ICommandHandler<StartRoomRecordCommand, StartRoomRecordCommandResponse> commandHandler,
+        CancellationToken cancellationToken)
+    {
+        var command = new StartRoomRecordCommand(meetingId);
+        var result = await commandHandler.Handle(command, cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+    
+    [HttpPost("room/{meetingId:guid}/record/stop")]
+    [Authorize]
+    public async Task<IResult> StopRecording(
+        Guid meetingId,
+        StopRoomRecordCommand command,
+        ICommandHandler<StopRoomRecordCommand> commandHandler,
+        CancellationToken cancellationToken)
+    {        
+        var result = await commandHandler.Handle(command, cancellationToken);
         return result.IsSuccess ? Results.NoContent() : result.GetProblem();
     }
 }

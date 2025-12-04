@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+egress.yaml
+livekit.yaml
+
 # User-specific files
 *.rsuser
 *.suo

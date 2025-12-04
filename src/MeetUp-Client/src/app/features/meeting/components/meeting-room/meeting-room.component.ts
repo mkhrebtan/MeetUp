@@ -140,6 +140,7 @@ import { RoomMetadata } from '../../models/room-metadata.model';
         [isChatAllowed]="roomMetadata().ChatEnabled"
         [isScreenShareAllowed]="roomMetadata().ScreenShareEnabled"
         [isChatVisible]="isChatVisible()"
+        [isRecording]="isRecording()"
         [screenShareState]="screenShareState()"
         [devices]="devices()"
         [roomName]="roomMetadata().RoomName"
@@ -154,6 +155,7 @@ import { RoomMetadata } from '../../models/room-metadata.model';
         (videoInputChange)="changeVideoInput($event)"
         (chatPermissionToggle)="toggleChatPermission()"
         (screenSharePermissionToggle)="toggleScreenSharePermission()"
+        (recordingToggle)="toggleRecording()"
         (endMeeting)="onEndMeeting()"
       />
 
@@ -181,6 +183,8 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
   isChatVisible = signal(false);
   chatMessages = signal<MeetingChatMessage[]>([]);
   isScreenShareEnabled = signal(false);
+  isRecording = signal(false);
+  recordingId = signal<string | null>(null);
   screenShareTrack = signal<LocalVideoTrack | RemoteVideoTrack | null>(null);
   screenShareState = computed(() => {
     if (this.isScreenShareEnabled()) {
@@ -363,6 +367,51 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
           });
         },
       });
+  }
+
+  toggleRecording() {
+    if (this.isRecording()) {
+      const recordingId = this.recordingId();
+      if (!recordingId) return;
+
+      this.livekitService.stopRecording(this.room().name, recordingId).subscribe({
+        next: () => {
+          this.isRecording.set(false);
+          this.recordingId.set(null);
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Recording',
+            detail: 'Recording stopped',
+          });
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.detail || 'Failed to stop recording',
+          });
+        },
+      });
+    } else {
+      this.livekitService.startRecording(this.room().name).subscribe({
+        next: (response) => {
+          this.isRecording.set(true);
+          this.recordingId.set(response.recordingId);
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Recording',
+            detail: 'Recording started',
+          });
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error.detail || 'Failed to start recording',
+          });
+        },
+      });
+    }
   }
 
   onEndMeeting() {

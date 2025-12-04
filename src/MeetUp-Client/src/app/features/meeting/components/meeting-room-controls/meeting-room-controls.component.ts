@@ -76,7 +76,7 @@ import { TieredMenu } from 'primeng/tieredmenu';
           <p-button
             icon="pi pi-stop-circle"
             size="large"
-            severity="secondary"
+            [severity]="isRecording() ? 'danger' : 'secondary'"
             pTooltip="Start/Stop recording"
             tooltipPosition="top"
             (click)="onRecordingToggle()"
@@ -121,6 +121,7 @@ export class MeetingRoomControlsComponent {
   isVideoEnabled = input.required<boolean>();
   isParticipantsSidebarVisible = input.required<boolean>();
   isChatVisible = input.required<boolean>();
+  isRecording = input.required<boolean>();
   screenShareState = input.required<'local' | 'remote' | 'none'>();
   devices = input.required<DevicesModel>();
   roomName = input.required<string>();

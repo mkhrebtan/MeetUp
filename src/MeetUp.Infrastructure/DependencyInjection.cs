@@ -58,6 +58,7 @@ public static class DependencyInjection
 
         services.Configure<LiveKitSettings>(configuration.GetSection("LIVEKIT"));
         services.AddScoped<IRoomService, LiveKitService>();
+        services.AddScoped<IRecordingService, EgressService>();
             
         return services;
     }
