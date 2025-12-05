@@ -38,4 +38,29 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
         await s3Client.DeleteObjectAsync(request);
         return Result.Success();
     }
+
+    public async Task<ICollection<FileDto>> ListFilesAsync(string prefix, List<string>? fileExtensions = null, CancellationToken cancellationToken = default)
+    {
+        var request = new ListObjectsV2Request
+        {
+            BucketName = s3Settings.Value.BucketName,
+            Prefix = prefix,
+        };
+        var response = await s3Client.ListObjectsV2Async(request, cancellationToken);
+        var result = response.S3Objects.Where(obj => !obj.Key.EndsWith('/'));
+        if (fileExtensions != null)
+        {
+            result = result.Where(obj => fileExtensions.Contains(Path.GetExtension(obj.Key)));
+        }
+        
+        return result
+            .Select(o => new FileDto
+            {
+                Key = o.Key,
+                FileName = Path.GetFileName(o.Key),
+                CreatedAt = o.LastModified?.ToUniversalTime() ?? DateTime.UtcNow,
+            })
+            .OrderByDescending(o => o.CreatedAt)
+            .ToList();
+    }
 }
