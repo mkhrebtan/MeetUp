@@ -2,6 +2,7 @@ import { createFeature, createReducer, on } from '@ngrx/store';
 import { MeetingModel } from '../models/meeting.model';
 import { DashboardActions } from './dashboard.actions';
 import { KpisModel } from '../models/kpis.model';
+import { RecentRecordModel } from '../models/recent-record.model';
 
 export interface DashboardState {
   loading: {
@@ -11,6 +12,7 @@ export interface DashboardState {
   };
   kpis: KpisModel;
   meetings: MeetingModel[];
+  records: RecentRecordModel[];
   error: string | null;
 }
 
@@ -35,6 +37,7 @@ export const initialState: DashboardState = {
     },
   },
   meetings: [],
+  records: [],
   error: null,
 };
 
@@ -68,6 +71,20 @@ export const dashboardFeature = createFeature({
     on(DashboardActions.loadMeetingsFailure, (state, { error }) => ({
       ...state,
       loading: { ...state.loading, meetings: false },
+      error,
+    })),
+    on(DashboardActions.loadRecords, (state) => ({
+      ...state,
+      loading: { ...state.loading, records: true },
+    })),
+    on(DashboardActions.loadRecordsSuccess, (state, { records }) => ({
+      ...state,
+      loading: { ...state.loading, records: false },
+      records,
+    })),
+    on(DashboardActions.loadRecordsFailure, (state, { error }) => ({
+      ...state,
+      loading: { ...state.loading, records: false },
       error,
     })),
   ),

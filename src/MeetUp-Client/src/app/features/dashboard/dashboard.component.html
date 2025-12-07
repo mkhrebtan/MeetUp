@@ -1,7 +1,9 @@
 <div class="p-8 mx-auto flex flex-col h-full">
   <div class="flex items-center justify-between mb-8">
     <div>
-      <h1 class="text-3xl font-bold text-foreground text-balance">Welcome back, John</h1>
+      @if (user$ | async; as user) {
+        <h1 class="text-3xl font-bold text-foreground text-balance">Welcome back, {{ user.firstName }}</h1>
+      }
       <p class="text-muted-foreground mt-1">Here's what's happening with your workspace today</p>
     </div>
     @if (canCreateMeeting()) {
@@ -44,30 +46,14 @@
         <h2 class="text-xl font-bold text-center">Recent Records</h2>
       </div>
       <div class="flex flex-col gap-2">
-        @for (record of recentRecords; track record.id) {
-          <div
-            class="flex items-center justify-between p-4 rounded-lg border border-border hover:border-primary/50 transition-colors cursor-pointer"
-          >
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
-                <i class="pi pi-play-circle" style="font-size: 1.25rem"></i>
-              </div>
-              <div>
-                <h3 class="font-medium text-foreground">{{ record.title }}</h3>
-                <div class="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                  <span>{{ record.date }}</span>
-
-                  <span>•</span>
-
-                  <span>{{ record.duration }}</span>
-
-                  <span>•</span>
-
-                  <span>{{ record.views }} views</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        @if (recordingsLoading$ | async) {
+          @for (i of [1, 2, 3]; track i) {
+            <app-recent-record-skeleton />
+          }
+        } @else {
+          @for (record of recentRecordings$ | async; track record.key) {
+            <app-recent-record-item [record]="record" />
+          }
         }
       </div>
     </p-card>

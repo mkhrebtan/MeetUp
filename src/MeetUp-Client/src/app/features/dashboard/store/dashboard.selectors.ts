@@ -13,6 +13,11 @@ export const selectMeetings = createSelector(
   (state: DashboardState) => state.meetings,
 );
 
+export const selectRecords = createSelector(
+  selectDashboardState,
+  (state: DashboardState) => state.records,
+);
+
 export const selectError = createSelector(
   selectDashboardState,
   (state: DashboardState) => state.error,
@@ -31,4 +36,9 @@ export const selectKpisLoading = createSelector(
 export const selectMeetingsLoading = createSelector(
   selectDashboardState,
   (state: DashboardState) => state.loading.meetings,
+);
+
+export const selectRecordsLoading = createSelector(
+  selectDashboardState,
+  (state: DashboardState) => state.loading.records,
 );

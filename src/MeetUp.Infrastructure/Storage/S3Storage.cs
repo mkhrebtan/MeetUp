@@ -39,7 +39,7 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
         return Result.Success();
     }
 
-    public async Task<ICollection<FileDto>> ListFilesAsync(string prefix, List<string>? fileExtensions = null, CancellationToken cancellationToken = default)
+    public async Task<ICollection<FileDto>> ListFilesAsync(string prefix, List<string>? fileExtensions = null, int? count = null, CancellationToken cancellationToken = default)
     {
         var request = new ListObjectsV2Request
         {
@@ -52,16 +52,16 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
         {
             result = result.Where(obj => fileExtensions.Contains(Path.GetExtension(obj.Key)));
         }
-        
-        return result
+
+        var orderByDescending = result
             .Select(o => new FileDto
             {
                 Key = o.Key,
                 FileName = Path.GetFileName(o.Key),
                 CreatedAt = o.LastModified?.ToUniversalTime() ?? DateTime.UtcNow,
             })
-            .OrderByDescending(o => o.CreatedAt)
-            .ToList();
+            .OrderByDescending(o => o.CreatedAt);
+        return count != null ? orderByDescending.Take((int)count).ToList() : orderByDescending.ToList();
     }
 
     public async Task<string> GetFileUrlAsync(string key, DateTime? expires = null, CancellationToken cancellationToken = default)

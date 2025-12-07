@@ -11,6 +11,8 @@ import { UpcomingMeetingSkeletonComponent } from './components/upcoming-meeting-
 import { RouterLink } from '@angular/router';
 import { selectWorkspaceMeetingsCreationPolicy } from '../workspace/store/workspace.selectors';
 import { AuthSelectors } from '../auth/store/auth.selectors';
+import { RecentRecordItemComponent } from './components/recent-record-item/recent-record-item.component';
+import { RecentRecordSkeletonComponent } from './components/recent-record-skeleton/recent-record-skeleton.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +26,8 @@ import { AuthSelectors } from '../auth/store/auth.selectors';
     UpcomingMeetingItemComponent,
     UpcomingMeetingSkeletonComponent,
     RouterLink,
+    RecentRecordItemComponent,
+    RecentRecordSkeletonComponent,
   ],
 })
 export class DashboardComponent implements OnInit {
@@ -39,6 +43,7 @@ export class DashboardComponent implements OnInit {
 
   meetingsCreationPolicy = this.store.selectSignal(selectWorkspaceMeetingsCreationPolicy);
   userRole = this.store.selectSignal(AuthSelectors.selectUserRole);
+  user$ = this.store.select(AuthSelectors.selectUser);
 
   canCreateMeeting = computed(() => {
     const policy = this.meetingsCreationPolicy();
@@ -55,31 +60,12 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.store.dispatch(DashboardActions.loadKpis());
     this.store.dispatch(DashboardActions.loadMeetings());
+    this.store.dispatch(DashboardActions.loadRecords());
   }
 
   upcomingMeetings$ = this.store.select(dashboardSelectors.selectMeetings);
 
-  recentRecords = [
-    {
-      id: 1,
-      title: 'Q4 Planning Session',
-      date: 'Dec 18, 2024',
-      duration: '1h 23m',
-      views: 12,
-    },
-    {
-      id: 2,
-      title: 'Marketing Strategy Meeting',
-      date: 'Dec 17, 2024',
-      duration: '52m',
-      views: 8,
-    },
-    {
-      id: 3,
-      title: 'Team Retrospective',
-      date: 'Dec 15, 2024',
-      duration: '1h 5m',
-      views: 15,
-    },
-  ];
+  recentRecordings$ = this.store.select(dashboardSelectors.selectRecords);
+
+  recordingsLoading$ = this.store.select(dashboardSelectors.selectRecordsLoading);
 }

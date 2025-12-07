@@ -21,11 +21,20 @@ export class DashboardEffects {
   loadMeetings$ = createEffect(() =>
     this.actions$.pipe(
       ofType(DashboardActions.loadMeetings),
-      switchMap(() => this.dashboardService.getMeetings(5)),
+      switchMap(() => this.dashboardService.getMeetings(3)),
       map((meetings) => DashboardActions.loadMeetingsSuccess({ meetings })),
       catchError((error) =>
         of(DashboardActions.loadMeetingsFailure({ error: error.error.detail })),
       ),
+    ),
+  );
+
+  loadRecords$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(DashboardActions.loadRecords),
+      switchMap(() => this.dashboardService.getRecentRecords(3)),
+      map((records) => DashboardActions.loadRecordsSuccess({ records })),
+      catchError((error) => of(DashboardActions.loadRecordsFailure({ error: error.error.detail }))),
     ),
   );
 }

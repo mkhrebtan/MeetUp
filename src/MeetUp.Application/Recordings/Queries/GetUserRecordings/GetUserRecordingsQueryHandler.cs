@@ -16,7 +16,7 @@ internal sealed class  GetUserRecordingsQueryHandler (
     public async Task<Result<GetUserRecordingsQueryResponse>> Handle(GetUserRecordingsQuery request, CancellationToken cancellationToken)
     {
         var prefix = $"recordings/{currentUserService.UserId}/";
-        var files = await storage.ListFilesAsync(prefix, [".mp4"], cancellationToken);
+        var files = await storage.ListFilesAsync(prefix, [".mp4"], cancellationToken: cancellationToken);
         var recordingFiles = files.Select(file => new RecordingDto
         {
             Key = file.Key,

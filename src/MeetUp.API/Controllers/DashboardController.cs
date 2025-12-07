@@ -1,7 +1,9 @@
 ﻿using MeetUp.API.Extensions;
 using MeetUp.Application.Dashboard.GetKpiStats;
+using MeetUp.Application.Dashboard.GetRecentRecords;
 using MeetUp.Application.Dashboard.GetUpcomingMeetings;
 using MeetUp.Application.Mediator;
+using MeetUp.Application.Recordings.Queries.GetUserRecordings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,4 +31,16 @@ public class DashboardController : ApiControllerBase
         var result = await handler.Handle(new GetUpcomingMeetingsQuery(count), cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
+    
+    [HttpGet("recent-records")]
+    [Authorize]
+    public async Task<IResult> GetRecentRecords(
+        [FromQuery] int count,
+        [FromServices] IQueryHandler<GetRecentRecordsQuery, IEnumerable<RecordingDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(new GetRecentRecordsQuery(count), cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+
 }
