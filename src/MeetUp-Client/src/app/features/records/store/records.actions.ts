@@ -10,6 +10,9 @@ export class RecordsActions {
       'Load Recordings': emptyProps(),
       'Load Recordings Success': props<{ recordings: Recording[] }>(),
       'Load Recordings Failure': props<{ error: unknown }>(),
+      'Get Recording Url': props<{ recordingKey: string }>(),
+      'Get Recording Url Success': props<{ url: string }>(),
+      'Get Recording Url Failure': props<{ error: unknown }>(),
     },
   });
 }

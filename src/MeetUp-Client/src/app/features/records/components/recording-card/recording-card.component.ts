@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Recording } from '../../services/recordings.service';
@@ -13,6 +13,11 @@ import { Recording } from '../../services/recordings.service';
 })
 export class RecordingCardComponent {
   recording = input.required<Recording>();
+  playRecording = output<void>();
+
+  onPlay() {
+    this.playRecording.emit();
+  }
 
   formattedDuration = computed(() => {
     const duration = this.recording().duration;

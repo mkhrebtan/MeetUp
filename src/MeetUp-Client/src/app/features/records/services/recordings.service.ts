@@ -13,6 +13,10 @@ interface GetRecordingsResponse {
   recordings: Recording[];
 }
 
+interface GetRecordingUrlResponse {
+  url: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -23,5 +27,12 @@ export class RecordingsService {
     return this.apiService
       .get<GetRecordingsResponse>('livekit/recordings')
       .pipe(map((response) => response.recordings));
+  }
+
+  getRecordingUrl(recordingKey: string): Observable<string> {
+    const encodedRecordingKey = encodeURIComponent(recordingKey);
+    return this.apiService
+      .get<GetRecordingUrlResponse>(`livekit/recordings/${encodedRecordingKey}`)
+      .pipe(map((response) => response.url));
   }
 }

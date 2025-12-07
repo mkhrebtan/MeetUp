@@ -1,6 +1,7 @@
 ﻿using MeetUp.API.Extensions;
 using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
+using MeetUp.Application.Recordings.Queries.GetRecordingUrl;
 using MeetUp.Application.Recordings.Queries.GetUserRecordings;
 using MeetUp.Application.Rooms.Commands.AccessToken;
 using MeetUp.Application.Rooms.Commands.Delete;
@@ -81,6 +82,19 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetUserRecordingsQuery();
+        var result = await queryHandler.Handle(query, cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+    
+    [HttpGet("recordings/{recordingKey}")]
+    [Authorize]
+    public async Task<IResult> GetRecordingUrl(
+        string recordingKey,
+        IQueryHandler<GetRecordingUrlQuery, GetRecordingUrlQueryResponse> queryHandler,
+        CancellationToken cancellationToken)
+    {
+        var decodedKey = Uri.UnescapeDataString(recordingKey);
+        var query = new GetRecordingUrlQuery(decodedKey);
         var result = await queryHandler.Handle(query, cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }

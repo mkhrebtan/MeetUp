@@ -63,4 +63,17 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
             .OrderByDescending(o => o.CreatedAt)
             .ToList();
     }
+
+    public async Task<string> GetFileUrlAsync(string key, DateTime? expires = null, CancellationToken cancellationToken = default)
+    {
+        var request = new GetPreSignedUrlRequest
+        {
+            BucketName = s3Settings.Value.BucketName,
+            Key = key,
+            Verb = HttpVerb.GET,
+            Expires = expires ?? DateTime.Now.AddHours(1),
+        };
+
+        return await s3Client.GetPreSignedURLAsync(request);
+    }
 }

@@ -8,6 +8,7 @@ import { Store } from '@ngrx/store';
 import { RecordingCardComponent } from './components/recording-card/recording-card.component';
 import { RecordsActions } from './store/records.actions';
 import { recordsFeature } from './store/records.reducer';
+import { Recording } from './services/recordings.service';
 
 @Component({
   selector: 'app-records',
@@ -25,5 +26,9 @@ export class RecordsComponent implements OnInit {
 
   ngOnInit() {
     this.store.dispatch(RecordsActions.actions.loadRecordings());
+  }
+
+  onPlay(recording: Recording) {
+    this.store.dispatch(RecordsActions.actions.getRecordingUrl({ recordingKey: recording.key }));
   }
 }
