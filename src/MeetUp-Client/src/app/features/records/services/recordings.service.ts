@@ -36,4 +36,18 @@ export class RecordingsService {
       .get<GetRecordingUrlResponse>(`livekit/recordings/${encodedRecordingKey}`)
       .pipe(map((response) => response.url));
   }
+
+  shareRecording(storageKey: string, recipientIds: string[]): Observable<void> {
+    return this.apiService.post<void>('livekit/recordings/share', { recipientIds, storageKey });
+  }
+
+  getMembersToShare(
+    workspaceId: string,
+    storageKey: string,
+  ): Observable<{ id: string; fullName: string; avatarUrl?: string }[]> {
+    const encodedKey = encodeURIComponent(storageKey);
+    return this.apiService.get<{ id: string; fullName: string; avatarUrl?: string }[]>(
+      `livekit/workspaces/${workspaceId}/recordings/${encodedKey}/members/without-access`,
+    );
+  }
 }

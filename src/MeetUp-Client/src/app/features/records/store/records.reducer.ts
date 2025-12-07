@@ -7,6 +7,13 @@ export interface RecordsState {
   loading: boolean;
   error: unknown | null;
   playingUrl: string | null;
+
+  // Share State
+  shareModalVisible: boolean;
+  shareRecordingKey: string | null;
+  shareCandidates: { id: string; fullName: string; avatarUrl?: string }[];
+  shareLoading: boolean;
+  shareError: unknown | null;
 }
 
 export const initialState: RecordsState = {
@@ -14,6 +21,11 @@ export const initialState: RecordsState = {
   loading: false,
   error: null,
   playingUrl: null,
+  shareModalVisible: false,
+  shareRecordingKey: null,
+  shareCandidates: [],
+  shareLoading: false,
+  shareError: null,
 };
 
 export const recordsFeature = createFeature({
@@ -43,7 +55,62 @@ export const recordsFeature = createFeature({
       ...state,
       playingUrl: url,
     })),
+
+    // Share Actions
+    on(RecordsActions.actions.openShareModal, (state, { recordingKey }) => ({
+      ...state,
+      shareModalVisible: true,
+      shareRecordingKey: recordingKey,
+      shareCandidates: [],
+      shareError: null,
+    })),
+    on(RecordsActions.actions.closeShareModal, (state) => ({
+      ...state,
+      shareModalVisible: false,
+      shareRecordingKey: null,
+    })),
+    on(RecordsActions.actions.loadShareCandidates, (state) => ({
+      ...state,
+      shareLoading: true,
+      shareError: null,
+    })),
+    on(RecordsActions.actions.loadShareCandidatesSuccess, (state, { candidates }) => ({
+      ...state,
+      shareLoading: false,
+      shareCandidates: candidates,
+    })),
+    on(RecordsActions.actions.loadShareCandidatesFailure, (state, { error }) => ({
+      ...state,
+      shareLoading: false,
+      shareError: error,
+    })),
+    on(RecordsActions.actions.shareRecording, (state) => ({
+      ...state,
+      shareLoading: true,
+      shareError: null,
+    })),
+    on(RecordsActions.actions.shareRecordingSuccess, (state) => ({
+      ...state,
+      shareLoading: false,
+      shareModalVisible: false,
+      shareRecordingKey: null,
+    })),
+    on(RecordsActions.actions.shareRecordingFailure, (state, { error }) => ({
+      ...state,
+      shareLoading: false,
+      shareError: error,
+    })),
   ),
 });
 
-export const { selectRecordings, selectLoading, selectError, selectPlayingUrl } = recordsFeature;
+export const {
+  selectRecordings,
+  selectLoading,
+  selectError,
+  selectPlayingUrl,
+  selectShareModalVisible,
+  selectShareRecordingKey,
+  selectShareCandidates,
+  selectShareLoading,
+  selectShareError,
+} = recordsFeature;

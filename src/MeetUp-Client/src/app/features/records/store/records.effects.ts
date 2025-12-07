@@ -11,6 +11,7 @@ import { tap } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectActiveWorkspaceId } from '../../workspace/store/workspace.selectors';
 import { withLatestFrom } from 'rxjs';
+import { recordsFeature } from './records.reducer';
 
 @Injectable()
 export class RecordsEffects {
@@ -56,12 +57,75 @@ export class RecordsEffects {
       this.actions$.pipe(
         ofType(RecordsActions.actions.getRecordingUrlSuccess),
         withLatestFrom(this.store.select(selectActiveWorkspaceId)),
-        tap(([_, workspaceId]) => {
+        tap(([, workspaceId]) => {
           if (workspaceId) {
             this.router.navigate(['/workspace', workspaceId, 'records', 'watch']);
           }
         }),
       ),
     { dispatch: false },
+  );
+
+  loadShareCandidates$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.loadShareCandidates),
+      withLatestFrom(
+        this.store.select(selectActiveWorkspaceId),
+        this.store.select(recordsFeature.selectShareRecordingKey),
+      ),
+      switchMap(([, workspaceId, recordingKey]) => {
+        if (!workspaceId || !recordingKey) {
+          return of(
+            RecordsActions.actions.loadShareCandidatesFailure({
+              error: 'Missing workspaceId or recordingKey',
+            }),
+          );
+        }
+        return this.recordingsService.getMembersToShare(workspaceId, recordingKey).pipe(
+          map((candidates) => RecordsActions.actions.loadShareCandidatesSuccess({ candidates })),
+          catchError((error) => of(RecordsActions.actions.loadShareCandidatesFailure({ error }))),
+        );
+      }),
+    ),
+  );
+
+  shareRecording$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.shareRecording),
+      withLatestFrom(this.store.select(recordsFeature.selectShareRecordingKey)),
+      switchMap(([{ recipientIds }, recordingKey]) => {
+        if (!recordingKey) {
+          return of(
+            RecordsActions.actions.shareRecordingFailure({ error: 'Missing recordingKey' }),
+          );
+        }
+        return this.recordingsService.shareRecording(recordingKey, recipientIds).pipe(
+          map(() => RecordsActions.actions.shareRecordingSuccess()),
+          catchError((error) => of(RecordsActions.actions.shareRecordingFailure({ error }))),
+        );
+      }),
+    ),
+  );
+
+  shareRecordingSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(RecordsActions.actions.shareRecordingSuccess),
+        tap(() => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Recording shared successfully',
+          });
+        }),
+      ),
+    { dispatch: false },
+  );
+
+  openShareModal$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.openShareModal),
+      map(() => RecordsActions.actions.loadShareCandidates()),
+    ),
   );
 }
