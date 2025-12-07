@@ -126,8 +126,18 @@ export class MeetingsComponent {
 
   deleteMeeting(meetingId: string) {
     const workspaceId = this.workspaceId();
+    const passed = this.showPassed();
+    const search = this.search();
+
     if (workspaceId) {
-      this.store.dispatch(MeetingsActions.deleteMeeting({ meetingId, workspaceId }));
+      this.store.dispatch(
+        MeetingsActions.deleteMeeting({
+          meetingId,
+          workspaceId,
+          passed,
+          searchTerm: search || undefined,
+        }),
+      );
     }
   }
 

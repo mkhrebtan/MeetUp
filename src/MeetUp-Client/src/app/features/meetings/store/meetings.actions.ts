@@ -32,8 +32,17 @@ export const MeetingsActions = createActionGroup({
     'Create Meeting Success': props<{ message: string }>(),
     'Create Meeting Failure': props<{ error: string }>(),
 
-    'Delete Meeting': props<{ meetingId: string; workspaceId: string }>(),
-    'Delete Meeting Success': props<{ message: string }>(),
+    'Delete Meeting': props<{
+      meetingId: string;
+      workspaceId: string;
+      passed?: boolean;
+      searchTerm?: string;
+    }>(),
+    'Delete Meeting Success': props<{
+      message: string;
+      passed?: boolean;
+      searchTerm?: string;
+    }>(),
     'Delete Meeting Failure': props<{ error: string }>(),
 
     'Leave Meeting': props<{ meetingId: string; workspaceId: string }>(),

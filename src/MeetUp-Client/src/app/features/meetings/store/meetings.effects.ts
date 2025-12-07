@@ -109,11 +109,13 @@ export class MeetingsEffects {
   deleteMeeting$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MeetingsActions.deleteMeeting),
-      switchMap(({ meetingId }) =>
+      switchMap(({ meetingId, passed, searchTerm }) =>
         this.meetingsService.deleteMeeting(meetingId).pipe(
           map(() => {
             return MeetingsActions.deleteMeetingSuccess({
               message: 'Meeting deleted successfully',
+              passed,
+              searchTerm,
             });
           }),
           catchError((error) =>
@@ -129,12 +131,12 @@ export class MeetingsEffects {
   reloadMeetingsAfterDelete$ = createEffect(() =>
     this.actions$.pipe(
       ofType(MeetingsActions.deleteMeetingSuccess),
-      switchMap(() => {
+      switchMap(({ passed, searchTerm }) => {
         const workspaceId = localStorage.getItem('activeWorkspaceId');
         if (workspaceId) {
           return [
-            MeetingsActions.loadHostedMeetings({ workspaceId }),
-            MeetingsActions.loadInvitedMeetings({ workspaceId }),
+            MeetingsActions.loadHostedMeetings({ workspaceId, passed, searchTerm }),
+            MeetingsActions.loadInvitedMeetings({ workspaceId, passed, searchTerm }),
           ];
         }
         return [];
