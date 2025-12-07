@@ -1,4 +1,5 @@
 import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { RecordingsService } from '../services/recordings.service';
@@ -7,11 +8,17 @@ import { RecordsActions } from './records.actions';
 import { MessageService } from 'primeng/api';
 import { tap } from 'rxjs';
 
+import { Store } from '@ngrx/store';
+import { selectActiveWorkspaceId } from '../../workspace/store/workspace.selectors';
+import { withLatestFrom } from 'rxjs';
+
 @Injectable()
 export class RecordsEffects {
   private readonly actions$ = inject(Actions);
   private readonly recordingsService = inject(RecordingsService);
   private readonly messageService = inject(MessageService);
+  private readonly router = inject(Router);
+  private readonly store = inject(Store);
 
   loadRecordings$ = createEffect(() =>
     this.actions$.pipe(
@@ -48,7 +55,12 @@ export class RecordsEffects {
     () =>
       this.actions$.pipe(
         ofType(RecordsActions.actions.getRecordingUrlSuccess),
-        tap(({ url }) => console.log(url)),
+        withLatestFrom(this.store.select(selectActiveWorkspaceId)),
+        tap(([_, workspaceId]) => {
+          if (workspaceId) {
+            this.router.navigate(['/workspace', workspaceId, 'records', 'watch']);
+          }
+        }),
       ),
     { dispatch: false },
   );

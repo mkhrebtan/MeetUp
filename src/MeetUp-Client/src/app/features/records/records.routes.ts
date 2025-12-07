@@ -8,4 +8,9 @@ export const recordsRoutes: Routes = [
     component: RecordsComponent,
     providers: RECORDS_PROVIDERS,
   },
+  {
+    path: 'watch',
+    loadComponent: () =>
+      import('./record-player/record-player.component').then((m) => m.RecordPlayerComponent),
+  },
 ];

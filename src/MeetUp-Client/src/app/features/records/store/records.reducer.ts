@@ -6,12 +6,14 @@ export interface RecordsState {
   recordings: Recording[];
   loading: boolean;
   error: unknown | null;
+  playingUrl: string | null;
 }
 
 export const initialState: RecordsState = {
   recordings: [],
   loading: false,
   error: null,
+  playingUrl: null,
 };
 
 export const recordsFeature = createFeature({
@@ -33,5 +35,15 @@ export const recordsFeature = createFeature({
       error,
       loading: false,
     })),
+    on(RecordsActions.actions.getRecordingUrl, (state) => ({
+      ...state,
+      playingUrl: null,
+    })),
+    on(RecordsActions.actions.getRecordingUrlSuccess, (state, { url }) => ({
+      ...state,
+      playingUrl: url,
+    })),
   ),
 });
+
+export const { selectRecordings, selectLoading, selectError, selectPlayingUrl } = recordsFeature;
