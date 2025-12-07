@@ -19,5 +19,7 @@ public interface IApplicationDbContext
     
     DbSet<SharedRecord> SharedRecords { get; set; }
     
+    DbSet<RecordViews> RecordViews { get; set; }
+    
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

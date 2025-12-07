@@ -12,4 +12,6 @@ public record RecordingDto : FileDto
     public TimeSpan Duration { get; init; }
     
     public required string Title { get; init; }
+    
+    public int Views { get; set; }
 }

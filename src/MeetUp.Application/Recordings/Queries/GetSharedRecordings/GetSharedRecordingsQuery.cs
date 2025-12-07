@@ -1,15 +1,14 @@
 ﻿using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
+using MeetUp.Application.Recordings.Queries.GetUserRecordings;
 
 namespace MeetUp.Application.Recordings.Queries.GetSharedRecordings;
 
 public record GetSharedRecordingsQuery : IQuery<GetSharedRecordingsQueryResponse>;
 
-public record GetSharedRecordingsQueryResponse(ICollection<RecordingDto> Recordings);
+public record GetSharedRecordingsQueryResponse(ICollection<SharedRecordingDto> Recordings);
 
-public record RecordingDto : FileDto
+public record SharedRecordingDto : RecordingDto
 {
-    public TimeSpan Duration { get; init; }
-    
-    public required string Title { get; init; }
+    public string OwnerName { get; init; } = null!;
 }

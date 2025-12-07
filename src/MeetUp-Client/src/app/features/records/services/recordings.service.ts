@@ -9,6 +9,7 @@ export interface Recording {
   duration: string;
   title: string;
   ownerName?: string;
+  views: number;
 }
 
 interface GetRecordingsResponse {
@@ -31,6 +32,12 @@ export class RecordingsService {
       .pipe(map((response) => response.recordings));
   }
 
+  getSharedRecordings(): Observable<Recording[]> {
+    return this.apiService
+      .get<GetRecordingsResponse>('livekit/recordings/shared')
+      .pipe(map((response) => response.recordings));
+  }
+
   getRecordingUrl(recordingKey: string): Observable<string> {
     const encodedRecordingKey = encodeURIComponent(recordingKey);
     return this.apiService
@@ -40,6 +47,11 @@ export class RecordingsService {
 
   shareRecording(storageKey: string, recipientIds: string[]): Observable<void> {
     return this.apiService.post<void>('livekit/recordings/share', { recipientIds, storageKey });
+  }
+
+  deleteRecording(recordingKey: string): Observable<void> {
+    const encodedRecordingKey = encodeURIComponent(recordingKey);
+    return this.apiService.delete<void>(`livekit/recordings/${encodedRecordingKey}`);
   }
 
   getMembersToShare(
