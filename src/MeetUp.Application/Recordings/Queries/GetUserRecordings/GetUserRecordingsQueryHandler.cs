@@ -2,12 +2,13 @@
 using System.Text.RegularExpressions;
 using MeetUp.Application.Authentication;
 using MeetUp.Application.Common.Interfaces;
+using MeetUp.Application.Common.Utils;
 using MeetUp.Application.Mediator;
 using MeetUp.Domain.Shared.ErrorHandling;
 
 namespace MeetUp.Application.Recordings.Queries.GetUserRecordings;
 
-internal sealed partial class  GetUserRecordingsQueryHandler (
+internal sealed class  GetUserRecordingsQueryHandler (
     IStorage storage,
     IUserContext currentUserService) : IQueryHandler<GetUserRecordingsQuery, GetUserRecordingsQueryResponse>
 {
@@ -20,44 +21,10 @@ internal sealed partial class  GetUserRecordingsQueryHandler (
             Key = file.Key,
             FileName = file.FileName,
             CreatedAt = file.CreatedAt,
-            Duration = EstimateDuration(file.FileName, file.CreatedAt),
-            Title = ExtractMeetingName(file.FileName),
+            Duration = RecordingUtils.EstimateDuration(file.FileName, file.CreatedAt),
+            Title = RecordingUtils.ExtractMeetingName(file.FileName),
         }).ToList();
         
         return Result<GetUserRecordingsQueryResponse>.Success(new GetUserRecordingsQueryResponse(recordingFiles));
     }
-    
-    private static TimeSpan EstimateDuration(string filename, DateTime uploadFinishedTime)
-    {
-        var match = RecordingTicksRegex().Match(filename);
-        if (!match.Success)
-        {
-            return TimeSpan.Zero;
-        }
-
-        var timeStr = match.Groups[1].Value;
-        if (!DateTime.TryParseExact(timeStr, "yyyyMMddHHmmss",
-                CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var startTime))
-        {
-            return TimeSpan.Zero;
-        }
-        
-        var duration = uploadFinishedTime.ToUniversalTime() - startTime.ToUniversalTime();
-        return duration.TotalSeconds > 0 ? duration : TimeSpan.Zero;
-    }
-    
-    private static string ExtractMeetingName(string filename)
-    {
-        var match = RecordingTicksRegex().Match(filename);
-        if (!match.Success)
-        {
-            return filename;
-        }
-
-        var meetingName = filename[..(match.Index - 1)];
-        return meetingName;
-    }
-
-    [GeneratedRegex(@"(\d{14})")]
-    private static partial Regex RecordingTicksRegex();
 }

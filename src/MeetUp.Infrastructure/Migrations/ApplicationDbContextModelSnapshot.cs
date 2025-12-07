@@ -123,6 +123,42 @@ namespace MeetUp.Infrastructure.Migrations
                     b.ToTable("MeetingParticipants");
                 });
 
+            modelBuilder.Entity("MeetUp.Domain.Models.SharedRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RecipientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("RecordCreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StorageKey")
+                        .IsUnique();
+
+                    b.HasIndex("OwnerId", "RecipientId", "StorageKey")
+                        .IsUnique();
+
+                    b.ToTable("SharedRecords");
+                });
+
             modelBuilder.Entity("MeetUp.Domain.Models.User", b =>
                 {
                     b.Property<Guid>("Id")

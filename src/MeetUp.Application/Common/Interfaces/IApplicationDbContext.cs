@@ -17,5 +17,7 @@ public interface IApplicationDbContext
     
     DbSet<Invitation> Invitations { get; set; }
     
+    DbSet<SharedRecord> SharedRecords { get; set; }
+    
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

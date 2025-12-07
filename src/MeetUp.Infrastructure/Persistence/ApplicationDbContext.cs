@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<MeetingParticipant> MeetingParticipants { get; set; }
     
     public DbSet<Invitation> Invitations { get; set; }
+    
+    public DbSet<SharedRecord> SharedRecords { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

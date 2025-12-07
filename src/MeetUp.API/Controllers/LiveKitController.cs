@@ -1,8 +1,11 @@
 ﻿using MeetUp.API.Extensions;
 using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
+using MeetUp.Application.Recordings.Commands.ShareRecord;
 using MeetUp.Application.Recordings.Queries.GetRecordingUrl;
+using MeetUp.Application.Recordings.Queries.GetSharedRecordings;
 using MeetUp.Application.Recordings.Queries.GetUserRecordings;
+using MeetUp.Application.Recordings.Queries.GetWorkspaceMembersWithoutRecordingAccess;
 using MeetUp.Application.Rooms.Commands.AccessToken;
 using MeetUp.Application.Rooms.Commands.Delete;
 using MeetUp.Application.Rooms.Commands.StartRecord;
@@ -86,6 +89,17 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
     
+    [HttpGet("recordings/shared")]
+    [Authorize]
+    public async Task<IResult> GetSharedRecordings(
+        IQueryHandler<GetSharedRecordingsQuery, GetSharedRecordingsQueryResponse> queryHandler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetSharedRecordingsQuery();
+        var result = await queryHandler.Handle(query, cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+    
     [HttpGet("recordings/{recordingKey}")]
     [Authorize]
     public async Task<IResult> GetRecordingUrl(
@@ -96,6 +110,31 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
         var decodedKey = Uri.UnescapeDataString(recordingKey);
         var query = new GetRecordingUrlQuery(decodedKey);
         var result = await queryHandler.Handle(query, cancellationToken);
+        return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+
+    [HttpPost("recordings/share")]
+    [Authorize]
+    public async Task<IResult> ShareRecording(
+        [FromBody] ShareRecordCommand command,
+        [FromServices] ICommandHandler<ShareRecordCommand> handler,
+        CancellationToken cancellationToken)
+    {
+        var result = await handler.Handle(command, cancellationToken);
+        return result.IsSuccess ? Results.Ok() : result.GetProblem();
+    }
+
+    [HttpGet("workspaces/{workspaceId:guid}/recordings/{storageKey}/members/without-access")]
+    [Authorize]
+    public async Task<IResult> GetMembersWithoutAccess(
+        Guid workspaceId,
+        string storageKey,
+        [FromServices] IQueryHandler<GetWorkspaceMembersWithoutRecordingAccessQuery, ICollection<MemberDto>> handler,
+        CancellationToken cancellationToken)
+    {
+        var decodedKey = Uri.UnescapeDataString(storageKey);
+        var query = new GetWorkspaceMembersWithoutRecordingAccessQuery(workspaceId, decodedKey);
+        var result = await handler.Handle(query, cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
     }
 }

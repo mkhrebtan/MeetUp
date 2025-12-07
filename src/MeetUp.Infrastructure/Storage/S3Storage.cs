@@ -76,4 +76,21 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
 
         return await s3Client.GetPreSignedURLAsync(request);
     }
+
+    public async Task<FileDto> GetFileAsync(string key, CancellationToken cancellationToken = default)
+    {
+        var request = new GetObjectRequest
+        {
+            BucketName = s3Settings.Value.BucketName,
+            Key = key,
+        };
+        
+        var response = await s3Client.GetObjectAsync(request, cancellationToken);
+        return new FileDto
+        {
+            Key = response.Key,
+            FileName = Path.GetFileName(response.Key),
+            CreatedAt = response.LastModified?.ToUniversalTime() ?? DateTime.UtcNow,
+        };
+    }
 }
