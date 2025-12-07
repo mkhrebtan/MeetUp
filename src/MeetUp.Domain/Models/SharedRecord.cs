@@ -13,4 +13,8 @@ public class SharedRecord : Model
     public required string FileName { get; set; }
     
     public DateTime RecordCreatedAt { get; set; }
+    
+    public User Owner { get; set; } = null!;
+    
+    public User Recipient { get; set; } = null!;
 }

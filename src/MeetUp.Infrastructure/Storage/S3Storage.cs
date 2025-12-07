@@ -27,15 +27,15 @@ internal sealed class S3Storage(IAmazonS3 s3Client, IOptions<S3Settings> s3Setti
         return await s3Client.GetPreSignedURLAsync(request);
     }
 
-    public async Task<Result> DeleteFileAsync(Guid key)
+    public async Task<Result> DeleteFileAsync(string key, CancellationToken cancellationToken)
     {
         var request = new DeleteObjectRequest
         {
             BucketName = s3Settings.Value.BucketName,
-            Key = $"meetup/{key}",
+            Key = key,
         };
 
-        await s3Client.DeleteObjectAsync(request);
+        await s3Client.DeleteObjectAsync(request, cancellationToken);
         return Result.Success();
     }
 

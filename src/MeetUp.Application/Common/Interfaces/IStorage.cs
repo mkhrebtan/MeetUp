@@ -6,7 +6,7 @@ public interface IStorage
 {
     Task<string> GetFileUploadUrlAsync(string fileName, string contentType, CancellationToken cancellationToken = default);
     
-    Task<Result> DeleteFileAsync(Guid key);
+    Task<Result> DeleteFileAsync(string key, CancellationToken cancellationToken);
     
     Task<ICollection<FileDto>> ListFilesAsync(string prefix, List<string>? fileExtensions = null, CancellationToken cancellationToken = default);
     

@@ -33,6 +33,18 @@ export class RecordsEffects {
     ),
   );
 
+  loadSharedRecordings$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.loadSharedRecordings),
+      switchMap(() =>
+        this.recordingsService.getSharedRecordings().pipe(
+          map((recordings) => RecordsActions.actions.loadSharedRecordingsSuccess({ recordings })),
+          catchError((error) => of(RecordsActions.actions.loadSharedRecordingsFailure({ error }))),
+        ),
+      ),
+    ),
+  );
+
   getRecordingUrl$ = createEffect(() =>
     this.actions$.pipe(
       ofType(RecordsActions.actions.getRecordingUrl),
@@ -127,5 +139,67 @@ export class RecordsEffects {
       ofType(RecordsActions.actions.openShareModal),
       map(() => RecordsActions.actions.loadShareCandidates()),
     ),
+  );
+
+  deleteRecording$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.deleteRecording),
+      switchMap(({ recordingKey }) =>
+        this.recordingsService.deleteRecording(recordingKey).pipe(
+          map(() =>
+            RecordsActions.actions.deleteRecordingSuccess({
+              message: 'Recording deleted successfully',
+            }),
+          ),
+          catchError((error) =>
+            of(
+              RecordsActions.actions.deleteRecordingFailure({
+                error: error.error?.detail || error.message,
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  reloadRecordingsAfterDelete$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(RecordsActions.actions.deleteRecordingSuccess),
+      switchMap(() => [
+        RecordsActions.actions.loadRecordings(),
+        RecordsActions.actions.loadSharedRecordings(),
+      ]),
+    ),
+  );
+
+  deleteRecordingSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(RecordsActions.actions.deleteRecordingSuccess),
+        tap(({ message }) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: message,
+          });
+        }),
+      ),
+    { dispatch: false },
+  );
+
+  deleteRecordingFailure$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(RecordsActions.actions.deleteRecordingFailure),
+        tap(({ error }) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: typeof error === 'string' ? error : 'Failed to delete recording',
+          });
+        }),
+      ),
+    { dispatch: false },
   );
 }

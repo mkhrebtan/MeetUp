@@ -21,7 +21,7 @@
     <h3 class="font-semibold text-foreground text-balance truncate" [title]="recording().title">
       {{ recording().title }}
     </h3>
-    <p class="text-sm text-muted-foreground mt-1">You</p>
+    <p class="text-sm text-muted-foreground mt-1">{{ recording().ownerName || 'You' }}</p>
 
     <div class="flex items-center justify-between gap-4 mt-3 text-sm text-muted-foreground">
       <div class="flex items-center gap-4">
@@ -52,7 +52,9 @@
       size="small"
       (onClick)="onPlay()"
     />
-    <p-button icon="pi pi-share-alt" severity="secondary" size="small" (onClick)="onShare()" />
-    <p-button icon="pi pi-ellipsis-v" severity="secondary" size="small" />
+    @if (isShared()) {
+      <p-button icon="pi pi-share-alt" severity="secondary" size="small" (onClick)="onShare()" />
+      <p-button icon="pi pi-trash" severity="danger" size="small" variant="text" (onClick)="onDelete()" />
+    }
   </div>
 </p-card>

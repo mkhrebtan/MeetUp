@@ -8,6 +8,7 @@ export interface Recording {
   createdAt: string;
   duration: string;
   title: string;
+  ownerName?: string;
 }
 
 interface GetRecordingsResponse {

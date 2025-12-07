@@ -1,9 +1,11 @@
-import { createFeature, createReducer, on } from '@ngrx/store';
+import { createFeature, createReducer, createSelector, on } from '@ngrx/store';
 import { Recording } from '../services/recordings.service';
-import { RecordsActions } from './records.actions';
+import { RecordsActions, RecordsFilter } from './records.actions';
 
 export interface RecordsState {
-  recordings: Recording[];
+  userRecordings: Recording[];
+  sharedRecordings: Recording[];
+  filter: RecordsFilter;
   loading: boolean;
   error: unknown | null;
   playingUrl: string | null;
@@ -17,7 +19,9 @@ export interface RecordsState {
 }
 
 export const initialState: RecordsState = {
-  recordings: [],
+  userRecordings: [],
+  sharedRecordings: [],
+  filter: 'ALL',
   loading: false,
   error: null,
   playingUrl: null,
@@ -39,13 +43,32 @@ export const recordsFeature = createFeature({
     })),
     on(RecordsActions.actions.loadRecordingsSuccess, (state, { recordings }) => ({
       ...state,
-      recordings,
+      userRecordings: recordings,
       loading: false,
     })),
     on(RecordsActions.actions.loadRecordingsFailure, (state, { error }) => ({
       ...state,
       error,
       loading: false,
+    })),
+    on(RecordsActions.actions.loadSharedRecordings, (state) => ({
+      ...state,
+      loading: true,
+      error: null,
+    })),
+    on(RecordsActions.actions.loadSharedRecordingsSuccess, (state, { recordings }) => ({
+      ...state,
+      sharedRecordings: recordings,
+      loading: false,
+    })),
+    on(RecordsActions.actions.loadSharedRecordingsFailure, (state, { error }) => ({
+      ...state,
+      error,
+      loading: false,
+    })),
+    on(RecordsActions.actions.setFilter, (state, { filter }) => ({
+      ...state,
+      filter,
     })),
     on(RecordsActions.actions.getRecordingUrl, (state) => ({
       ...state,
@@ -101,9 +124,35 @@ export const recordsFeature = createFeature({
       shareError: error,
     })),
   ),
+  extraSelectors: ({ selectUserRecordings, selectSharedRecordings, selectFilter }) => ({
+    selectRecordings: createSelector(
+      selectUserRecordings,
+      selectSharedRecordings,
+      selectFilter,
+      (userRecordings, sharedRecordings, filter) => {
+        switch (filter) {
+          case 'MY':
+            return userRecordings;
+          case 'SHARED':
+            return sharedRecordings;
+          case 'ALL':
+          default:
+            // Combine and probably sort?
+            // Assuming we want to show all. We can sort by createdAt descending if not already sorted.
+            // For now, just concatenate.
+            return [...userRecordings, ...sharedRecordings].sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            );
+        }
+      },
+    ),
+  }),
 });
 
 export const {
+  selectUserRecordings,
+  selectSharedRecordings,
+  selectFilter,
   selectRecordings,
   selectLoading,
   selectError,

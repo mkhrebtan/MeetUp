@@ -2,6 +2,7 @@
 using MeetUp.Application.Common.Interfaces;
 using MeetUp.Application.Mediator;
 using MeetUp.Application.Recordings.Commands.ShareRecord;
+using MeetUp.Application.Recordings.Commands.Delete;
 using MeetUp.Application.Recordings.Queries.GetRecordingUrl;
 using MeetUp.Application.Recordings.Queries.GetSharedRecordings;
 using MeetUp.Application.Recordings.Queries.GetUserRecordings;
@@ -111,6 +112,19 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
         var query = new GetRecordingUrlQuery(decodedKey);
         var result = await queryHandler.Handle(query, cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+
+    [HttpDelete("recordings/{recordingKey}")]
+    [Authorize]
+    public async Task<IResult> DeleteRecording(
+        string recordingKey,
+        [FromServices] ICommandHandler<DeleteRecordCommand> handler,
+        CancellationToken cancellationToken)
+    {
+        var decodedKey = Uri.UnescapeDataString(recordingKey);
+        var command = new DeleteRecordCommand(decodedKey);
+        var result = await handler.Handle(command, cancellationToken);
+        return result.IsSuccess ? Results.NoContent() : result.GetProblem();
     }
 
     [HttpPost("recordings/share")]

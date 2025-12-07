@@ -13,8 +13,10 @@ import { Recording } from '../../services/recordings.service';
 })
 export class RecordingCardComponent {
   recording = input.required<Recording>();
+  isShared = input<boolean>(false);
   playRecording = output<void>();
   share = output<void>();
+  delete = output<void>();
 
   onPlay() {
     this.playRecording.emit();
@@ -22,6 +24,10 @@ export class RecordingCardComponent {
 
   onShare() {
     this.share.emit();
+  }
+
+  onDelete() {
+    this.delete.emit();
   }
 
   formattedDuration = computed(() => {

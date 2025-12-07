@@ -1,12 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
 import { Store } from '@ngrx/store';
 import { RecordingCardComponent } from './components/recording-card/recording-card.component';
-import { RecordsActions } from './store/records.actions';
+import { RecordsActions, RecordsFilter } from './store/records.actions';
 import { recordsFeature } from './store/records.reducer';
 import { Recording } from './services/recordings.service';
 
@@ -18,15 +15,7 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './records.component.html',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    IconField,
-    InputIcon,
-    InputText,
-    Button,
-    RecordingCardComponent,
-    AsyncPipe,
-    ShareRecordingModal,
-  ],
+  imports: [Button, RecordingCardComponent, AsyncPipe, ShareRecordingModal],
 })
 export class RecordsComponent implements OnInit {
   private readonly store = inject(Store);
@@ -35,11 +24,13 @@ export class RecordsComponent implements OnInit {
   recordings$ = this.store.select(recordsFeature.selectRecordings);
   loading$ = this.store.select(recordsFeature.selectLoading);
   error$ = this.store.select(recordsFeature.selectError);
+  filter$ = this.store.select(recordsFeature.selectFilter);
 
   shareModalVisible$ = this.store.select(recordsFeature.selectShareModalVisible);
 
   ngOnInit() {
     this.store.dispatch(RecordsActions.actions.loadRecordings());
+    this.store.dispatch(RecordsActions.actions.loadSharedRecordings());
   }
 
   onPlay(recording: Recording) {
@@ -48,5 +39,13 @@ export class RecordsComponent implements OnInit {
 
   onShare(recording: Recording) {
     this.store.dispatch(RecordsActions.actions.openShareModal({ recordingKey: recording.key }));
+  }
+
+  setFilter(filter: RecordsFilter) {
+    this.store.dispatch(RecordsActions.actions.setFilter({ filter }));
+  }
+
+  onDelete(recording: Recording) {
+    this.store.dispatch(RecordsActions.actions.deleteRecording({ recordingKey: recording.key }));
   }
 }

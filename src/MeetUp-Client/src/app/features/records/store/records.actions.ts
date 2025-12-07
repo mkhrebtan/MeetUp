@@ -1,6 +1,7 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
 import { Recording } from '../services/recordings.service';
 
+export type RecordsFilter = 'ALL' | 'MY' | 'SHARED';
 export class RecordsActions {
   public static readonly prefix = '[Records]';
 
@@ -10,6 +11,13 @@ export class RecordsActions {
       'Load Recordings': emptyProps(),
       'Load Recordings Success': props<{ recordings: Recording[] }>(),
       'Load Recordings Failure': props<{ error: unknown }>(),
+
+      'Load Shared Recordings': emptyProps(),
+      'Load Shared Recordings Success': props<{ recordings: Recording[] }>(),
+      'Load Shared Recordings Failure': props<{ error: unknown }>(),
+
+      'Set Filter': props<{ filter: RecordsFilter }>(),
+
       'Get Recording Url': props<{ recordingKey: string }>(),
       'Get Recording Url Success': props<{ url: string }>(),
       'Get Recording Url Failure': props<{ error: unknown }>(),
@@ -25,6 +33,10 @@ export class RecordsActions {
       'Share Recording': props<{ recipientIds: string[] }>(),
       'Share Recording Success': emptyProps(),
       'Share Recording Failure': props<{ error: unknown }>(),
+
+      'Delete Recording': props<{ recordingKey: string }>(),
+      'Delete Recording Success': props<{ message: string }>(),
+      'Delete Recording Failure': props<{ error: unknown }>(),
     },
   });
 }
