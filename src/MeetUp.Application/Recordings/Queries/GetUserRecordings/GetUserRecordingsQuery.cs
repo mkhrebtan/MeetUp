@@ -10,4 +10,6 @@ public record GetUserRecordingsQueryResponse(ICollection<RecordingDto> Recording
 public record RecordingDto : FileDto
 {
     public TimeSpan Duration { get; init; }
+    
+    public required string Title { get; init; }
 }

@@ -21,6 +21,7 @@ internal sealed partial class  GetUserRecordingsQueryHandler (
             FileName = file.FileName,
             CreatedAt = file.CreatedAt,
             Duration = EstimateDuration(file.FileName, file.CreatedAt),
+            Title = ExtractMeetingName(file.FileName),
         }).ToList();
         
         return Result<GetUserRecordingsQueryResponse>.Success(new GetUserRecordingsQueryResponse(recordingFiles));
@@ -43,6 +44,18 @@ internal sealed partial class  GetUserRecordingsQueryHandler (
         
         var duration = uploadFinishedTime.ToUniversalTime() - startTime.ToUniversalTime();
         return duration.TotalSeconds > 0 ? duration : TimeSpan.Zero;
+    }
+    
+    private static string ExtractMeetingName(string filename)
+    {
+        var match = RecordingTicksRegex().Match(filename);
+        if (!match.Success)
+        {
+            return filename;
+        }
+
+        var meetingName = filename[..(match.Index - 1)];
+        return meetingName;
     }
 
     [GeneratedRegex(@"(\d{14})")]

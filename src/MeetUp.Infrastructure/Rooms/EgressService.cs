@@ -12,7 +12,7 @@ public class EgressService(IOptions<LiveKitSettings> settings, IOptions<S3Settin
         settings.Value.ApiKey,
         settings.Value.ApiSecret);
 
-    public async Task<string> StartRecordingAsync(Guid meetingId, Guid userId)
+    public async Task<string> StartRecordingAsync(Guid meetingId, Guid userId, string? meetingName = null)
     {
         var request = new RoomCompositeEgressRequest
         {
@@ -23,7 +23,7 @@ public class EgressService(IOptions<LiveKitSettings> settings, IOptions<S3Settin
                 new EncodedFileOutput
                 {
                     FileType = EncodedFileType.Mp4,
-                    Filepath = $"recordings/{userId}/recording-{DateTime.UtcNow:yyyyMMddHHmmss}.mp4",
+                    Filepath = $"recordings/{userId}/{meetingName ?? "recording"}-{DateTime.UtcNow:yyyyMMddHHmmss}.mp4",
                     S3 = new S3Upload
                     {
                         Bucket = s3Settings.Value.BucketName,

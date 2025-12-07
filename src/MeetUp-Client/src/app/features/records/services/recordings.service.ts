@@ -7,6 +7,7 @@ export interface Recording {
   fileName: string;
   createdAt: string;
   duration: string;
+  title: string;
 }
 
 interface GetRecordingsResponse {

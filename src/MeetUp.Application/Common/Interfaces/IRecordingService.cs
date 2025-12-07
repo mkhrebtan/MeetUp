@@ -2,7 +2,7 @@
 
 public interface IRecordingService
 {
-    Task<string> StartRecordingAsync(Guid meetingId, Guid userId);
+    Task<string> StartRecordingAsync(Guid meetingId, Guid userId, string? meetingName = null);
     
     Task StopRecordingAsync(string egressId);
 }

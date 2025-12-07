@@ -20,4 +20,6 @@ public record FileDto
     public string FileName { get; init; } = null!;
     
     public DateTime CreatedAt { get; init; }
+    
+    public string MetaData { get; init; } = string.Empty;
 }
