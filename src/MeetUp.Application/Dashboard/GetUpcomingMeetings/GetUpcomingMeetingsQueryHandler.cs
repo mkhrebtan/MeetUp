@@ -21,7 +21,7 @@ internal sealed class GetUpcomingMeetingsQueryHandler(IApplicationDbContext cont
 
         var upcomingMeetings = await context.Meetings
             .Where(m =>
-                (m.OrganizerId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
+                (m.Organizer.UserId == user.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                 m.ScheduledAt > DateTime.UtcNow)
             .OrderBy(m => m.ScheduledAt)
             .Take(request.Count)

@@ -36,7 +36,8 @@ internal sealed class GetDashboardKpiStatsQueryHandler(IApplicationDbContext con
         var totalHoursLastWeek = await context.Meetings
             .Where(m => (m.OrganizerId == workspaceUser.Id || m.Participants.Any(p => p.WorkspaceUser.UserId == user.Id)) &&
                         m.ScheduledAt >= DateTime.UtcNow.AddDays(-7))
-            .SumAsync(m => m.Duration.TotalHours, cancellationToken);
+            .SumAsync(m => (int)m.Duration.TotalHours, cancellationToken);
+        
 
 
         var totalMembers = await context.WorkspaceUsers.Where(w => w.WorkspaceId == workspaceUser.WorkspaceId)
