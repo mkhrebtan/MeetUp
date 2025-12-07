@@ -110,11 +110,7 @@ export class WorkspaceEffects {
   redirectToWorkspace$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(
-          WorkspaceActions.createWorkspaceSuccess,
-          WorkspaceActions.joinWorkspaceSuccess,
-          WorkspaceActions.loadWorkspaceSuccess,
-        ),
+        ofType(WorkspaceActions.createWorkspaceSuccess, WorkspaceActions.joinWorkspaceSuccess),
         tap(({ workspace }) => {
           if (workspace?.id) {
             this.logger.info('Redirecting to workspace dashboard:', workspace.id);

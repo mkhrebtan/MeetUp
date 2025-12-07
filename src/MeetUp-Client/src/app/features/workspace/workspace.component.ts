@@ -9,8 +9,8 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { WorkspaceActions } from './store/workspace.actions';
 import * as WorkspaceSelectors from './store/workspace.selectors';
 import { AsyncPipe, DatePipe, NgOptimizedImage } from '@angular/common';
-import { ProgressSpinner } from 'primeng/progressspinner';
-import { RouterLink, RouterOutlet } from '@angular/router';
+
+import { RouterLink, Router } from '@angular/router';
 
 @Component({
   selector: 'app-workspace',
@@ -23,8 +23,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     InputText,
     ReactiveFormsModule,
     AsyncPipe,
-    ProgressSpinner,
-    RouterOutlet,
+
     RouterLink,
     DatePipe,
     NgOptimizedImage,
@@ -33,9 +32,9 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 export class WorkspaceComponent implements OnInit {
   private store = inject(Store);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
   user$ = this.store.select(AuthSelectors.selectUser);
-  loadingWorkspace$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoading);
-  workspace$ = this.store.select(WorkspaceSelectors.selectActiveWorkspaceId);
+
   loadingCreate$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoadingCreate);
   loadingJoin$ = this.store.select(WorkspaceSelectors.selectWorkspaceLoadingJoin);
   errorCreate$ = this.store.select(WorkspaceSelectors.selectWorkspaceErrorCreate);
@@ -63,7 +62,7 @@ export class WorkspaceComponent implements OnInit {
   ngOnInit() {
     this.user$.subscribe((user) => {
       if (user?.activeWorkspaceId) {
-        this.store.dispatch(WorkspaceActions.loadWorkspace({ id: user.activeWorkspaceId }));
+        this.router.navigate(['/workspace', user.activeWorkspaceId]);
       } else {
         this.store.dispatch(WorkspaceActions.loadInvitations());
       }
