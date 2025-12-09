@@ -7,7 +7,13 @@ import { Card } from 'primeng/card';
 import { Badge } from 'primeng/badge';
 import { Store } from '@ngrx/store';
 import { AsyncPipe, DatePipe, NgOptimizedImage } from '@angular/common';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { BehaviorSubject, combineLatest, take } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, startWith } from 'rxjs/operators';
@@ -29,6 +35,7 @@ import { DividerModule } from 'primeng/divider';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { AuthSelectors } from '../auth/store/auth.selectors';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'app-members',
@@ -51,6 +58,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ChipModule,
     DividerModule,
     ConfirmDialogModule,
+    SelectModule,
+    FormsModule,
   ],
   providers: [ConfirmationService],
   styles: `
@@ -75,7 +84,13 @@ export class MembersComponent implements OnInit {
   totalCount$ = this.store.select(selectMembersTotalCount);
   inviteCode$ = this.store.select(selectActiveWorkspaceInviteCode);
   invitationPolicy$ = this.store.select(selectWorkspaceInvitationPolicy);
-  userRole = signal<string | undefined>(undefined);
+  userRole$ = this.store.select(AuthSelectors.selectUserRole);
+  userId$ = this.store.select(AuthSelectors.selectUserId);
+
+  items = [
+    { label: 'Admin', value: 'ADMIN' },
+    { label: 'Member', value: 'MEMBER' },
+  ];
 
   searchControl = new FormControl('');
 
@@ -92,11 +107,6 @@ export class MembersComponent implements OnInit {
   isCopied = signal(false);
 
   ngOnInit(): void {
-    this.store
-      .select(AuthSelectors.selectUserRole)
-      .pipe(take(1))
-      .subscribe((role) => this.userRole.set(role));
-
     const search$ = this.searchControl.valueChanges.pipe(
       startWith(''),
       debounceTime(300),
@@ -208,5 +218,14 @@ export class MembersComponent implements OnInit {
         });
       },
     });
+  }
+
+  onRoleChange(userId: string, role: string) {
+    this.store.dispatch(
+      MembersActions.updateMemberRole({
+        userId,
+        role,
+      }),
+    );
   }
 }

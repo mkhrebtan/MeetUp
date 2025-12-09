@@ -19,4 +19,24 @@ export const membersReducer = createReducer(
     loading: false,
     error,
   })),
+  on(MembersActions.updateMemberRoleSuccess, (state, { userId, role }) => {
+    if (!state.members) {
+      return state;
+    }
+
+    const updatedMembers = state.members.items.map((m) => {
+      if (m.id === userId) {
+        return { ...m, role };
+      }
+      return m;
+    });
+
+    return {
+      ...state,
+      members: {
+        ...state.members,
+        items: updatedMembers,
+      },
+    };
+  }),
 );

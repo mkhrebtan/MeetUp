@@ -5,7 +5,7 @@
       <h1 class="text-3xl font-bold text-foreground">Members</h1>
       <p class="text-muted-foreground mt-1">Manage workspace members and permissions</p>
     </div>
-    @if (userRole() !== 'Member' || (invitationPolicy$ | async) !== 'ONLY_ADMINS') {
+    @if ((userRole$ | async) !== 'Member' || (invitationPolicy$ | async) !== 'ONLY_ADMINS') {
       <p-button icon="pi pi-plus" label="Invite Members" size="small" (click)="showDialog()" />
     }
   </div>
@@ -57,11 +57,11 @@
                   <div class="flex items-center gap-3">
                     <h3 class="font-semibold text-foreground">{{ member.firstName }} {{ member.lastName }}</h3>
                     @switch (member.role) {
-                      @case ('Admin') {
+                      @case ('ADMIN') {
                         <p-badge value="Admin" />
                       }
-                      @case ('Moderator') {
-                        <p-badge severity="secondary" value="Moderator" />
+                      @case ('MEMBER') {
+                        <p-badge value="Member" severity="secondary" />
                       }
                     }
                   </div>
@@ -76,10 +76,14 @@
                 </div>
               </div>
 
-              @if (userRole() === 'Admin') {
-                <p-button icon="pi pi-trash" size="small" variant="text" (click)="onRemoveMember(member.email)" />
-              }
-
+              <div class="flex items-center gap-2">
+                @if ((userRole$ | async) === 'Admin') {
+                  @if (member.id !== (userId$ | async)) {
+                    <p-button [label]="member.role === 'ADMIN' ? 'Make Member' : 'Make Admin'" size="small" variant="outlined" (click)="onRoleChange(member.id, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')"/>
+                  }
+                  <p-button icon="pi pi-trash" size="small" variant="text" (click)="onRemoveMember(member.email)" />
+                }
+              </div>
             </div>
           </p-card>
         }

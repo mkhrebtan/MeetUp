@@ -20,5 +20,12 @@ export const MembersActions = createActionGroup({
     'Remove Member': props<{ workspaceId: string; email: string }>(),
     'Remove Member Success': emptyProps(),
     'Remove Member Failure': props<{ error: string }>(),
+
+    'Update Member Role': props<{
+      userId: string;
+      role: string;
+    }>(),
+    'Update Member Role Success': props<{ userId: string; role: string }>(),
+    'Update Member Role Failure': props<{ error: string }>(),
   },
 });

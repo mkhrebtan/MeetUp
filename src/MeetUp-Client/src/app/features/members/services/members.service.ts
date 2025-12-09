@@ -28,8 +28,14 @@ export class MembersService {
   inviteMembers(workspaceId: string, emails: string[]) {
     return this.apiService.post(`workspace/${workspaceId}/invite`, { emails });
   }
-  
+
   removeMember(workspaceId: string, email: string) {
     return this.apiService.delete(`workspace/${workspaceId}/members/${email}`);
+  }
+
+  updateMemberRole(userId: string, role: string) {
+    return this.apiService.patch<WorkspaceMember>(`users/${userId}/role`, {
+      role,
+    });
   }
 }

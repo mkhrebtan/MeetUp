@@ -14,4 +14,5 @@ export const AuthSelectors = {
     (state) => state.user?.activeWorkspaceId,
   ),
   selectUserRole: createSelector(selectAuthState, (state) => state.user?.role),
+  selectUserId: createSelector(selectAuthState, (state) => state.user?.id),
 };

@@ -135,4 +135,35 @@ export class MembersEffects {
       }),
     ),
   );
+
+  updateMemberRole$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MembersActions.updateMemberRole),
+      switchMap(({ userId, role }) =>
+        this.membersService.updateMemberRole(userId, role).pipe(
+          map(() => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Member role updated successfully.',
+            });
+            return MembersActions.updateMemberRoleSuccess({ userId, role });
+          }),
+          catchError((error) => {
+            this.logger.error('Update member role error:', error);
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: error.error.detail || 'Unable to update member role. Please try again.',
+            });
+            return of(
+              MembersActions.updateMemberRoleFailure({
+                error: error.error.detail || 'Unable to update member role. Please try again.',
+              }),
+            );
+          }),
+        ),
+      ),
+    ),
+  );
 }
