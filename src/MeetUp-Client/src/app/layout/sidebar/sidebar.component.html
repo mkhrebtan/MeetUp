@@ -1,0 +1,65 @@
+﻿<div class="flex flex-col w-64 bg-card border-r border-border h-full">
+  <div class="flex items-center gap-3 h-16 px-5 border-b border-border">
+    <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+      <i class="pi pi-video text-white"></i>
+    </div>
+    <span class="text-lg font-semibold text-foreground">MeetUp</span>
+  </div>
+
+  <nav class="flex-1 flex flex-col gap-2 overflow-y-auto px-4 py-6">
+    @for (item of items; track item.label) {
+      <p-button
+        #rla="routerLinkActive"
+        [icon]="item.icon"
+        [label]="item.label"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="item.routerLink"
+        [severity]="rla.isActive ? 'primary' : 'secondary'"
+        [text]="!rla.isActive"
+        fluid
+        routerLinkActive="active-link"
+      >
+      </p-button>
+    }
+  </nav>
+
+  <div class="p-4 border-t border-border">
+    @if (user$ | async; as user) {
+      <p-button
+        #rlaProfile="routerLinkActive"
+        [severity]="rlaProfile.isActive ? 'primary' : 'secondary'"
+        [text]="!rlaProfile.isActive"
+        routerLink="/profile"
+        routerLinkActive="active-link"
+      >
+        @if (user.avatarUrl) {
+          <img [ngSrc]="user.avatarUrl" class="w-10 h-10 rounded-full object-cover" width="40" height="40" alt="User Avatar" />
+        } @else {
+          <i class="pi pi-user ml-1 mr-3"></i>
+        }
+        <div class="flex-1 min-w-0">
+          <p [class.text-foreground]="!rlaProfile.isActive" class="text-sm font-medium truncate">
+            {{ user.firstName }} {{ user.lastName }}
+          </p>
+          <p [class.text-muted-foreground]="!rlaProfile.isActive" class="text-xs truncate">
+            {{ user.email }}
+          </p>
+        </div>
+        <p-button
+          icon="pi pi-sign-out"
+          size="small"
+          severity="danger"
+          variant="text"
+          (click)="$event.stopPropagation(); signOut()"
+        />
+      </p-button>
+    } @else {
+      <div class="flex items-center gap-3">
+        <i class="pi pi-user"></i>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">Not logged in</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>

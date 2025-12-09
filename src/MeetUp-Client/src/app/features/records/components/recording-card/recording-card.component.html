@@ -1,0 +1,60 @@
+<p-card>
+  <!-- <div class="relative aspect-video bg-muted cursor-pointer group">
+    <img
+      [alt]="recording().fileName"
+      src="/placeholder.svg?key=azyt4"
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-black/20 flex transition-all items-center justify-center">
+      <p-button severity="primary">
+        <i class="pi pi-play"></i>
+      </p-button>
+    </div>
+    <div
+      class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/70 text-white text-xs font-medium"
+    >
+      {{ formattedDuration() }}
+    </div>
+  </div> -->
+
+  <div>
+    <h3 class="font-semibold text-foreground text-balance truncate" [title]="recording().title">
+      {{ recording().title }}
+    </h3>
+    <p class="text-sm text-muted-foreground mt-1">{{ recording().ownerName || 'You' }}</p>
+
+    <div class="flex items-center justify-between gap-4 mt-3 text-sm text-muted-foreground">
+      <div class="flex items-center gap-4">
+        <span class="flex items-center gap-1">
+          <i class="pi pi-clock"></i>
+          {{ recording().createdAt | date:'medium' }}
+        </span>
+        <span class="flex items-center gap-1">
+          <i class="pi pi-eye"></i>
+          {{ recording().views }}
+        </span>
+      </div>
+      <div
+        class="px-2 py-0.5 rounded bg-primary/80 text-white text-xs font-medium"
+      >
+        {{ formattedDuration() }}
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-2 mt-6 pt-6 border-t border-border">
+    <p-button
+      class="flex-1"
+      fluid
+      icon="pi pi-play"
+      label="Play"
+      severity="secondary"
+      size="small"
+      (onClick)="onPlay()"
+    />
+    @if (isShared()) {
+      <p-button icon="pi pi-share-alt" severity="secondary" size="small" (onClick)="onShare()" />
+      <p-button icon="pi pi-trash" severity="danger" size="small" variant="text" (onClick)="onDelete()" />
+    }
+  </div>
+</p-card>

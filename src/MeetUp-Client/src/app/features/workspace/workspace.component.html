@@ -1,0 +1,137 @@
+  <div class="min-h-screen bg-background flex flex-col">
+    <header class="border-b border-border bg-card py-4">
+      <div class="container mx-auto px-4 flex items-center justify-between">
+        <div class="flex items-center gap-2 font-semibold text-lg">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <i class="pi pi-video text-white"></i>
+          </div>
+          MeetUp
+        </div>
+        @if (user$ | async; as user) {
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" routerLink="/profile">
+              <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                @if (user.avatarUrl) {
+                  <img [ngSrc]="user.avatarUrl" class="w-full h-full rounded-full object-cover" alt="User Avatar" width="40" height="40" />
+                } @else {
+                  <i class="pi pi-user text-primary" style="font-size: 1.25rem"></i>
+                }
+              </div>
+              <div class="flex flex-col">
+                <span class="font-semibold text-sm">{{ user.firstName }} {{ user.lastName }}</span>
+                <span class="text-xs text-muted-foreground">{{ user.email }}</span>
+              </div>
+            </div>
+            <p-button label="Sign Out" severity="secondary" text (click)="logOut()"></p-button>
+          </div>
+        }
+      </div>
+    </header>
+
+    <main class="flex-1 container mx-auto px-4 py-16 max-w-5xl">
+      <div class="mb-12 text-center">
+        <h1 class="text-4xl font-bold tracking-tight mb-4">Welcome to MeetUp</h1>
+        <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
+          To get started, create a new workspace for your organization or join an existing one.
+        </p>
+      </div>
+
+      @if(invitations$ | async; as invitations) {
+        @if(invitations.length > 0) {
+          <div class="mb-12">
+            <h2 class="text-2xl font-bold tracking-tight mb-4">Your Invitations</h2>
+            <div class="space-y-4">
+              @for (invitation of invitations; track invitation.inviteCode) {
+                <p-card>
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <h3 class="font-semibold text-lg">{{ invitation.workspaceName }}</h3>
+                      <p class="text-muted-foreground text-sm">
+                        Invited on {{ invitation.createdAt | date:'mediumDate' }}
+                      </p>
+                    </div>
+                    <p-button label="Join" (click)="onJoinInvitation(invitation.inviteCode)" />
+                  </div>
+                </p-card>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <p-card>
+          <div class="py-6 pt-1 space-y-1">
+            <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+              <i class="pi pi-plus text-primary" style="font-size: 1.25rem"></i>
+            </div>
+            <h3 class="font-semibold text-lg">Create a Workspace</h3>
+            <p class="text-muted-foreground text-sm">
+              Set up a new space for your team to collaborate and meet.
+            </p>
+          </div>
+
+          <form
+            class="flex flex-col space-y-4"
+            [formGroup]="createWorkspaceForm"
+            (ngSubmit)="onCreateWorkspaceSubmit()"
+          >
+            <label class="text-sm font-medium" for="name"> Workspace Name </label>
+            <input pInputText pSize="small" placeholder="e.g., Acme Corp" formControlName="name" id="name" />
+            <p-button
+              fluid
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              label="Create Workspace"
+              size="small"
+              [loading]="loadingCreate$ | async"
+              type="submit"
+            ></p-button>
+          </form>
+          @if (errorCreate$ | async; as error) {
+            <p class="text-red-500">{{ error }}</p>
+          }
+        </p-card>
+
+        <p-card>
+          <div class="py-6 pt-1 space-y-1">
+            <div class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+              <i class="pi pi-building text-primary" style="font-size: 1.25rem"></i>
+            </div>
+            <h3 class="font-semibold text-lg">Join a Workspace</h3>
+            <p class="text-muted-foreground text-sm">
+              Enter an invitation code or find your team's workspace.
+            </p>
+          </div>
+
+          <form
+            class="flex flex-col space-y-4"
+            [formGroup]="joinWorkspaceForm"
+            (ngSubmit)="onJoinWorkspaceSubmit()"
+          >
+            <label class="text-sm font-medium" for="inviteCode"> Invitation Code </label>
+            <input
+              pInputText
+              pSize="small"
+              placeholder="e.g., WSR-123-XYZ"
+              formControlName="inviteCode"
+              id="inviteCode"
+            />  
+            <p-button
+              fluid
+              icon="pi pi-arrow-right"
+              iconPos="right"
+              label="Join Workspace"
+              severity="secondary"
+              size="small"
+              [loading]="loadingJoin$ | async"
+              type="submit"
+            ></p-button>
+          </form>
+          @if (errorJoin$ | async; as error) {
+            <p class="text-red-500">{{ error }}</p>
+          }
+        </p-card>
+      </div>
+    </main>
+  </div>

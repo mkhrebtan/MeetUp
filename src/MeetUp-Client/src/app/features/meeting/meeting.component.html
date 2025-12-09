@@ -1,0 +1,50 @@
+@if (isLoading()) {
+  <div class="flex items-center justify-center h-screen">
+    <p-progressSpinner ariaLabel="loading" />
+  </div>
+} @else {
+  @if (meeting(); as m) {
+    @if (!m.isActive && !m.isHost) {
+      <div class="flex flex-col items-center justify-center h-screen gap-8">
+        <div class="text-center">
+          <h2 class="text-3xl font-semibold mb-2">Meeting Ended</h2>
+          <p class="text-gray-400">
+            This meeting is no longer active and you are not the host.
+          </p>
+        </div>
+        <p-button
+          label="Return to meetings"
+          severity="secondary"
+          [routerLink]="['/workspace', meeting()?.workspaceId, 'meetings']"
+          [raised]="true"
+        />
+      </div>
+    } @else {
+      @if (isRoomConnected()) {
+        <app-meeting-room [room]="room" [meeting]="meeting()!"/>
+      } @else if (!isRoomConnected() && disconnectedReason()) {
+        <div class="flex flex-col items-center justify-center h-screen gap-16">
+          <h2 class="text-center text-4xl">{{ disconnectedReason() }}</h2>
+          <div class="flex justify-center gap-4">
+            @if (isRejoin()) {
+              <p-button
+                [label]="meeting()?.isHost ? 'Start Meeting Again' : 'Join Meeting Again'"
+                severity="secondary"
+                (click)="disconnectedReason.set(undefined)"
+                [raised]="true"
+              />
+            }
+            <p-button
+              label="Return to meetings"
+              severity="danger"
+              [routerLink]="['/workspace', meeting()?.workspaceId, 'meetings']"
+              [raised]="true"
+            />
+          </div>
+        </div>
+      } @else {
+        <app-meeting-stage (joinRoom)="connectToRoom($event)" />
+      }
+    }
+  }
+}

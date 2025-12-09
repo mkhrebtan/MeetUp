@@ -1,0 +1,154 @@
+<p-confirmdialog />
+<div class="p-8 max-w-6xl mx-auto flex flex-col w-full h-full">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-foreground">Members</h1>
+      <p class="text-muted-foreground mt-1">Manage workspace members and permissions</p>
+    </div>
+    @if ((userRole$ | async) !== 'Member' || (invitationPolicy$ | async) !== 'ONLY_ADMINS') {
+      <p-button icon="pi pi-plus" label="Invite Members" size="small" (click)="showDialog()" />
+    }
+  </div>
+
+  <div class="flex items-center gap-4 mb-6">
+    <p-iconfield class="flex-1 max-w-md">
+      <p-inputicon class="pi pi-search" />
+      <input
+        fluid
+        pInputText
+        pSize="small"
+        placeholder="Search members.."
+        type="text"
+        [formControl]="searchControl"
+      />
+    </p-iconfield>
+    <!-- <div class="flex gap-2">
+      <div class="flex gap-2">
+        <p-button label="All members ({{ (members$ | async)?.length }})" size="small" variant="outlined" />
+        <p-button label="Active" size="small" variant="outlined" />
+      </div>
+    </div> -->
+  </div>
+
+  <div class="flex-1">
+    @if (loading$ | async) {
+      <div class="flex justify-center p-8 text-muted-foreground">Loading members...</div>
+    } @else if (error$ | async; as error) {
+      <div class="p-4 mb-4 bg-red-50 text-red-600 rounded-md border border-red-200">
+        {{ error }}
+      </div>
+    } @else {
+      <div class="space-y-3 flex-1">
+        @for (member of members$ | async; track member.id) {
+          <p-card>
+            <div class="p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-semibold text-lg overflow-hidden"
+                >
+                  @if (member.avatarUrl) {
+                    <img [ngSrc]="member.avatarUrl" class="w-full h-full object-cover" width="48" height="48" alt="Member Avatar" />
+                  } @else {
+                    {{ member.firstName[0] }}{{ member.lastName[0] }}
+                  }
+                </div>
+
+                <div>
+                  <div class="flex items-center gap-3">
+                    <h3 class="font-semibold text-foreground">{{ member.firstName }} {{ member.lastName }}</h3>
+                    @switch (member.role) {
+                      @case ('ADMIN') {
+                        <p-badge value="Admin" />
+                      }
+                      @case ('MEMBER') {
+                        <p-badge value="Member" severity="secondary" />
+                      }
+                    }
+                  </div>
+                  <div class="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-envelope"></i>
+                      {{ member.email }}
+                    </span>
+                    <span>•</span>
+                    <span>Joined {{ member.joinedAt | date }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                @if ((userRole$ | async) === 'Admin') {
+                  @if (member.id !== (userId$ | async)) {
+                    <p-button [label]="member.role === 'ADMIN' ? 'Make Member' : 'Make Admin'" size="small" variant="outlined" (click)="onRoleChange(member.id, member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN')"/>
+                  }
+                  <p-button icon="pi pi-trash" size="small" variant="text" (click)="onRemoveMember(member.email)" />
+                }
+              </div>
+            </div>
+          </p-card>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="flex justify-center pt-4">
+    <p-paginator
+      [first]="first()"
+      [rows]="rows()"
+      [totalRecords]="(totalCount$ | async) || 0"
+      (onPageChange)="onPageChange($event)"
+    />
+  </div>
+</div>
+
+<p-dialog header="Invite Members" [modal]="true" [(visible)]="visible" [style]="{ width: '32rem' }">
+  <div class="flex flex-col gap-4">
+    <div class="flex gap-2">
+      <input
+        pInputText
+        class="flex-auto"
+        placeholder="Enter email"
+        type="email"
+        [formControl]="emailInputControl"
+        pSize="small"
+      />
+      <p-button size="small" icon="pi pi-plus" label="Add" (click)="addEmailToInviteList()" [disabled]="!emailInputControl.valid || !emailInputControl.value" />
+    </div>
+
+    <div class="flex gap-2 flex-wrap">
+      @for (email of emailsToInvite(); track email) {
+        <p-chip [label]="email" [removable]="true" (onRemove)="removeEmailFromInviteList(email)" size="small" />
+      }
+    </div>
+  </div>
+
+  <p-divider />
+
+  <div class="flex items-center gap-2 mt-4">
+    <input
+      pInputText
+      id="invite-code"
+      class="flex-auto"
+      [value]="(inviteCode$ | async) || ''"
+      [disabled]="true"
+      pSize="small"
+    />
+    <p-button
+      [label]="isCopied() ? 'Copied!' : ''"
+      [icon]="isCopied() ? 'pi pi-check' : 'pi pi-copy'"
+      variant="outlined"
+      size="small"
+      (click)="copyInviteCode()"
+    />
+  </div>
+
+  <div class="flex justify-end gap-2 mt-4">
+    <p-button label="Cancel" size="small" variant="outlined" (click)="visible.set(false)" />
+    <p-button
+      label="Invite"
+      size="small"
+      (click)="onInvite()"
+      [disabled]="!emailsToInvite().length"
+    />
+  </div>
+</p-dialog>

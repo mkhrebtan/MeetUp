@@ -1,0 +1,41 @@
+<div class="p-8 max-w-7xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-foreground">Records</h1>
+    <p class="text-muted-foreground mt-1">Access your meeting recordings and shared content</p>
+  </div>
+
+  <div class="flex items-center gap-4 mb-6">
+    <div class="flex gap-2">
+      <p-button 
+        label="All" 
+        size="small" 
+        [variant]="(filter$ | async) === 'ALL' ? undefined : 'outlined'" 
+        (onClick)="setFilter('ALL')" />
+      <p-button 
+        label="My Records" 
+        size="small" 
+        [variant]="(filter$ | async) === 'MY' ? undefined : 'outlined'" 
+        (onClick)="setFilter('MY')" />
+      <p-button 
+        label="Shared With Me" 
+        size="small" 
+        [variant]="(filter$ | async) === 'SHARED' ? undefined : 'outlined'" 
+        (onClick)="setFilter('SHARED')" />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (recording of recordings$ | async; track recording.key) {
+      <app-recording-card 
+        [recording]="recording" 
+        (playRecording)="onPlay(recording)" 
+        (share)="onShare(recording)"
+        (delete)="onDelete(recording)"
+        [isShared]="recording.ownerName === undefined" />
+    }
+  </div>
+
+  @if (shareModalVisible$ | async) {
+    <app-share-recording-modal />
+  }
+</div>

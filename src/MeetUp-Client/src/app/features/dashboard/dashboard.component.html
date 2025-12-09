@@ -1,0 +1,61 @@
+<div class="p-8 mx-auto flex flex-col h-full">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      @if (user$ | async; as user) {
+        <h1 class="text-3xl font-bold text-foreground text-balance">Welcome back, {{ user.firstName }}</h1>
+      }
+      <p class="text-muted-foreground mt-1">Here's what's happening with your workspace today</p>
+    </div>
+    @if (canCreateMeeting()) {
+      <p-button icon="pi pi-plus" label="New Metting" size="small" routerLink="../meetings/create" />
+    }
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    @if (statsLoading$ | async; as loading) {
+      @for (i of statsIcons; track $index) {
+        <app-kpi-card [stat]="null" [loading]="loading" [icon]="statsIcons[$index]" />
+      }
+    } @else if (stats$ | async; as stats) {
+      <app-kpi-card [stat]="stats.lastWeekMeetings" [loading]="false" [icon]="statsIcons[0]" />
+      <app-kpi-card [stat]="stats.lastWeekTotalHours" [loading]="false" [icon]="statsIcons[1]" />
+      <app-kpi-card [stat]="stats.totalMembers" [loading]="false" [icon]="statsIcons[2]" />
+    }
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 grow">
+    <p-card class="h-full">
+      <div class="p-6 pt-1 space-y-1">
+        <h2 class="text-xl font-bold text-center">Upcoming Meetings</h2>
+      </div>
+      <div class="flex flex-col gap-2">
+        @if (meetingsLoading$ | async) {
+          @for (i of [1, 2, 3]; track i) {
+            <app-upcoming-meeting-skeleton />
+          }
+        } @else {
+          @for (meeting of upcomingMeetings$ | async; track meeting.id) {
+            <app-upcoming-meeting-item [meeting]="meeting" />
+          }
+        }
+      </div>
+    </p-card>
+
+    <p-card class="h-full">
+      <div class="p-6 pt-1 space-y-1">
+        <h2 class="text-xl font-bold text-center">Recent Records</h2>
+      </div>
+      <div class="flex flex-col gap-2">
+        @if (recordingsLoading$ | async) {
+          @for (i of [1, 2, 3]; track i) {
+            <app-recent-record-skeleton />
+          }
+        } @else {
+          @for (record of recentRecordings$ | async; track record.key) {
+            <app-recent-record-item [record]="record" />
+          }
+        }
+      </div>
+    </p-card>
+  </div>
+</div>

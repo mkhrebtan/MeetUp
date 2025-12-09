@@ -1,0 +1,121 @@
+import { inject, Injectable } from '@angular/core';
+import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { AuthActions } from './auth.actions';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+
+@Injectable()
+export class AuthEffects {
+  private actions$ = inject(Actions);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  init$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.init),
+      switchMap(() =>
+        this.authService.fetchUser().pipe(
+          map((user) => AuthActions.initSuccess({ user })),
+          catchError((error) =>
+            of(
+              AuthActions.initFailure({
+                error: error.error.detail ?? 'An unknown error occurred',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+
+  login$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.login),
+      switchMap(({ credentials }) =>
+        this.authService.login(credentials).pipe(
+          map((user) => AuthActions.loginSuccess({ user })),
+          catchError((error) => {
+            if (error.status === 401) {
+              return of(AuthActions.loginFailure({ error: 'Invalid credentials' }));
+            } else {
+              return of(
+                AuthActions.loginFailure({
+                  error: error.error.detail ?? 'An unknown error occurred',
+                }),
+              );
+            }
+          }),
+        ),
+      ),
+    ),
+  );
+
+  register$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.register),
+      switchMap(({ userData }) =>
+        this.authService.register(userData).pipe(
+          map(() => AuthActions.registerSuccess()),
+          catchError((error) => {
+            if (error.status === 409) {
+              return of(AuthActions.registerFailure({ error: 'Email already in use' }));
+            } else {
+              return of(
+                AuthActions.registerFailure({
+                  error: error.error.detail ?? 'An unknown error occurred',
+                }),
+              );
+            }
+          }),
+        ),
+      ),
+    ),
+  );
+
+  logout$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(AuthActions.logout),
+      tap(() => this.authService.logout()),
+      map(() => AuthActions.logoutSuccess()),
+      catchError((error) => of(AuthActions.logoutFailure({ error: error.error.detail }))),
+    ),
+  );
+
+  loginSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loginSuccess),
+        tap(() => this.router.navigate(['workspace'])),
+      ),
+    { dispatch: false },
+  );
+
+  registerSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.registerSuccess),
+        tap(() => this.router.navigate(['/auth/login'])),
+      ),
+    { dispatch: false },
+  );
+
+  logoutSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.logoutSuccess),
+        tap(() => this.router.navigate(['/auth/login'])),
+      ),
+    { dispatch: false },
+  );
+
+  redirectToAuth$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.initFailure),
+        tap(() => this.router.navigate(['/auth/login'])),
+      ),
+    { dispatch: false },
+  );
+}

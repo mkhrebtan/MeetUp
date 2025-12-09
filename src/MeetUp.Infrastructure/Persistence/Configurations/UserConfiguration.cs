@@ -1,0 +1,37 @@
+using MeetUp.Domain.Enums;
+using MeetUp.Domain.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace MeetUp.Infrastructure.Persistence.Configurations;
+
+public class UserConfiguration : IEntityTypeConfiguration<User>
+{
+    public void Configure(EntityTypeBuilder<User> builder)
+    {
+        builder.HasKey(u => u.Id);
+
+        builder.Property(u => u.FirstName)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(u => u.LastName)
+            .IsRequired()
+            .HasMaxLength(100);
+
+        builder.Property(u => u.Email)
+            .IsRequired()
+            .HasMaxLength(255);
+
+        builder.HasIndex(u => u.Email)
+            .IsUnique();
+
+        builder.Property(u => u.AvatarUrl)
+            .HasMaxLength(500);
+        
+        builder.Property(wu => wu.Role)
+            .HasConversion(
+                r => r.ToString(),
+                r => WorkspaceRole.FromCode(r)!);
+    }
+}
