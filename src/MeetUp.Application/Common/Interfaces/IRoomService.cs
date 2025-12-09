@@ -12,6 +12,8 @@ public interface IRoomService
     Task<Result> UpdateRoomMetadata(Guid meetingId, RoomMetadata metadata);
 
     Task<Result> DeleteRoom(Guid meetingId);
+    
+    Task<Result> RemoveParticipant(string room, string participant);
 }
 
 public record RoomMetadata

@@ -115,9 +115,12 @@ import { RoomMetadata } from '../../models/room-metadata.model';
         </div>
         @if (isParticipantsSidebarVisible()) {
           <app-participants-sidebar
+            [localParticipant]="room().localParticipant"
+            [isHost]="meeting().isHost"
             class="shrink-0 w-1/4 xl:w-1/5 animate-slidein"
             [participants]="participantsList.items()"
             (closed)="toggleParticipantsSidebar()"
+            (removeParticipant)="onRemoveParticipant($event)"
           />
         }
         @if (isChatVisible()) {
@@ -421,6 +424,25 @@ export class MeetingRoomComponent implements OnInit, AfterViewInit, OnDestroy {
           severity: 'error',
           summary: 'Error',
           detail: error.error.detail || 'Failed to end meeting',
+        });
+      },
+    });
+  }
+
+  onRemoveParticipant(participant: Participant) {
+    this.livekitService.removeParticipant(this.room().name, participant.identity).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Participant Removed',
+          detail: `${participant.name} has been removed from the meeting`,
+        });
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error.detail || `Failed to remove ${participant.name}`,
         });
       },
     });

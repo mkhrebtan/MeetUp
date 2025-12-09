@@ -1,6 +1,7 @@
 ﻿import { Component, computed, input, output } from '@angular/core';
-import { Participant } from 'livekit-client';
+import { LocalParticipant, Participant } from 'livekit-client';
 import { ScrollPanel } from 'primeng/scrollpanel';
+import { Button } from "primeng/button";
 
 @Component({
   selector: 'app-participants-sidebar',
@@ -22,16 +23,23 @@ import { ScrollPanel } from 'primeng/scrollpanel';
       <p-scroll-panel class="h-full">
         <ul class="flex flex-col gap-2">
           @for (participant of sortedParticipants(); track participant.identity) {
-            <li class="bg-neutral-900/50 rounded-xl py-2 px-4">{{ participant.name }}</li>
+            <li class="bg-neutral-900/50 rounded-xl py-2 px-4 flex items-center justify-between">
+              {{ participant.name }}
+              @if (isHost() && participant.identity !== localParticipant().identity) {
+                <p-button icon="pi pi-trash" variant="text" severity="danger" size="small" (click)="onRemoveParticipant(participant)" />
+              }
+            </li>
           }
         </ul>
       </p-scroll-panel>
     </div>
   `,
   styles: [],
-  imports: [ScrollPanel],
+  imports: [ScrollPanel, Button],
 })
 export class ParticipantsSidebarComponent {
+  localParticipant = input.required<LocalParticipant>();
+  isHost = input.required<boolean>();
   closed = output();
   participants = input.required<Participant[]>();
   sortedParticipants = computed(() => {
@@ -46,7 +54,13 @@ export class ParticipantsSidebarComponent {
     });
   });
 
+  removeParticipant = output<Participant>();
+
   onClose() {
     this.closed.emit();
+  }
+
+  onRemoveParticipant(participant: Participant) {
+    this.removeParticipant.emit(participant);
   }
 }

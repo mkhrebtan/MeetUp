@@ -45,4 +45,8 @@ export class LivekitService {
       recordingId,
     });
   }
+
+  removeParticipant(meetingId: string, participantIdentity: string) {
+    return this.apiService.delete(`livekit/room/${meetingId}/participant/${participantIdentity}`);
+  }
 }

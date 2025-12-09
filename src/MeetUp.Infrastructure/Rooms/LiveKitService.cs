@@ -88,6 +88,18 @@ public class LiveKitService(IOptions<LiveKitSettings> settings) : IRoomService
         return Result.Success();
     }
 
+    public async Task<Result> RemoveParticipant(string room, string participant)
+    {
+        var removeParticipantRequest = new RoomParticipantIdentity
+        {
+            Room = room,
+            Identity = participant,
+        };
+        
+        await _roomServiceClient.RemoveParticipant(removeParticipantRequest);
+        return Result.Success();
+    }
+
     private async Task<bool> RoomExistsAsync(Guid meetingId)
     {
         var request = new ListRoomsRequest

@@ -9,6 +9,7 @@ using MeetUp.Application.Recordings.Queries.GetUserRecordings;
 using MeetUp.Application.Recordings.Queries.GetWorkspaceMembersWithoutRecordingAccess;
 using MeetUp.Application.Rooms.Commands.AccessToken;
 using MeetUp.Application.Rooms.Commands.Delete;
+using MeetUp.Application.Rooms.Commands.RemoveParticipant;
 using MeetUp.Application.Rooms.Commands.StartRecord;
 using MeetUp.Application.Rooms.Commands.StopRecord;
 using MeetUp.Application.Rooms.Commands.UpdateMetadata;
@@ -150,5 +151,18 @@ public class LiveKitController(IConfiguration configuration) : ApiControllerBase
         var query = new GetWorkspaceMembersWithoutRecordingAccessQuery(workspaceId, decodedKey);
         var result = await handler.Handle(query, cancellationToken);
         return result.IsSuccess ? Results.Ok(result.Value) : result.GetProblem();
+    }
+    
+    [HttpDelete("room/{room}/participant/{participant}")]
+    [Authorize]
+    public async Task<IResult> RemoveParticipant(
+        string room,
+        string participant,
+        [FromServices] ICommandHandler<RemoveParticipantCommand> handler,
+        CancellationToken cancellationToken)
+    {
+        var command = new RemoveParticipantCommand(room, participant);
+        var result = await handler.Handle(command, cancellationToken);
+        return result.IsSuccess ? Results.NoContent() : result.GetProblem();
     }
 }
